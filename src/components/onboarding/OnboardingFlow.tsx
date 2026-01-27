@@ -24,7 +24,9 @@ interface OnboardingFlowProps {
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
   const [isAnimating, setIsAnimating] = useState(false);
-  const [gatewayUrl, setGatewayUrl] = useState("ws://localhost:18789");
+  const [gatewayUrl, setGatewayUrl] = useState(
+    import.meta.env.VITE_DEFAULT_GATEWAY_URL || "ws://localhost:18789"
+  );
   const [gatewayToken, setGatewayToken] = useState("");
 
   // Keyboard navigation
