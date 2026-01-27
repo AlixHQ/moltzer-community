@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useStore, Conversation } from "../stores/store";
 import { SettingsDialog } from "./SettingsDialog";
 import { SearchDialog } from "./SearchDialog";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { ExportDialog } from "./ExportDialog";
+import { EmptyState } from "./ui/empty-state";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -66,9 +67,9 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [createConversation]);
 
-  // Search across both titles and message content
+  // Search across both titles and message content (using debounced query for performance)
   const filteredConversations = conversations.filter((c) => {
-    const query = searchQuery.toLowerCase();
+    const query = debouncedSearchQuery.toLowerCase();
     if (!query) return true;
     
     // Check title
@@ -104,8 +105,8 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
           data-tauri-drag-region
         >
           <div className="flex items-center gap-2" data-tauri-drag-region>
-            <span className="text-2xl select-none" role="img" aria-label="Molt logo">🦞</span>
-            <span className="font-semibold text-lg select-none">Molt</span>
+            <span className="text-2xl select-none" role="img" aria-label="Moltzer logo">🦞</span>
+            <span className="font-semibold text-lg select-none">Moltzer</span>
           </div>
           <div className="flex items-center gap-1.5 ml-auto" role="status" aria-live="polite">
             <span className="relative flex w-2 h-2">
