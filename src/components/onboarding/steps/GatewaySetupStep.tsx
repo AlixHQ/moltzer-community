@@ -3,6 +3,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { useStore } from "../../../stores/store";
 import { cn } from "../../../lib/utils";
 import { Spinner } from "../../ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../ui/tooltip";
 
 interface GatewaySetupStepProps {
   gatewayUrl: string;
@@ -235,6 +241,33 @@ export function GatewaySetupStep({
               <label className="block text-sm font-medium mb-2">
                 Authentication Token{" "}
                 <span className="text-muted-foreground font-normal">(optional)</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-xs rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+                        aria-label="Token info"
+                      >
+                        ?
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="font-medium mb-1">When do I need this?</p>
+                      <p className="text-muted-foreground mb-2">
+                        Required if your Gateway has authentication enabled (most setups do).
+                      </p>
+                      <p className="font-medium mb-1">Where do I find it?</p>
+                      <p className="text-muted-foreground">
+                        Check your Gateway config file or ask your admin. Run{" "}
+                        <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                          clawdbot gateway status
+                        </code>{" "}
+                        to see if auth is enabled.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </label>
               <input
                 type="password"
