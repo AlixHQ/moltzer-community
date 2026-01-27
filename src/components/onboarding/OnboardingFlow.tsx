@@ -6,6 +6,9 @@ import { SuccessStep } from "./steps/SuccessStep";
 import { FeatureTourStep } from "./steps/FeatureTourStep";
 import { cn } from "../../lib/utils";
 
+// Check if running on macOS
+const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
+
 export type OnboardingStep = 
   | "welcome"
   | "explainer"
@@ -131,7 +134,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
       {/* Skip hint (only on first few steps) */}
       {["welcome", "explainer", "setup"].includes(currentStep) && (
-        <div className="absolute top-4 right-4 text-xs text-muted-foreground animate-in fade-in duration-500 delay-1000">
+        <div className={cn(
+          "absolute right-4 text-xs text-muted-foreground animate-in fade-in duration-500 delay-1000",
+          isMacOS ? "top-2" : "top-4"
+        )}>
           Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Esc</kbd> to skip
         </div>
       )}
