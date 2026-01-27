@@ -9,10 +9,12 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Switch } from "./ui/switch";
+import { useToast } from "./ui/toast";
 
 interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
+  onRerunSetup?: () => void;
 }
 
 // Result from the connect command
@@ -33,21 +35,42 @@ const FALLBACK_MODELS: ModelInfo[] = [
   { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
 ];
 
-export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
+export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogProps) {
   const { settings, updateSettings, connected, setConnected, availableModels, setAvailableModels, modelsLoading, setModelsLoading } = useStore();
+  const { showSuccess, showError: showToastError } = useToast();
   const [formData, setFormData] = useState(settings);
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [protocolNotice, setProtocolNotice] = useState<string | null>(null);
+  const [showToken, setShowToken] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   // Only sync form data when dialog opens, not when settings reference changes
   // This prevents reverting edits when the store updates during typing
   useEffect(() => {
     if (open) {
       setFormData(settings);
+      setShowToken(false);
+      setUrlError(null);
+      setError(null);
+      setProtocolNotice(null);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Keyboard shortcut: Escape to close
+  useEffect(() => {
+    if (!open) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
 
   // Fetch models when dialog opens and connected
   useEffect(() => {
@@ -55,6 +78,44 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
       fetchModels();
     }
   }, [open, connected]);
+
+  // Validate URL and suggest wss:// for non-localhost
+  const validateUrl = (url: string): string | null => {
+    if (!url.trim()) {
+      return "Gateway URL is required";
+    }
+    
+    try {
+      // Check if it's a valid WebSocket URL
+      if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
+        return "URL must start with ws:// or wss://";
+      }
+      
+      // Parse URL to check validity
+      const urlObj = new URL(url);
+      
+      // Suggest wss:// for non-localhost URLs (security best practice)
+      if (url.startsWith("ws://") && !urlObj.hostname.match(/^(localhost|127\.0\.0\.1|::1|\[::1\])$/)) {
+        return "⚠️ Consider using wss:// (secure WebSocket) for remote connections";
+      }
+      
+      return null;
+    } catch {
+      return "Invalid URL format";
+    }
+  };
+
+  // Update URL with validation
+  const handleUrlChange = (newUrl: string) => {
+    setFormData({ ...formData, gatewayUrl: newUrl });
+    const error = validateUrl(newUrl);
+    setUrlError(error?.startsWith("⚠️") ? null : error); // Only show hard errors
+    if (error?.startsWith("⚠️")) {
+      setProtocolNotice(error.replace("⚠️ ", ""));
+    } else {
+      setProtocolNotice(null);
+    }
+  };
 
   const fetchModels = async () => {
     setModelsLoading(true);
@@ -71,8 +132,18 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   };
 
   const handleSave = async () => {
+    // Validate URL before saving
+    const urlValidation = validateUrl(formData.gatewayUrl);
+    if (urlValidation && !urlValidation.startsWith("⚠️")) {
+      setUrlError(urlValidation);
+      showToastError("Please fix the errors before saving");
+      return;
+    }
+    
     // Try to reconnect with new settings
-    if (formData.gatewayUrl !== settings.gatewayUrl || formData.gatewayToken !== settings.gatewayToken) {
+    const needsReconnect = formData.gatewayUrl !== settings.gatewayUrl || formData.gatewayToken !== settings.gatewayToken;
+    
+    if (needsReconnect) {
       setConnectionStatus("connecting");
       setError(null);
       setProtocolNotice(null);
@@ -86,19 +157,24 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
         
         // If protocol was switched, save the working URL
         if (result.protocol_switched) {
-          updateSettings({ ...formData, gatewayUrl: result.used_url });
+          await updateSettings({ ...formData, gatewayUrl: result.used_url });
         } else {
-          updateSettings(formData);
+          await updateSettings(formData);
         }
+        
+        showSuccess("Settings saved successfully");
       } catch (err: any) {
         setConnectionStatus("error");
         setError(err.toString());
         setConnected(false);
         // Still save settings even if connection failed
-        updateSettings(formData);
+        await updateSettings(formData);
+        showToastError("Settings saved, but connection failed");
+        return; // Don't close dialog on error
       }
     } else {
-      updateSettings(formData);
+      await updateSettings(formData);
+      showSuccess("Settings saved successfully");
     }
     
     onClose();
@@ -186,10 +262,18 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 <input
                   type="text"
                   value={formData.gatewayUrl}
-                  onChange={(e) => setFormData({ ...formData, gatewayUrl: e.target.value })}
+                  onChange={(e) => handleUrlChange(e.target.value)}
                   placeholder="ws://localhost:18789"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className={cn(
+                    "w-full px-3 py-2 rounded-lg border bg-muted/30 focus:outline-none focus:ring-2",
+                    urlError 
+                      ? "border-destructive focus:ring-destructive/50" 
+                      : "border-border focus:ring-primary/50"
+                  )}
                 />
+                {urlError && (
+                  <p className="text-sm text-destructive mt-1.5">{urlError}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">
@@ -223,37 +307,74 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     </Tooltip>
                   </TooltipProvider>
                 </label>
-                <input
-                  type="password"
-                  value={formData.gatewayToken}
-                  onChange={(e) => setFormData({ ...formData, gatewayToken: e.target.value })}
-                  placeholder="Leave blank if not required"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleTestConnection}
-                  disabled={connectionStatus === "connecting"}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                    "border border-border hover:bg-muted",
-                    connectionStatus === "connecting" && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  {connectionStatus === "connecting" ? "Connecting..." : "Test Connection"}
-                </button>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-colors",
-                      connected ? "bg-green-500" : "bg-red-500"
-                    )}
+                <div className="relative">
+                  <input
+                    type={showToken ? "text" : "password"}
+                    value={formData.gatewayToken}
+                    onChange={(e) => setFormData({ ...formData, gatewayToken: e.target.value })}
+                    placeholder="Stored securely in OS keychain"
+                    className="w-full px-3 py-2 pr-10 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
-                  <span className="text-sm text-muted-foreground">
-                    {connected ? "Connected" : "Disconnected"}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowToken(!showToken)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+                    aria-label={showToken ? "Hide token" : "Show token"}
+                    title={showToken ? "Hide token" : "Show token"}
+                  >
+                    {showToken ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  🔒 Token is stored securely in your OS keychain (not in browser storage)
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleTestConnection}
+                    disabled={connectionStatus === "connecting"}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "border border-border hover:bg-muted",
+                      connectionStatus === "connecting" && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    {connectionStatus === "connecting" ? "Connecting..." : "Test Connection"}
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-colors",
+                        connected ? "bg-green-500" : "bg-red-500"
+                      )}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {connected ? "Connected" : "Disconnected"}
+                    </span>
+                  </div>
+                </div>
+                {onRerunSetup && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onRerunSetup();
+                    }}
+                    className="px-3 py-2 rounded-lg text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 border border-blue-500/20 transition-colors"
+                    title="Run the setup wizard again"
+                  >
+                    Re-run Setup
+                  </button>
+                )}
               </div>
               {error && (
                 <p className="text-sm text-destructive">{error}</p>

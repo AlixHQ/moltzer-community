@@ -21,9 +21,10 @@ const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCa
 
 interface SidebarProps {
   onToggle: () => void;
+  onRerunSetup?: () => void;
 }
 
-export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
+export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
   const {
     conversations,
     currentConversationId,
@@ -213,7 +214,11 @@ export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
       </div>
 
       {/* Dialogs */}
-      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDialog 
+        open={settingsOpen} 
+        onClose={() => setSettingsOpen(false)}
+        onRerunSetup={onRerunSetup}
+      />
       <SearchDialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} />
     </div>
   );

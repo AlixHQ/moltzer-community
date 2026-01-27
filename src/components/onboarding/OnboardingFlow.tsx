@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { WelcomeStep } from "./steps/WelcomeStep";
+import { DetectionStep } from "./steps/DetectionStep";
+import { NoGatewayStep } from "./steps/NoGatewayStep";
 import { GatewayExplainerStep } from "./steps/GatewayExplainerStep";
 import { GatewaySetupStep } from "./steps/GatewaySetupStep";
 import { SuccessStep } from "./steps/SuccessStep";
@@ -11,11 +13,20 @@ const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCa
 
 export type OnboardingStep = 
   | "welcome"
+  | "detection"
+  | "no-gateway"
   | "explainer"
   | "setup"
   | "success"
   | "tour"
   | "complete";
+
+interface OnboardingProgress {
+  step: string;
+  gatewayUrl?: string;
+  gatewayToken?: string;
+  timestamp: number;
+}
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -28,6 +39,27 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     import.meta.env.VITE_DEFAULT_GATEWAY_URL || "ws://localhost:18789"
   );
   const [gatewayToken, setGatewayToken] = useState("");
+
+  // Restore progress on mount
+  useEffect(() => {
+    const savedProgress = localStorage.getItem('molt-onboarding-progress');
+    if (savedProgress) {
+      try {
+        const progress: OnboardingProgress = JSON.parse(savedProgress);
+        // If saved within last 24 hours, restore
+        if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
+          if (progress.gatewayUrl) setGatewayUrl(progress.gatewayUrl);
+          if (progress.gatewayToken) setGatewayToken(progress.gatewayToken);
+          // Start at detection if we have partial progress
+          if (progress.step === 'setup-started' || progress.step === 'detection-failed') {
+            setCurrentStep('detection');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to restore onboarding progress:', err);
+      }
+    }
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -69,10 +101,55 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     onComplete();
   };
 
+  const handleGatewayFound = (url: string) => {
+    setGatewayUrl(url);
+    // Skip directly to success when auto-detected
+    handleNext("success");
+  };
+
+  const handleNoGateway = () => {
+    // Save progress
+    localStorage.setItem('molt-onboarding-progress', JSON.stringify({
+      step: 'detection-failed',
+      timestamp: Date.now()
+    }));
+    handleNext("no-gateway");
+  };
+
+  const handleRetryDetection = () => {
+    handleNext("detection");
+  };
+
+  const handleManualSetup = () => {
+    // Save progress
+    localStorage.setItem('molt-onboarding-progress', JSON.stringify({
+      step: 'setup-started',
+      gatewayUrl,
+      gatewayToken,
+      timestamp: Date.now()
+    }));
+    handleNext("setup");
+  };
+
   const steps: Record<OnboardingStep, JSX.Element> = {
     welcome: (
       <WelcomeStep
-        onNext={() => handleNext("explainer")}
+        onNext={() => handleNext("detection")}
+        onSkip={handleSkip}
+      />
+    ),
+    detection: (
+      <DetectionStep
+        onGatewayFound={handleGatewayFound}
+        onNoGateway={handleNoGateway}
+        onSkip={handleSkip}
+      />
+    ),
+    "no-gateway": (
+      <NoGatewayStep
+        onRetryDetection={handleRetryDetection}
+        onManualSetup={handleManualSetup}
+        onBack={() => handleBack("welcome")}
         onSkip={handleSkip}
       />
     ),
@@ -90,7 +167,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         onGatewayUrlChange={setGatewayUrl}
         onGatewayTokenChange={setGatewayToken}
         onSuccess={() => handleNext("success")}
-        onBack={() => handleBack("explainer")}
+        onBack={() => handleBack("no-gateway")}
         onSkip={handleSkip}
       />
     ),
@@ -109,9 +186,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     complete: <></>, // Should never render
   };
 
-  // Progress indicator
-  const stepOrder: OnboardingStep[] = ["welcome", "explainer", "setup", "success", "tour"];
-  const currentStepIndex = stepOrder.indexOf(currentStep);
+  // Progress indicator (only count main steps, not detection/no-gateway)
+  const stepOrder: OnboardingStep[] = ["welcome", "detection", "setup", "success", "tour"];
+  let currentStepIndex = stepOrder.indexOf(currentStep);
+  // Treat no-gateway as same progress as detection
+  if (currentStep === "no-gateway") {
+    currentStepIndex = stepOrder.indexOf("detection");
+  }
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100;
 
   return (
@@ -135,7 +216,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       </div>
 
       {/* Skip hint (only on first few steps) */}
-      {["welcome", "explainer", "setup"].includes(currentStep) && (
+      {["welcome", "detection", "no-gateway", "explainer", "setup"].includes(currentStep) && (
         <div className={cn(
           "absolute right-4 text-xs text-muted-foreground animate-in fade-in duration-500 delay-1000",
           isMacOS ? "top-2" : "top-4"

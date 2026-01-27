@@ -121,16 +121,16 @@ export function ChatView() {
       {/* Scroll to bottom button */}
       {!isNearBottom && hasMessages && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <button
+          <Button
             onClick={scrollToBottom}
-            className="px-4 py-2 bg-background border border-border rounded-full shadow-lg hover:bg-muted hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            variant="outline"
+            size="sm"
+            className="shadow-lg hover:shadow-xl hover:scale-105"
+            leftIcon={<ArrowDown className="w-4 h-4" />}
             aria-label="Scroll to bottom of conversation"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-            <span className="text-sm font-medium">Jump to bottom</span>
-          </button>
+            Jump to bottom
+          </Button>
         </div>
       )}
 
@@ -139,9 +139,7 @@ export function ChatView() {
         <div className="px-4 py-3 bg-destructive/10 border-t border-destructive/20 animate-in slide-in-from-bottom duration-200">
           <div className="max-w-3xl mx-auto flex items-start justify-between gap-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <svg className="w-5 h-5 flex-shrink-0 text-destructive mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+              <AlertTriangle className="w-5 h-5 flex-shrink-0 text-destructive mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-destructive mb-0.5">Message Send Failed</p>
                 <p className="text-xs text-destructive/80 break-words">{error}</p>
@@ -152,9 +150,7 @@ export function ChatView() {
               className="flex-shrink-0 p-1 text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
               aria-label="Dismiss error"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -164,9 +160,7 @@ export function ChatView() {
       {!connected && (
         <div className="px-4 py-2 bg-amber-500/10 border-t border-amber-500/20 animate-in slide-in-from-bottom duration-200">
           <div className="max-w-3xl mx-auto flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             <span>Not connected to Gateway. Messages won't be sent.</span>
           </div>
         </div>
@@ -190,14 +184,7 @@ function EmptyConversation() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in duration-500">
       <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-400/10 to-red-500/10 mb-6 shadow-sm animate-in zoom-in-95 duration-500" style={{ animationDelay: "100ms" }}>
-        <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
+        <MessageSquare className="w-10 h-10 text-primary" strokeWidth={1.5} />
       </div>
       <h2 className="text-xl font-semibold mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500" style={{ animationDelay: "200ms" }}>
         Start your conversation

@@ -2,6 +2,7 @@ import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { cn } from "../lib/utils";
 import { Spinner } from "./ui/spinner";
+import { Paperclip, Send, X } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (content: string, attachments: File[]) => void;
@@ -80,22 +81,14 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
               key={i}
               className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg text-sm group hover:bg-muted/80 transition-colors"
             >
-              <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                />
-              </svg>
+              <Paperclip className="w-4 h-4 text-muted-foreground" />
               <span className="truncate max-w-[150px]">{file.name}</span>
               <button
                 onClick={() => removeAttachment(i)}
                 className="p-0.5 text-muted-foreground hover:text-foreground hover:bg-background rounded transition-colors"
+                aria-label={`Remove ${file.name}`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
@@ -121,15 +114,9 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
             disabled && "cursor-not-allowed"
           )}
           title="Attach files"
+          aria-label="Attach files"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-            />
-          </svg>
+          <Paperclip className="w-5 h-5" />
         </button>
 
         {/* Text input */}
@@ -182,22 +169,12 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           {isSending ? (
             <Spinner size="sm" className="border-primary-foreground border-t-transparent" />
           ) : (
-            <svg 
+            <Send 
               className={cn(
                 "w-5 h-5 transition-transform duration-200",
                 canSend && "translate-x-0.5"
-              )} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
+              )}
+            />
           )}
         </button>
       </div>
