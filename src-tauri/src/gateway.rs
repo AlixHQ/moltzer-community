@@ -169,28 +169,57 @@ struct AuthInfo {
     token: String,
 }
 
-/// Try to connect with protocol fallback (ws:// <-> wss://)
+/// Try to connect with protocol fallback (ws:// <-> wss://) with timeout
 async fn try_connect_with_fallback(url: &str) -> Result<(tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, String, bool), String> {
+    // Connection timeout: 5 seconds (prevents UI freezing)
+    let timeout_duration = std::time::Duration::from_secs(5);
+    
     // First, try the URL as provided
-    match connect_async(url).await {
-        Ok((stream, _)) => return Ok((stream, url.to_string(), false)),
-        Err(first_err) => {
-            // Try alternate protocol
+    let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
+    
+    match first_attempt {
+        Ok(Ok((stream, _))) => return Ok((stream, url.to_string(), false)),
+        Ok(Err(first_err)) => {
+            // Connection failed, try alternate protocol
             let alternate_url = if url.starts_with("ws://") {
                 url.replacen("ws://", "wss://", 1)
             } else if url.starts_with("wss://") {
                 url.replacen("wss://", "ws://", 1)
             } else {
                 // Not a WebSocket URL, can't switch protocol
-                return Err(format!("Failed to connect: {}", first_err));
+                return Err(format!("Connection failed: {}", first_err));
             };
             
-            match connect_async(&alternate_url).await {
-                Ok((stream, _)) => Ok((stream, alternate_url, true)),
-                Err(_) => {
-                    // Both failed, return original error
-                    Err(format!("Failed to connect: {}", first_err))
+            // Try alternate protocol with timeout
+            let second_attempt = tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+            
+            match second_attempt {
+                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                Ok(Err(_)) => {
+                    // Both failed, return user-friendly error
+                    Err(format!("Unable to connect to Gateway. Please check:\n• Gateway is running\n• URL is correct ({})\n• Network connection is active", url))
                 }
+                Err(_) => {
+                    // Timeout on second attempt
+                    Err(format!("Connection timeout. Gateway at {} is not responding.", alternate_url))
+                }
+            }
+        }
+        Err(_) => {
+            // Timeout on first attempt, try alternate anyway
+            let alternate_url = if url.starts_with("ws://") {
+                url.replacen("ws://", "wss://", 1)
+            } else if url.starts_with("wss://") {
+                url.replacen("wss://", "ws://", 1)
+            } else {
+                return Err(format!("Connection timeout. Gateway at {} is not responding.", url));
+            };
+            
+            let second_attempt = tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+            
+            match second_attempt {
+                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                _ => Err(format!("Connection timeout. Gateway is not responding after {} seconds.", timeout_duration.as_secs() * 2))
             }
         }
     }

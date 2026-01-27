@@ -9,28 +9,43 @@ use keyring::Entry;
 use tauri::State;
 
 /// Get a value from the keychain
+/// Uses spawn_blocking to prevent UI freezing on macOS
 #[tauri::command]
 pub async fn keychain_get(service: String, key: String) -> Result<String, String> {
-    let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
-    entry.get_password().map_err(|e| e.to_string())
+    tokio::task::spawn_blocking(move || {
+        let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
+        entry.get_password().map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 /// Set a value in the keychain
+/// Uses spawn_blocking to prevent UI freezing on macOS
 #[tauri::command]
 pub async fn keychain_set(
     service: String,
     key: String,
     value: String,
 ) -> Result<(), String> {
-    let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
-    entry.set_password(&value).map_err(|e| e.to_string())
+    tokio::task::spawn_blocking(move || {
+        let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
+        entry.set_password(&value).map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 /// Delete a value from the keychain
+/// Uses spawn_blocking to prevent UI freezing on macOS
 #[tauri::command]
 pub async fn keychain_delete(service: String, key: String) -> Result<(), String> {
-    let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
-    entry.delete_credential().map_err(|e| e.to_string())
+    tokio::task::spawn_blocking(move || {
+        let entry = Entry::new(&service, &key).map_err(|e| e.to_string())?;
+        entry.delete_credential().map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[cfg(test)]

@@ -383,7 +383,7 @@ export const useStore = create<Store>()((set, get) => ({
 
       // Settings
       settings: {
-        gatewayUrl: "ws://localhost:18789", // Default for local development
+        gatewayUrl: "", // Empty by default - forces onboarding
         gatewayToken: "",
         defaultModel: "anthropic/claude-sonnet-4-5",
         thinkingDefault: false,

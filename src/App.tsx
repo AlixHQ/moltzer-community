@@ -32,6 +32,8 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
   const [retryNowFn, setRetryNowFn] = useState<(() => void) | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [cancelConnection, setCancelConnection] = useState<(() => void) | null>(null);
   const { toasts, dismissToast, showError, showSuccess } = useToast();
   const { 
     currentConversation,
@@ -44,19 +46,20 @@ export default function App() {
 
   // Check if this is first launch (onboarding needed)
   useEffect(() => {
-    const onboardingCompleted = localStorage.getItem('molt-onboarding-completed');
-    const onboardingSkipped = localStorage.getItem('molt-onboarding-skipped');
-    const hasSettings = localStorage.getItem('molt-settings');
+    const APP_VERSION = "1.0.0"; // Should match package.json version
+    const storedVersion = localStorage.getItem('molt-app-version');
     
-    // Show onboarding if never completed and no settings configured
-    if (!onboardingCompleted && !onboardingSkipped && !hasSettings) {
-      setShowOnboarding(true);
-      setIsLoadingData(false);
-      setIsConnecting(false);
-      return;
+    // Version upgrade: Clear stale onboarding flags
+    if (storedVersion && storedVersion !== APP_VERSION) {
+      console.log(`App upgraded from ${storedVersion} to ${APP_VERSION} - clearing stale onboarding data`);
+      localStorage.removeItem('molt-onboarding-completed');
+      localStorage.removeItem('molt-onboarding-skipped');
+      localStorage.removeItem('molt-onboarding-progress');
     }
     
-    // Otherwise, load normally
+    // Store current version
+    localStorage.setItem('molt-app-version', APP_VERSION);
+    
     const loadData = async () => {
       try {
         // Load settings from localStorage + keychain
@@ -77,7 +80,37 @@ export default function App() {
       }
     };
 
-    loadData();
+    // Check if onboarding is needed AFTER loading settings
+    const checkOnboarding = async () => {
+      await loadData();
+      
+      const onboardingCompleted = localStorage.getItem('molt-onboarding-completed');
+      const onboardingSkipped = localStorage.getItem('molt-onboarding-skipped');
+      const currentSettings = useStore.getState().settings;
+      
+      // Check if Gateway URL is actually configured (not empty, not just whitespace, valid format)
+      const hasValidGatewayUrl = 
+        currentSettings.gatewayUrl && 
+        currentSettings.gatewayUrl.trim() !== "" &&
+        (currentSettings.gatewayUrl.startsWith("ws://") || currentSettings.gatewayUrl.startsWith("wss://"));
+      
+      // ALWAYS show onboarding if Gateway URL is not configured
+      // Otherwise, respect the onboarding completed/skipped flags
+      const needsOnboarding = !hasValidGatewayUrl || (!onboardingCompleted && !onboardingSkipped);
+      
+      if (needsOnboarding) {
+        console.log('Onboarding needed:', {
+          completed: !!onboardingCompleted,
+          skipped: !!onboardingSkipped,
+          hasValidUrl: hasValidGatewayUrl,
+          currentUrl: currentSettings.gatewayUrl
+        });
+        setShowOnboarding(true);
+        setIsConnecting(false);
+      }
+    };
+
+    checkOnboarding();
   }, [showError]);
 
   // Apply theme on mount and when settings change
@@ -123,11 +156,18 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sidebarOpen]);
 
-  // Connect to Gateway on mount (skip during onboarding)
+  // Connect to Gateway on mount (skip during onboarding or if no URL configured)
   useEffect(() => {
     // Don't attempt connection during onboarding
     if (showOnboarding) {
       setIsConnecting(false);
+      return;
+    }
+    
+    // Don't attempt connection if no Gateway URL is configured
+    if (!settings.gatewayUrl || settings.gatewayUrl.trim() === '') {
+      setIsConnecting(false);
+      setShowOnboarding(true); // Force onboarding if no URL
       return;
     }
 
@@ -135,27 +175,48 @@ export default function App() {
     let countdownInterval: number | undefined;
     let connectingFlag = false;
     let attempts = 0;
+    let cancelled = false;
 
     const clearTimers = () => {
       if (reconnectTimer) clearTimeout(reconnectTimer);
       if (countdownInterval) clearInterval(countdownInterval);
       setRetryCountdown(null);
       setRetryNowFn(null);
+      setCancelConnection(null);
     };
 
     const connectToGateway = async () => {
-      if (connectingFlag) return;
+      if (connectingFlag || cancelled) return;
       connectingFlag = true;
+      cancelled = false;
       clearTimers();
       setIsConnecting(true);
+      setConnectionError(null);
       attempts++;
       setReconnectAttempts(attempts);
+
+      // Set up cancel function
+      const cancelFn = () => {
+        cancelled = true;
+        connectingFlag = false;
+        setIsConnecting(false);
+        setConnectionError("Connection cancelled");
+        clearTimers();
+      };
+      setCancelConnection(() => cancelFn);
 
       try {
         const result = await invoke<ConnectResult>("connect", { 
           url: settings.gatewayUrl, 
           token: settings.gatewayToken 
         });
+        
+        // Check if cancelled during connection
+        if (cancelled) {
+          setIsConnecting(false);
+          setCancelConnection(null);
+          return;
+        }
         
         // If protocol was switched, update settings with the working URL
         if (result.protocol_switched) {
@@ -172,6 +233,8 @@ export default function App() {
           console.error("Failed to fetch models:", err);
         }
         setIsConnecting(false);
+        setConnectionError(null);
+        setCancelConnection(null);
         
         // Show success on reconnection (not initial)
         if (attempts > 1) {
@@ -182,8 +245,14 @@ export default function App() {
         }
       } catch (err) {
         console.error("Failed to connect:", err);
+        const errorMessage = typeof err === 'string' ? err : 'Connection failed';
+        setConnectionError(errorMessage);
         setIsConnecting(false);
+        setCancelConnection(null);
         connectingFlag = false;
+        
+        // Don't retry if cancelled
+        if (cancelled) return;
         
         // Calculate delay using exponential backoff: 5s → 10s → 30s → 60s (capped)
         const backoffIndex = Math.min(attempts - 1, BACKOFF_DELAYS.length - 1);
@@ -197,6 +266,8 @@ export default function App() {
         const retryNow = () => {
           clearTimers();
           connectingFlag = false;
+          cancelled = false;
+          setConnectionError(null);
           connectToGateway();
         };
         setRetryNowFn(() => retryNow);
@@ -218,6 +289,7 @@ export default function App() {
     connectToGateway();
 
     return () => {
+      cancelled = true;
       clearTimers();
     };
   }, [settings.gatewayUrl, settings.gatewayToken, showSuccess, showOnboarding]);
@@ -402,31 +474,35 @@ export default function App() {
         {/* Reconnection banner */}
         {!connected && !isConnecting && (
           <div 
-            className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-center gap-2 text-amber-700 dark:text-amber-300 text-sm animate-in slide-in-from-top-2 duration-300"
+            className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between gap-2 text-amber-700 dark:text-amber-300 text-sm animate-in slide-in-from-top-2 duration-300"
             role="alert"
             aria-live="polite"
           >
-            <span className="relative flex w-2 h-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
-              <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
-            </span>
-            <span className="font-medium">Connection lost</span>
-            {retryCountdown !== null ? (
-              <>
-                <span className="hidden sm:inline">— Retrying in {retryCountdown}s...</span>
-                <span className="sm:hidden">— {retryCountdown}s</span>
-                {retryNowFn && (
-                  <button
-                    onClick={retryNowFn}
-                    className="ml-2 px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
-                  >
-                    Retry Now
-                  </button>
-                )}
-              </>
-            ) : (
-              <span className="hidden sm:inline">— Connecting...</span>
-            )}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="relative flex w-2 h-2 flex-shrink-0">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
+              </span>
+              <span className="font-medium flex-shrink-0">Offline Mode</span>
+              {retryCountdown !== null ? (
+                <>
+                  <span className="hidden sm:inline truncate">— Retry in {retryCountdown}s</span>
+                  <span className="sm:hidden">— {retryCountdown}s</span>
+                </>
+              ) : connectionError ? (
+                <span className="hidden sm:inline truncate text-xs">— {connectionError.split('\n')[0]}</span>
+              ) : null}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {retryNowFn && (
+                <button
+                  onClick={retryNowFn}
+                  className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
           </div>
         )}
         
@@ -538,9 +614,51 @@ export default function App() {
           {!isLoadingData && isConnecting && reconnectAttempts === 1 && (
             <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
               <Spinner size="lg" />
-              <div className="text-center">
+              <div className="text-center max-w-md px-4">
                 <p className="text-sm font-medium mb-1">Connecting to Gateway</p>
-                <p className="text-xs text-muted-foreground">Please wait...</p>
+                <p className="text-xs text-muted-foreground mb-4">Please wait...</p>
+                {cancelConnection && (
+                  <button
+                    onClick={cancelConnection}
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Connection error overlay */}
+          {!isLoadingData && !isConnecting && connectionError && reconnectAttempts === 1 && (
+            <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
+              <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+                <svg className="w-8 h-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-center max-w-md px-4">
+                <p className="text-sm font-medium mb-2">Connection Failed</p>
+                <p className="text-xs text-muted-foreground mb-4 whitespace-pre-line">{connectionError}</p>
+                <div className="flex gap-2 justify-center">
+                  {retryNowFn && (
+                    <button
+                      onClick={retryNowFn}
+                      className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Retry Now
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setConnectionError(null);
+                      setIsConnecting(false);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                  >
+                    Use Offline Mode
+                  </button>
+                </div>
               </div>
             </div>
           )}
