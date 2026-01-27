@@ -29,22 +29,22 @@
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 240 10% 6%;
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 5%;
     --popover-foreground: 0 0% 98%;
     --primary: 24 95% 53%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 240 3.7% 18%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --muted: 240 3.7% 18%;
+    --muted-foreground: 240 5% 68%;
+    --accent: 240 3.7% 20%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 3.7% 18%;
+    --input: 240 3.7% 20%;
     --ring: 24 95% 53%;
   }
 }
@@ -322,6 +322,47 @@ html {
 /* Prevent text selection during drag */
 .select-none {
   user-select: none;
+}
+
+/* Better default transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Override for elements that shouldn't transition */
+*:where(:not(button):not(a):not([role="button"])) {
+  transition: none;
+}
+
+/* Restore transitions for interactive elements */
+button,
+a,
+[role="button"],
+input,
+textarea,
+select {
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+  transition-duration: 200ms;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Line clamp utilities */

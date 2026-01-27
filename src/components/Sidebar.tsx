@@ -284,6 +284,13 @@ function ConversationItem({
   style,
 }: ConversationItemProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = () => {
+    onDelete();
+    setShowDeleteConfirm(false);
+    setShowMenu(false);
+  };
 
   return (
     <button
@@ -308,7 +315,7 @@ function ConversationItem({
         }
         if (e.key === "Delete" || e.key === "Backspace") {
           e.preventDefault();
-          onDelete();
+          setShowDeleteConfirm(true);
         }
       }}
       aria-label={`Conversation: ${conversation.title}${isSelected ? " (active)" : ""}`}
@@ -377,7 +384,7 @@ function ConversationItem({
               className="w-full px-3 py-2 text-sm text-left text-destructive hover:bg-destructive/10 flex items-center gap-2 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete();
+                setShowDeleteConfirm(true);
                 setShowMenu(false);
               }}
             >
@@ -387,6 +394,17 @@ function ConversationItem({
           </div>
         </>
       )}
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Conversation?"
+        description={`Are you sure you want to delete "${conversation.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmVariant="destructive"
+      />
     </button>
   );
 }
