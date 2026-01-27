@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent, ReactNode, isValidElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -19,6 +19,23 @@ import {
   FileText,
 } from "lucide-react";
 import { ImageRenderer } from "./ImageRenderer";
+
+/**
+ * Recursively extracts plain text from React children.
+ * Handles strings, numbers, arrays, and React elements (e.g., syntax-highlighted spans).
+ */
+function extractTextFromChildren(children: ReactNode): string {
+  if (children == null) return "";
+  if (typeof children === "string") return children;
+  if (typeof children === "number") return String(children);
+  if (Array.isArray(children)) {
+    return children.map(extractTextFromChildren).join("");
+  }
+  if (isValidElement(children)) {
+    return extractTextFromChildren(children.props.children);
+  }
+  return "";
+}
 
 interface MessageBubbleProps {
   message: Message;
@@ -140,7 +157,9 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
           className={cn(
             "relative",
             isUser ? "text-right" : "",
-            isUser && !isEditing && "bg-primary/5 rounded-2xl rounded-tr-sm px-4 py-3"
+            isUser && !isEditing && "bg-primary/5 rounded-2xl rounded-tr-sm px-4 py-3",
+            // Streaming state: subtle border pulse (P1)
+            message.isStreaming && !isUser && "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse"
           )}
         >
           {isEditing ? (
@@ -202,7 +221,8 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
                 components={{
                   code({ inline, className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || "");
-                    const code = String(children).replace(/\n$/, "");
+                    // Extract plain text from children (handles syntax-highlighted spans from rehype-highlight)
+                    const code = extractTextFromChildren(children).replace(/\n$/, "");
 
                     if (!inline && match) {
                       return (

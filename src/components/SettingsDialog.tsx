@@ -235,15 +235,21 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       />
 
       {/* Dialog */}
-      <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border/50 ring-1 ring-white/10">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-dialog-title"
+        className="relative bg-background rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-border/50 ring-1 ring-white/10"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-xl font-semibold">Settings</h2>
+          <h2 id="settings-dialog-title" className="text-xl font-semibold">Settings</h2>
           <button
             onClick={onClose}
+            aria-label="Close settings"
             className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -258,12 +264,15 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Gateway URL</label>
+                <label htmlFor="gateway-url" className="block text-sm font-medium mb-1.5">Gateway URL</label>
                 <input
+                  id="gateway-url"
                   type="text"
                   value={formData.gatewayUrl}
                   onChange={(e) => handleUrlChange(e.target.value)}
                   placeholder="ws://localhost:18789"
+                  aria-describedby={urlError ? "gateway-url-error" : undefined}
+                  aria-invalid={urlError ? "true" : undefined}
                   className={cn(
                     "w-full px-3 py-2 rounded-lg border bg-muted/30 focus:outline-none focus:ring-2",
                     urlError 
@@ -272,11 +281,11 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                   )}
                 />
                 {urlError && (
-                  <p className="text-sm text-destructive mt-1.5">{urlError}</p>
+                  <p id="gateway-url-error" className="text-sm text-destructive mt-1.5" role="alert">{urlError}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">
+                <label htmlFor="gateway-token" className="block text-sm font-medium mb-1.5">
                   Authentication Token{" "}
                   <span className="text-muted-foreground font-normal">(optional)</span>
                   <TooltipProvider>
@@ -309,10 +318,12 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                 </label>
                 <div className="relative">
                   <input
+                    id="gateway-token"
                     type={showToken ? "text" : "password"}
                     value={formData.gatewayToken}
                     onChange={(e) => setFormData({ ...formData, gatewayToken: e.target.value })}
                     placeholder="Stored securely in OS keychain"
+                    aria-describedby="gateway-token-hint"
                     className="w-full px-3 py-2 pr-10 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                   <button
@@ -323,18 +334,18 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     title={showToken ? "Hide token" : "Show token"}
                   >
                     {showToken ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1.5">
+                <p id="gateway-token-hint" className="text-xs text-muted-foreground mt-1.5">
                   🔒 Token is stored securely in your OS keychain (not in browser storage)
                 </p>
               </div>
@@ -393,9 +404,9 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-sm font-medium">Default Model</label>
+                  <label htmlFor="default-model" className="block text-sm font-medium">Default Model</label>
                   {modelsLoading && (
-                    <span className="text-xs text-muted-foreground animate-pulse">
+                    <span className="text-xs text-muted-foreground animate-pulse" aria-live="polite">
                       Loading models...
                     </span>
                   )}
@@ -406,9 +417,11 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                   )}
                 </div>
                 <select
+                  id="default-model"
                   value={formData.defaultModel}
                   onChange={(e) => setFormData({ ...formData, defaultModel: e.target.value })}
                   disabled={modelsLoading}
+                  aria-describedby={!connected ? "model-hint" : undefined}
                   className={cn(
                     "w-full px-3 py-2 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50",
                     modelsLoading && "opacity-50 cursor-not-allowed"
@@ -425,19 +438,21 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                   ))}
                 </select>
                 {!connected && (
-                  <p className="text-xs text-muted-foreground mt-1.5">
+                  <p id="model-hint" className="text-xs text-muted-foreground mt-1.5">
                     Connect to Gateway to see available models
                   </p>
                 )}
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium">Enable Thinking by Default</label>
-                  <p className="text-xs text-muted-foreground">Extended reasoning for complex tasks</p>
+                  <label htmlFor="thinking-default" className="text-sm font-medium">Enable Thinking by Default</label>
+                  <p id="thinking-hint" className="text-xs text-muted-foreground">Extended reasoning for complex tasks</p>
                 </div>
                 <Switch
+                  id="thinking-default"
                   checked={formData.thinkingDefault}
                   onCheckedChange={(checked) => setFormData({ ...formData, thinkingDefault: checked })}
+                  aria-describedby="thinking-hint"
                 />
               </div>
             </div>

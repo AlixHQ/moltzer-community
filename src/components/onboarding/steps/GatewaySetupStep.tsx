@@ -205,14 +205,6 @@ export function GatewaySetupStep({
     };
   }, [autoDetectGateway]);
 
-  // Cancel any ongoing connection test
-  const handleCancel = useCallback(() => {
-    isCancelledRef.current = true;
-    setConnectionState("idle");
-    setErrorMessage("");
-    setErrorHint(null);
-  }, []);
-
   const handleTestConnection = async () => {
     // Reset cancelled state for new test
     isCancelledRef.current = false;

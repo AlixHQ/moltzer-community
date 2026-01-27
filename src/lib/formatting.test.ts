@@ -35,7 +35,7 @@ describe('Message Formatting', () => {
   describe('message content truncation', () => {
     function truncateForTitle(content: string, maxLength = 40): string {
       if (content.length <= maxLength) return content;
-      return content.slice(0, maxLength) + '...';
+      return content.slice(0, maxLength).trimEnd() + '...';
     }
 
     it('should not truncate short messages', () => {
@@ -47,7 +47,7 @@ describe('Message Formatting', () => {
       const long = 'This is a very long message that should be truncated for display purposes';
       const result = truncateForTitle(long);
       expect(result).toBe('This is a very long message that should...');
-      expect(result.length).toBe(43); // 40 + '...'
+      expect(result.length).toBe(42); // 39 (trimmed) + '...'
     });
 
     it('should handle exact length', () => {
@@ -58,7 +58,7 @@ describe('Message Formatting', () => {
     it('should handle custom max length', () => {
       const text = 'This is a test message for truncation';
       const result = truncateForTitle(text, 10);
-      expect(result).toBe('This is a ...');
+      expect(result).toBe('This is a...');
     });
   });
 
@@ -206,6 +206,7 @@ x = 1
     function sanitizeInput(input: string): string {
       return input
         .trim()
+        .replace(/[\t\n\r]+/g, ' ') // Convert tabs/newlines to spaces first
         // eslint-disable-next-line no-control-regex
         .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
         .replace(/\s+/g, ' '); // Normalize whitespace

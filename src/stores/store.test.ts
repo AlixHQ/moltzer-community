@@ -157,7 +157,8 @@ describe("Store", () => {
   describe("Settings", () => {
     it("should have default settings", () => {
       const store = useStore.getState();
-      expect(store.settings.gatewayUrl).toBe("ws://localhost:18789");
+      // gatewayUrl is empty by default to force onboarding
+      expect(store.settings.gatewayUrl).toBe("");
       expect(store.settings.theme).toBe("system");
     });
 

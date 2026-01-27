@@ -171,8 +171,9 @@ struct AuthInfo {
 
 /// Try to connect with protocol fallback (ws:// <-> wss://) with timeout
 async fn try_connect_with_fallback(url: &str) -> Result<(tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, String, bool), String> {
-    // Connection timeout: 8 seconds per attempt (reasonable for local + remote)
-    let timeout_duration = std::time::Duration::from_secs(8);
+    // Connection timeout: 3 seconds per attempt (responsive UX)
+    // Total max: 6 seconds (3s primary + 3s fallback)
+    let timeout_duration = std::time::Duration::from_secs(3);
     
     // First, try the URL as provided
     let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
