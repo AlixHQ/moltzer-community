@@ -174,3 +174,110 @@ pub async fn send_message(
 pub async fn get_connection_status(state: State<'_, GatewayState>) -> Result<bool, String> {
     Ok(*state.connected.read().await)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gateway_request_serialization() {
+        let request = GatewayRequest {
+            id: "test-123".to_string(),
+            method: "chat.send".to_string(),
+            params: serde_json::json!({
+                "message": "Hello, world!",
+                "model": "anthropic/claude-sonnet-4-5",
+            }),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(json.contains("test-123"));
+        assert!(json.contains("chat.send"));
+        assert!(json.contains("Hello, world!"));
+    }
+
+    #[test]
+    fn test_chat_params_serialization() {
+        let params = ChatParams {
+            message: "Test message".to_string(),
+            session_key: Some("session-123".to_string()),
+            model: Some("anthropic/claude-opus-4-5".to_string()),
+            thinking: Some("low".to_string()),
+        };
+
+        let json = serde_json::to_string(&params).unwrap();
+        assert!(json.contains("Test message"));
+        assert!(json.contains("session-123"));
+    }
+
+    #[test]
+    fn test_stream_chunk_deserialization() {
+        let json = r#"{"requestId":"req-123","content":"Hello","done":false,"type":"stream"}"#;
+        let chunk: StreamChunk = serde_json::from_str(json).unwrap();
+        
+        assert_eq!(chunk.request_id, Some("req-123".to_string()));
+        assert_eq!(chunk.content, Some("Hello".to_string()));
+        assert_eq!(chunk.done, Some(false));
+        assert_eq!(chunk.msg_type, Some("stream".to_string()));
+    }
+
+    #[test]
+    fn test_stream_chunk_done() {
+        let json = r#"{"done":true}"#;
+        let chunk: StreamChunk = serde_json::from_str(json).unwrap();
+        
+        assert_eq!(chunk.done, Some(true));
+        assert!(chunk.content.is_none());
+    }
+
+    #[test]
+    fn test_gateway_response_success() {
+        let json = r#"{"id":"req-123","result":{"status":"ok"}}"#;
+        let response: GatewayResponse = serde_json::from_str(json).unwrap();
+        
+        assert_eq!(response.id, Some("req-123".to_string()));
+        assert!(response.result.is_some());
+        assert!(response.error.is_none());
+    }
+
+    #[test]
+    fn test_gateway_response_error() {
+        let json = r#"{"id":"req-123","error":{"code":-1,"message":"Test error"}}"#;
+        let response: GatewayResponse = serde_json::from_str(json).unwrap();
+        
+        assert_eq!(response.id, Some("req-123".to_string()));
+        assert!(response.result.is_none());
+        assert!(response.error.is_some());
+        
+        let error = response.error.unwrap();
+        assert_eq!(error.code, -1);
+        assert_eq!(error.message, "Test error");
+    }
+
+    #[tokio::test]
+    async fn test_gateway_state_default() {
+        let state = GatewayState::default();
+        
+        // Should start disconnected
+        assert!(!*state.connected.read().await);
+        
+        // Should have no sender
+        assert!(state.sender.lock().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_gateway_state_connection_tracking() {
+        let state = GatewayState::default();
+        
+        // Start disconnected
+        assert!(!*state.connected.read().await);
+        
+        // Simulate connection
+        *state.connected.write().await = true;
+        assert!(*state.connected.read().await);
+        
+        // Simulate disconnection
+        *state.connected.write().await = false;
+        assert!(!*state.connected.read().await);
+    }
+}

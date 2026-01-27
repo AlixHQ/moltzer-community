@@ -9,7 +9,7 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-export function Sidebar({ onToggle }: SidebarProps) {
+export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
   const {
     conversations,
     currentConversationId,

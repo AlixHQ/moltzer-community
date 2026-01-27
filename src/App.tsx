@@ -14,7 +14,6 @@ export default function App() {
     setConnected,
     appendToCurrentMessage,
     completeCurrentMessage,
-    connected,
     settings 
   } = useStore();
 

@@ -47,14 +47,14 @@ export class MoltDB extends Dexie {
     });
 
     // Add computed property for full-text search
-    this.messages.hook('creating', function (primKey, obj) {
+    this.messages.hook('creating', function (_primKey, obj) {
       // Create searchable words from content
       if (obj.content) {
         (obj as any).searchWords = extractSearchWords(obj.content);
       }
     });
 
-    this.messages.hook('updating', function (modifications: any, primKey, obj) {
+    this.messages.hook('updating', function (modifications: any, _primKey, _obj) {
       if (modifications.content) {
         return { ...modifications, searchWords: extractSearchWords(modifications.content) };
       }

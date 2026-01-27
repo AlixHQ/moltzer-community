@@ -27,8 +27,8 @@ export function WelcomeView() {
     },
   ];
 
-  const handleSuggestionClick = async (suggestion: typeof suggestions[0]) => {
-    const conv = createConversation();
+  const handleSuggestionClick = async (_suggestion: typeof suggestions[0]) => {
+    createConversation();
     // TODO: Auto-send the suggestion as first message
   };
 

@@ -1,21 +1,35 @@
-import { useState, useRef, KeyboardEvent } from "react";
+import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { cn } from "../lib/utils";
 
 interface ChatInputProps {
   onSend: (content: string, attachments: File[]) => void;
+  disabled?: boolean;
 }
 
-export function ChatInput({ onSend }: ChatInputProps) {
+export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-focus on mount
+  useEffect(() => {
+    if (!disabled) {
+      textareaRef.current?.focus();
+    }
+  }, [disabled]);
+
   const handleSend = () => {
+    if (disabled) return;
     if (!message.trim() && attachments.length === 0) return;
     onSend(message, attachments);
     setMessage("");
     setAttachments([]);
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -26,6 +40,7 @@ export function ChatInput({ onSend }: ChatInputProps) {
   };
 
   const handleAttach = async () => {
+    if (disabled) return;
     try {
       const selected = await open({
         multiple: true,
@@ -51,17 +66,19 @@ export function ChatInput({ onSend }: ChatInputProps) {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const canSend = (message.trim() || attachments.length > 0) && !disabled;
+
   return (
     <div className="p-4">
       {/* Attachments preview */}
       {attachments.length > 0 && (
-        <div className="flex gap-2 mb-2 flex-wrap">
+        <div className="flex gap-2 mb-3 flex-wrap animate-in fade-in slide-in-from-bottom-2 duration-200">
           {attachments.map((file, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-2 py-1 bg-muted rounded-md text-sm"
+              className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg text-sm group hover:bg-muted/80 transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -72,9 +89,9 @@ export function ChatInput({ onSend }: ChatInputProps) {
               <span className="truncate max-w-[150px]">{file.name}</span>
               <button
                 onClick={() => removeAttachment(i)}
-                className="text-muted-foreground hover:text-foreground"
+                className="p-0.5 text-muted-foreground hover:text-foreground hover:bg-background rounded transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -84,11 +101,23 @@ export function ChatInput({ onSend }: ChatInputProps) {
       )}
 
       {/* Input row */}
-      <div className="flex items-end gap-2">
+      <div
+        className={cn(
+          "relative flex items-end gap-2 rounded-2xl border bg-background/50 transition-all duration-200",
+          isFocused
+            ? "border-primary/50 ring-2 ring-primary/20 shadow-lg"
+            : "border-border hover:border-border/80",
+          disabled && "opacity-50 cursor-not-allowed"
+        )}
+      >
         {/* Attach button */}
         <button
           onClick={handleAttach}
-          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+          disabled={disabled}
+          className={cn(
+            "p-3 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0",
+            disabled && "cursor-not-allowed"
+          )}
           title="Attach files"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,45 +131,54 @@ export function ChatInput({ onSend }: ChatInputProps) {
         </button>
 
         {/* Text input */}
-        <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Message Molt..."
-            rows={1}
-            className={cn(
-              "w-full px-4 py-3 pr-12 rounded-xl border border-border bg-muted/30",
-              "resize-none overflow-hidden",
-              "focus:outline-none focus:ring-2 focus:ring-primary/50",
-              "placeholder:text-muted-foreground"
-            )}
-            style={{
-              minHeight: "48px",
-              maxHeight: "200px",
-            }}
-            onInput={(e) => {
-              const target = e.target as HTMLTextAreaElement;
-              target.style.height = "auto";
-              target.style.height = `${Math.min(target.scrollHeight, 200)}px`;
-            }}
-          />
-        </div>
+        <textarea
+          ref={textareaRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          disabled={disabled}
+          placeholder={disabled ? "Connect to Gateway to send messages..." : "Message Molt..."}
+          rows={1}
+          className={cn(
+            "flex-1 py-3 bg-transparent resize-none",
+            "focus:outline-none",
+            "placeholder:text-muted-foreground",
+            disabled && "cursor-not-allowed"
+          )}
+          style={{
+            minHeight: "24px",
+            maxHeight: "200px",
+          }}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = "auto";
+            target.style.height = `${Math.min(target.scrollHeight, 200)}px`;
+          }}
+        />
 
         {/* Send button */}
         <button
           onClick={handleSend}
-          disabled={!message.trim() && attachments.length === 0}
+          disabled={!canSend}
           className={cn(
-            "p-2 rounded-lg transition-colors",
-            message.trim() || attachments.length > 0
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+            "p-3 rounded-xl m-1 transition-all duration-200 flex-shrink-0",
+            canSend
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md active:scale-95"
               : "text-muted-foreground cursor-not-allowed"
           )}
-          title="Send message"
+          title="Send message (Enter)"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg 
+            className={cn(
+              "w-5 h-5 transition-transform duration-200",
+              canSend && "translate-x-0.5"
+            )} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -152,9 +190,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
       </div>
 
       {/* Hint */}
-      <p className="text-xs text-muted-foreground mt-2 text-center">
-        Press Enter to send, Shift+Enter for new line
-      </p>
+      <div className="flex items-center justify-center gap-4 mt-2">
+        <p className="text-xs text-muted-foreground">
+          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Enter</kbd> to send
+          <span className="mx-1.5">·</span>
+          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Shift+Enter</kbd> for new line
+        </p>
+      </div>
     </div>
   );
 }
