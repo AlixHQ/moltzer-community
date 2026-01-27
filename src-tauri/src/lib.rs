@@ -28,6 +28,7 @@ pub fn run() {
             gateway::disconnect,
             gateway::send_message,
             gateway::get_connection_status,
+            gateway::get_models,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

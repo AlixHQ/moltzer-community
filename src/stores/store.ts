@@ -38,6 +38,13 @@ export interface Conversation {
   isPinned: boolean;
 }
 
+export interface ModelInfo {
+  id: string;           // e.g., "anthropic/claude-sonnet-4-5"
+  name: string;         // e.g., "Claude Sonnet 4.5"
+  provider: string;     // e.g., "anthropic"
+  isDefault?: boolean;
+}
+
 export interface Settings {
   gatewayUrl: string;
   gatewayToken: string;
@@ -50,6 +57,12 @@ interface Store {
   // Connection
   connected: boolean;
   setConnected: (connected: boolean) => void;
+
+  // Available models from Gateway
+  availableModels: ModelInfo[];
+  modelsLoading: boolean;
+  setAvailableModels: (models: ModelInfo[]) => void;
+  setModelsLoading: (loading: boolean) => void;
 
   // Conversations
   conversations: Conversation[];
@@ -81,6 +94,12 @@ export const useStore = create<Store>()(
       // Connection
       connected: false,
       setConnected: (connected) => set({ connected }),
+
+      // Available models
+      availableModels: [],
+      modelsLoading: false,
+      setAvailableModels: (models) => set({ availableModels: models }),
+      setModelsLoading: (loading) => set({ modelsLoading: loading }),
 
       // Conversations
       conversations: [],

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useStore } from "../stores/store";
+import { useStore, ModelInfo } from "../stores/store";
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "../lib/utils";
 
@@ -8,8 +8,19 @@ interface SettingsDialogProps {
   onClose: () => void;
 }
 
+// Fallback models when Gateway doesn't provide a list
+const FALLBACK_MODELS: ModelInfo[] = [
+  { id: "anthropic/claude-sonnet-4-5", name: "Claude Sonnet 4.5", provider: "anthropic" },
+  { id: "anthropic/claude-opus-4-5", name: "Claude Opus 4.5", provider: "anthropic" },
+  { id: "anthropic/claude-haiku-4", name: "Claude Haiku 4", provider: "anthropic" },
+  { id: "openai/gpt-4o", name: "GPT-4o", provider: "openai" },
+  { id: "openai/gpt-4o-mini", name: "GPT-4o mini", provider: "openai" },
+  { id: "google/gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
+  { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
+];
+
 export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
-  const { settings, updateSettings, connected, setConnected } = useStore();
+  const { settings, updateSettings, connected, setConnected, availableModels, setAvailableModels, modelsLoading, setModelsLoading } = useStore();
   const [formData, setFormData] = useState(settings);
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +28,27 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   useEffect(() => {
     setFormData(settings);
   }, [settings, open]);
+
+  // Fetch models when dialog opens and connected
+  useEffect(() => {
+    if (open && connected) {
+      fetchModels();
+    }
+  }, [open, connected]);
+
+  const fetchModels = async () => {
+    setModelsLoading(true);
+    try {
+      const models = await invoke<ModelInfo[]>("get_models");
+      if (models && models.length > 0) {
+        setAvailableModels(models);
+      }
+    } catch (err) {
+      console.log("Could not fetch models from Gateway, using fallbacks");
+    } finally {
+      setModelsLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     updateSettings(formData);
@@ -52,10 +84,30 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
         token: formData.gatewayToken,
       });
       setConnectionStatus("idle");
+      // Try to fetch models after successful connection
+      fetchModels();
     } catch (err: any) {
       setConnectionStatus("error");
       setError(err.toString());
     }
+  };
+
+  // Use available models from Gateway, or fall back to defaults
+  const models = availableModels.length > 0 ? availableModels : FALLBACK_MODELS;
+  
+  // Group models by provider
+  const modelsByProvider = models.reduce((acc, model) => {
+    const provider = model.provider || "other";
+    if (!acc[provider]) acc[provider] = [];
+    acc[provider].push(model);
+    return acc;
+  }, {} as Record<string, ModelInfo[]>);
+
+  const providerNames: Record<string, string> = {
+    anthropic: "Anthropic",
+    openai: "OpenAI",
+    google: "Google",
+    other: "Other",
   };
 
   if (!open) return null;
@@ -121,12 +173,12 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                     connectionStatus === "connecting" && "opacity-50 cursor-not-allowed"
                   )}
                 >
-                  {connectionStatus === "connecting" ? "Testing..." : "Test Connection"}
+                  {connectionStatus === "connecting" ? "Connecting..." : "Test Connection"}
                 </button>
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "w-2 h-2 rounded-full",
+                      "w-2 h-2 rounded-full transition-colors",
                       connected ? "bg-green-500" : "bg-red-500"
                     )}
                   />
@@ -148,28 +200,43 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Default Model</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium">Default Model</label>
+                  {modelsLoading && (
+                    <span className="text-xs text-muted-foreground animate-pulse">
+                      Loading models...
+                    </span>
+                  )}
+                  {!modelsLoading && availableModels.length === 0 && connected && (
+                    <span className="text-xs text-muted-foreground">
+                      Using common models
+                    </span>
+                  )}
+                </div>
                 <select
                   value={formData.defaultModel}
                   onChange={(e) => setFormData({ ...formData, defaultModel: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  disabled={modelsLoading}
+                  className={cn(
+                    "w-full px-3 py-2 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50",
+                    modelsLoading && "opacity-50 cursor-not-allowed"
+                  )}
                 >
-                  <optgroup label="Anthropic">
-                    <option value="anthropic/claude-opus-4-5">Claude Opus 4.5</option>
-                    <option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5</option>
-                    <option value="anthropic/claude-haiku-4">Claude Haiku 4</option>
-                  </optgroup>
-                  <optgroup label="OpenAI">
-                    <option value="openai/gpt-4o">GPT-4o</option>
-                    <option value="openai/gpt-4o-mini">GPT-4o mini</option>
-                    <option value="openai/o1">o1</option>
-                    <option value="openai/o3-mini">o3-mini</option>
-                  </optgroup>
-                  <optgroup label="Google">
-                    <option value="google/gemini-2.5-pro">Gemini 2.5 Pro</option>
-                    <option value="google/gemini-2.5-flash">Gemini 2.5 Flash</option>
-                  </optgroup>
+                  {Object.entries(modelsByProvider).map(([provider, providerModels]) => (
+                    <optgroup key={provider} label={providerNames[provider] || provider}>
+                      {providerModels.map((model) => (
+                        <option key={model.id} value={model.id}>
+                          {model.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
+                {!connected && (
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Connect to Gateway to see available models
+                  </p>
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <div>

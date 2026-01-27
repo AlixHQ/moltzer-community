@@ -175,6 +175,29 @@ pub async fn get_connection_status(state: State<'_, GatewayState>) -> Result<boo
     Ok(*state.connected.read().await)
 }
 
+/// Model info returned from Gateway
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ModelInfo {
+    pub id: String,
+    pub name: String,
+    pub provider: String,
+    #[serde(default)]
+    pub is_default: bool,
+}
+
+/// Request available models from Gateway
+#[tauri::command]
+pub async fn get_models(
+    state: State<'_, GatewayState>,
+) -> Result<Vec<ModelInfo>, String> {
+    let sender = state.sender.lock().await;
+    let _sender = sender.as_ref().ok_or("Not connected to Gateway")?;
+
+    // TODO: When Gateway supports model listing, send request and wait for response
+    // For now, return empty - the frontend will handle fallback models
+    Ok(vec![])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
