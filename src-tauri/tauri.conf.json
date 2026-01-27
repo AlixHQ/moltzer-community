@@ -53,16 +53,5 @@
       }
     }
   },
-  "plugins": {
-    "dialog": {},
-    "fs": {
-      "scope": ["$APPDATA/*", "$HOME/*"]
-    },
-    "notification": {
-      "all": true
-    },
-    "shell": {
-      "open": true
-    }
-  }
+  "plugins": {}
 }
