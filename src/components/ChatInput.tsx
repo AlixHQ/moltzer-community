@@ -209,13 +209,17 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
     <div className="p-4">
       {/* File error message */}
       {fileError && (
-        <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+        <div 
+          className="flex items-center gap-2 mb-3 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive animate-in fade-in slide-in-from-bottom-2 duration-200"
+          role="alert"
+          aria-live="polite"
+        >
+          <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
           <span className="flex-1">{fileError}</span>
           <button
             onClick={() => setFileError(null)}
-            className="p-0.5 hover:bg-destructive/10 rounded transition-colors"
-            aria-label="Dismiss error"
+            className="p-0.5 hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+            aria-label="Dismiss error message"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -284,7 +288,11 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
         </button>
 
         {/* Text input */}
+        <label htmlFor="message-input" className="sr-only">
+          Message input
+        </label>
         <textarea
+          id="message-input"
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -300,6 +308,8 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
               : "Message Moltzer..."
           }
           rows={1}
+          aria-label="Type your message"
+          aria-describedby="chat-input-hint"
           className={cn(
             "flex-1 py-3 bg-transparent resize-none",
             "focus:outline-none",
@@ -345,10 +355,10 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
       {/* Hint */}
       <div className="flex items-center justify-center gap-4 mt-2">
-        <p className="text-xs text-muted-foreground">
-          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Enter</kbd> to send
-          <span className="mx-1.5">·</span>
-          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Shift+Enter</kbd> for new line
+        <p id="chat-input-hint" className="text-xs text-muted-foreground">
+          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Enter key">Enter</kbd> to send
+          <span className="mx-1.5" aria-hidden="true">·</span>
+          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Shift plus Enter">Shift+Enter</kbd> for new line
         </p>
       </div>
     </div>
