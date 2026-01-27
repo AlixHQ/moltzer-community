@@ -4,7 +4,7 @@ import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { searchPersistedMessages } from "../lib/persistence";
 import { EmptyState } from "./ui/empty-state";
-import { Search, MessageSquare, Frown } from "lucide-react";
+import { MessageSquare, Frown } from "lucide-react";
 
 interface SearchDialogProps {
   open: boolean;

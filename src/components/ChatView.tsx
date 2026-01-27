@@ -134,9 +134,9 @@ export function ChatView() {
           thinking: currentConversation.thinkingEnabled ? "low" : null,
         },
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to send edited message:", err);
-      const errorMsg = err.toString().replace("Error: ", "");
+      const errorMsg = String(err).replace("Error: ", "");
       setError(errorMsg);
       setTimeout(() => setError(null), 15000);
     } finally {
@@ -193,9 +193,9 @@ export function ChatView() {
           thinking: currentConversation.thinkingEnabled ? "low" : null,
         },
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to regenerate response:", err);
-      const errorMsg = err.toString().replace("Error: ", "");
+      const errorMsg = String(err).replace("Error: ", "");
       setError(errorMsg);
       setTimeout(() => setError(null), 15000);
     } finally {
@@ -210,10 +210,11 @@ export function ChatView() {
     setIsSending(true);
 
     try {
-      // Add user message with attachment metadata
-      addMessage(currentConversation.id, {
+      // Add user message with pending state (optimistic update)
+      const userMessage = addMessage(currentConversation.id, {
         role: "user",
         content,
+        isPending: true, // Mark as pending until Gateway confirms
         attachments: attachments.map((a) => ({
           id: a.id,
           filename: a.filename,
@@ -244,9 +245,12 @@ export function ChatView() {
           })),
         },
       });
-    } catch (err: any) {
+
+      // Mark user message as sent (no longer pending)
+      useStore.getState().markMessageSent(currentConversation.id, userMessage.id);
+    } catch (err: unknown) {
       console.error("Failed to send message:", err);
-      const errorMsg = err.toString().replace("Error: ", "");
+      const errorMsg = String(err).replace("Error: ", "");
       setError(errorMsg);
       setLastFailedMessage({ content, attachments });
       

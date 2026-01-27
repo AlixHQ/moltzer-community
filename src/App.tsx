@@ -57,7 +57,6 @@ export default function App() {
     
     // Version upgrade: Clear stale onboarding flags
     if (storedVersion && storedVersion !== APP_VERSION) {
-      console.log(`App upgraded from ${storedVersion} to ${APP_VERSION} - clearing stale onboarding data`);
       localStorage.removeItem('moltzer-onboarding-completed');
       localStorage.removeItem('moltzer-onboarding-skipped');
       localStorage.removeItem('moltzer-onboarding-progress');
@@ -109,12 +108,6 @@ export default function App() {
       const needsOnboarding = !hasValidGatewayUrl || (!onboardingCompleted && !onboardingSkipped);
       
       if (needsOnboarding) {
-        console.log('Onboarding needed:', {
-          completed: !!onboardingCompleted,
-          skipped: !!onboardingSkipped,
-          hasValidUrl: hasValidGatewayUrl,
-          currentUrl: currentSettings.gatewayUrl
-        });
         setShowOnboarding(true);
         setIsConnecting(false);
       }

@@ -142,13 +142,19 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
           <span className="text-sm font-medium">
             {isUser ? "You" : "Moltzer"}
           </span>
+          {message.isPending && (
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground animate-pulse" />
+              Sending...
+            </span>
+          )}
           <span 
             className={cn(
               "text-xs text-muted-foreground transition-opacity duration-200",
-              showTimestamp ? "opacity-100" : "opacity-0"
+              showTimestamp || message.isPending ? "opacity-100" : "opacity-0"
             )}
           >
-            {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+            {!message.isPending && formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
           </span>
         </div>
 

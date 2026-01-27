@@ -9,17 +9,13 @@ interface WelcomeStepProps {
 export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
   const [isVisible, setIsVisible] = useState(false);
 
-  console.log('[WelcomeStep] Render');
-
   useEffect(() => {
-    console.log('[WelcomeStep] useEffect running');
     // Trigger entrance animation
     setTimeout(() => setIsVisible(true), 100);
 
     // Auto-advance on Enter
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
-        console.log('[WelcomeStep] Enter pressed, calling onNext');
         e.preventDefault();
         onNext();
       }
@@ -98,10 +94,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
           )}
         >
           <button
-            onClick={() => {
-              console.log('[WelcomeStep] Get Started clicked');
-              onNext();
-            }}
+            onClick={onNext}
             className="group px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold text-lg shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
           >
             <span className="flex items-center gap-2">
@@ -123,10 +116,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
           </button>
 
           <button
-            onClick={() => {
-              console.log('[WelcomeStep] Skip clicked');
-              onSkip();
-            }}
+            onClick={onSkip}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             I'll set this up later

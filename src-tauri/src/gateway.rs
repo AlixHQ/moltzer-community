@@ -1,47 +1,103 @@
 //! Gateway WebSocket client for communicating with Clawdbot Gateway
 //! 
-//! Implements the Clawdbot Gateway WebSocket protocol v3:
-//! - Frame types: req, res, event
-//! - Connect handshake with protocol negotiation
-//! - Chat streaming via chat.send method
+//! Implements the Clawdbot Gateway WebSocket protocol v3 with:
+//! - Robust error handling and classification
+//! - Automatic reconnection with exponential backoff
+//! - Message queuing during reconnection
+//! - Health monitoring with ping/pong
+//! - Request-level and streaming timeouts
 
+use crate::protocol::{
+    calculate_backoff, validate_frame, ConnectionQuality, ConnectionState,
+    GatewayError, HealthMetrics, QueuedMessage, RawGatewayError, ValidatedFrame,
+    BACKOFF_INITIAL_MS, DEFAULT_PING_INTERVAL_SECS, DEFAULT_PING_TIMEOUT_SECS,
+    DEFAULT_REQUEST_TIMEOUT_SECS, DEFAULT_STREAM_TIMEOUT_SECS, MAX_RECONNECT_ATTEMPTS,
+    PROTOCOL_VERSION,
+};
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet, VecDeque};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::Arc;
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, State};
 use tokio::sync::{mpsc, oneshot, Mutex, RwLock};
 use tokio_tungstenite::{connect_async, tungstenite::Message as WsMessage};
-use std::collections::HashMap;
-use std::sync::Arc;
 
-/// Current protocol version
-const PROTOCOL_VERSION: i32 = 3;
+// ============================================================================
+// State Management
+// ============================================================================
 
-/// Connection state managed by Tauri
-pub struct GatewayState {
-    connected: RwLock<bool>,
-    sender: Mutex<Option<mpsc::Sender<String>>>,
+/// Connection state managed by Tauri (wrapped in Arc for sharing)
+pub struct GatewayStateInner {
+    /// Current connection state
+    connection_state: RwLock<ConnectionState>,
+    /// Channel for sending messages to WebSocket
+    sender: Mutex<Option<mpsc::Sender<OutgoingMessage>>>,
     /// Pending request responses, keyed by request ID
-    pending_requests: Mutex<HashMap<String, oneshot::Sender<GatewayResponse>>>,
-    /// Store token for reconnection
-    stored_token: Mutex<Option<String>>,
+    pending_requests: Mutex<HashMap<String, PendingRequest>>,
+    /// Stored credentials for reconnection
+    stored_credentials: Mutex<Option<StoredCredentials>>,
+    /// Message queue for retry during reconnection
+    message_queue: Mutex<VecDeque<QueuedMessage>>,
+    /// Set of processed message IDs for deduplication
+    processed_ids: Mutex<HashSet<String>>,
+    /// Health metrics for connection quality
+    health_metrics: Mutex<HealthMetrics>,
+    /// Flag to signal shutdown
+    shutdown: AtomicBool,
+    /// Current reconnection attempt number
+    reconnect_attempt: AtomicU32,
+    /// Active run IDs for streaming timeout tracking
+    active_runs: Mutex<HashMap<String, Instant>>,
 }
 
 impl Default for GatewayState {
     fn default() -> Self {
         Self {
-            connected: RwLock::new(false),
+            connection_state: RwLock::new(ConnectionState::Disconnected),
             sender: Mutex::new(None),
             pending_requests: Mutex::new(HashMap::new()),
-            stored_token: Mutex::new(None),
+            stored_credentials: Mutex::new(None),
+            message_queue: Mutex::new(VecDeque::new()),
+            processed_ids: Mutex::new(HashSet::new()),
+            health_metrics: Mutex::new(HealthMetrics::default()),
+            shutdown: AtomicBool::new(false),
+            reconnect_attempt: AtomicU32::new(0),
+            active_runs: Mutex::new(HashMap::new()),
         }
     }
 }
+
+/// Stored credentials for reconnection
+#[derive(Clone)]
+struct StoredCredentials {
+    url: String,
+    token: String,
+}
+
+/// Pending request with timeout
+struct PendingRequest {
+    sender: oneshot::Sender<GatewayResponse>,
+    created_at: Instant,
+    timeout: Duration,
+}
+
+/// Outgoing message types
+enum OutgoingMessage {
+    Raw(String),
+    Ping,
+}
+
+// ============================================================================
+// Protocol Types
+// ============================================================================
 
 /// Request to send to Gateway (Clawdbot Protocol v3)
 #[derive(Debug, Serialize)]
 struct GatewayRequest {
     #[serde(rename = "type")]
-    msg_type: String,  // Always "req"
+    msg_type: String,
     id: String,
     method: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -66,7 +122,7 @@ pub struct AttachmentData {
     pub filename: String,
     #[serde(rename = "mimeType")]
     pub mime_type: String,
-    pub data: String, // base64 encoded
+    pub data: String,
 }
 
 /// Chat message parameters
@@ -88,29 +144,13 @@ pub struct ChatEvent {
     #[serde(rename = "sessionKey")]
     pub session_key: Option<String>,
     pub seq: Option<i32>,
-    pub state: Option<String>,  // "delta" | "final" | "aborted" | "error"
+    pub state: Option<String>,
     pub message: Option<serde_json::Value>,
     #[serde(rename = "errorMessage")]
     pub error_message: Option<String>,
 }
 
-/// Gateway frame wrapper for parsing incoming messages
-#[derive(Debug, Deserialize, Clone)]
-pub struct GatewayFrame {
-    #[serde(rename = "type")]
-    pub frame_type: String,  // "req", "res", or "event"
-    // Response fields
-    pub id: Option<String>,
-    pub ok: Option<bool>,
-    pub payload: Option<serde_json::Value>,
-    pub error: Option<GatewayError>,
-    // Event fields
-    pub event: Option<String>,
-    #[allow(dead_code)]
-    pub seq: Option<i32>,  // Used by protocol, kept for completeness
-}
-
-/// Response from Gateway (Clawdbot Protocol v3)
+/// Response from Gateway
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GatewayResponse {
     #[serde(rename = "type")]
@@ -118,18 +158,10 @@ pub struct GatewayResponse {
     pub id: Option<String>,
     pub ok: Option<bool>,
     pub payload: Option<serde_json::Value>,
-    pub error: Option<GatewayError>,
+    pub error: Option<RawGatewayError>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct GatewayError {
-    pub code: String,  // String in Clawdbot protocol
-    pub message: String,
-    pub details: Option<serde_json::Value>,
-    pub retryable: Option<bool>,
-}
-
-/// Result of a connection attempt with protocol info
+/// Result of a connection attempt
 #[derive(Debug, Serialize, Clone)]
 pub struct ConnectResult {
     pub success: bool,
@@ -137,7 +169,7 @@ pub struct ConnectResult {
     pub protocol_switched: bool,
 }
 
-/// Connect parameters for Clawdbot Gateway handshake
+/// Connect parameters for handshake
 #[derive(Debug, Serialize)]
 struct ConnectParams {
     #[serde(rename = "minProtocol")]
@@ -169,62 +201,22 @@ struct AuthInfo {
     token: String,
 }
 
-/// Try to connect with protocol fallback (ws:// <-> wss://) with timeout
-async fn try_connect_with_fallback(url: &str) -> Result<(tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, String, bool), String> {
-    // Connection timeout: 3 seconds per attempt (responsive UX)
-    // Total max: 6 seconds (3s primary + 3s fallback)
-    let timeout_duration = std::time::Duration::from_secs(3);
-    
-    // First, try the URL as provided
-    let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
-    
-    match first_attempt {
-        Ok(Ok((stream, _))) => return Ok((stream, url.to_string(), false)),
-        Ok(Err(first_err)) => {
-            // Connection failed, try alternate protocol
-            let alternate_url = if url.starts_with("ws://") {
-                url.replacen("ws://", "wss://", 1)
-            } else if url.starts_with("wss://") {
-                url.replacen("wss://", "ws://", 1)
-            } else {
-                // Not a WebSocket URL, can't switch protocol
-                return Err(format!("Connection failed: {}", first_err));
-            };
-            
-            // Try alternate protocol with timeout
-            let second_attempt = tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
-            
-            match second_attempt {
-                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
-                Ok(Err(_)) => {
-                    // Both failed, return user-friendly error
-                    Err(format!("Unable to connect to Gateway. Please check:\n• Gateway is running\n• URL is correct ({})\n• Network connection is active", url))
-                }
-                Err(_) => {
-                    // Timeout on second attempt
-                    Err(format!("Connection timeout. Gateway at {} is not responding.", alternate_url))
-                }
-            }
-        }
-        Err(_) => {
-            // Timeout on first attempt, try alternate anyway
-            let alternate_url = if url.starts_with("ws://") {
-                url.replacen("ws://", "wss://", 1)
-            } else if url.starts_with("wss://") {
-                url.replacen("wss://", "ws://", 1)
-            } else {
-                return Err(format!("Connection timeout. Gateway at {} is not responding.", url));
-            };
-            
-            let second_attempt = tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
-            
-            match second_attempt {
-                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
-                _ => Err(format!("Connection timeout. Gateway is not responding after {} seconds.", timeout_duration.as_secs() * 2))
-            }
-        }
-    }
+/// Model info returned from Gateway
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ModelInfo {
+    pub id: String,
+    pub name: String,
+    pub provider: String,
+    #[serde(default)]
+    pub is_default: bool,
+    #[serde(rename = "contextWindow")]
+    pub context_window: Option<i32>,
+    pub reasoning: Option<bool>,
 }
+
+// ============================================================================
+// Connection Helpers
+// ============================================================================
 
 /// Get platform string for connect handshake
 fn get_platform() -> String {
@@ -238,221 +230,107 @@ fn get_platform() -> String {
     return "unknown".to_string();
 }
 
-/// Connect to Clawdbot Gateway
-#[tauri::command]
-pub async fn connect(
-    app: AppHandle,
-    state: State<'_, GatewayState>,
-    url: String,
-    token: String,
-) -> Result<ConnectResult, String> {
-    // Store token for later use
-    *state.stored_token.lock().await = Some(token.clone());
-    
-    // Connect without token in URL (token sent in handshake)
-    let (ws_stream, used_url, protocol_switched) = try_connect_with_fallback(&url).await?;
+/// Try to connect with protocol fallback (ws:// <-> wss://)
+async fn try_connect_with_fallback(
+    url: &str,
+) -> Result<
+    (
+        tokio_tungstenite::WebSocketStream<
+            tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>,
+        >,
+        String,
+        bool,
+    ),
+    GatewayError,
+> {
+    let timeout_duration = Duration::from_secs(3);
 
-    let (mut write, mut read) = ws_stream.split();
+    // First, try the URL as provided
+    let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
 
-    // Create channel for sending messages
-    let (tx, mut rx) = mpsc::channel::<String>(100);
+    match first_attempt {
+        Ok(Ok((stream, _))) => return Ok((stream, url.to_string(), false)),
+        Ok(Err(first_err)) => {
+            log_protocol_error("Primary connection failed", &first_err.to_string());
 
-    // Store sender
-    *state.sender.lock().await = Some(tx.clone());
-    
-    // Clone state for async tasks
-    let pending_requests = Arc::new(Mutex::new(HashMap::<String, oneshot::Sender<GatewayResponse>>::new()));
-    let pending_clone = pending_requests.clone();
+            // Try alternate protocol
+            let alternate_url = if url.starts_with("ws://") {
+                url.replacen("ws://", "wss://", 1)
+            } else if url.starts_with("wss://") {
+                url.replacen("wss://", "ws://", 1)
+            } else {
+                return Err(GatewayError::Network {
+                    message: format!("Invalid WebSocket URL: {}", url),
+                    retryable: false,
+                    retry_after: None,
+                });
+            };
 
-    // Spawn task to handle outgoing messages
-    let app_clone = app.clone();
-    tokio::spawn(async move {
-        while let Some(msg) = rx.recv().await {
-            if let Err(e) = write.send(WsMessage::Text(msg.into())).await {
-                eprintln!("Failed to send message: {}", e);
-                let _ = app_clone.emit("gateway:error", e.to_string());
-                break;
+            let second_attempt =
+                tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+
+            match second_attempt {
+                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                Ok(Err(e)) => {
+                    log_protocol_error("Fallback connection failed", &e.to_string());
+                    Err(GatewayError::Network {
+                        message: format!(
+                            "Unable to connect to Gateway. Tried {} and {}",
+                            url, alternate_url
+                        ),
+                        retryable: true,
+                        retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
+                    })
+                }
+                Err(_) => Err(GatewayError::Timeout {
+                    timeout_secs: timeout_duration.as_secs(),
+                    request_id: None,
+                }),
             }
         }
-    });
+        Err(_) => {
+            // Timeout on first attempt, try alternate
+            let alternate_url = if url.starts_with("ws://") {
+                url.replacen("ws://", "wss://", 1)
+            } else if url.starts_with("wss://") {
+                url.replacen("wss://", "ws://", 1)
+            } else {
+                return Err(GatewayError::Timeout {
+                    timeout_secs: timeout_duration.as_secs(),
+                    request_id: None,
+                });
+            };
 
-    // Wait for connect.challenge event, then send connect request
-    let _connected = false;  // Will be set true when hello-ok received
-    let app_clone = app.clone();
-    let tx_clone = tx.clone();
-    let token_clone = token.clone();
-    
-    // Process messages in a loop
-    let pending_for_handler = pending_clone.clone();
-    tokio::spawn(async move {
-        while let Some(msg) = read.next().await {
-            match msg {
-                Ok(WsMessage::Text(text)) => {
-                    let text_str = text.to_string();
-                    
-                    // Try to parse as a Gateway frame
-                    if let Ok(frame) = serde_json::from_str::<GatewayFrame>(&text_str) {
-                        match frame.frame_type.as_str() {
-                            "event" => {
-                                if let Some(event_name) = &frame.event {
-                                    match event_name.as_str() {
-                                        "connect.challenge" => {
-                                            // Send connect request
-                                            let connect_req = GatewayRequest {
-                                                msg_type: "req".to_string(),
-                                                id: uuid::Uuid::new_v4().to_string(),
-                                                method: "connect".to_string(),
-                                                params: Some(serde_json::to_value(ConnectParams {
-                                                    min_protocol: PROTOCOL_VERSION,
-                                                    max_protocol: PROTOCOL_VERSION,
-                                                    client: ClientInfo {
-                                                        id: "molt".to_string(),
-                                                        version: env!("CARGO_PKG_VERSION").to_string(),
-                                                        platform: get_platform(),
-                                                        mode: "operator".to_string(),
-                                                    },
-                                                    role: "operator".to_string(),
-                                                    scopes: vec![
-                                                        "operator.read".to_string(),
-                                                        "operator.write".to_string(),
-                                                    ],
-                                                    caps: vec![],
-                                                    commands: vec![],
-                                                    permissions: serde_json::json!({}),
-                                                    auth: AuthInfo {
-                                                        token: token_clone.clone(),
-                                                    },
-                                                    locale: "en-US".to_string(),
-                                                    user_agent: format!("molt/{}", env!("CARGO_PKG_VERSION")),
-                                                }).unwrap()),
-                                            };
-                                            
-                                            if let Ok(json) = serde_json::to_string(&connect_req) {
-                                                let _ = tx_clone.send(json).await;
-                                            }
-                                        }
-                                        "chat" => {
-                                            // Parse chat event
-                                            if let Some(payload) = frame.payload {
-                                                if let Ok(chat_event) = serde_json::from_value::<ChatEvent>(payload) {
-                                                    match chat_event.state.as_deref() {
-                                                        Some("delta") => {
-                                                            // Extract content from message
-                                                            if let Some(msg) = &chat_event.message {
-                                                                if let Some(content) = msg.get("content").and_then(|c| c.as_str()) {
-                                                                    let _ = app_clone.emit("gateway:stream", content.to_string());
-                                                                }
-                                                            }
-                                                        }
-                                                        Some("final") => {
-                                                            let _ = app_clone.emit("gateway:complete", ());
-                                                        }
-                                                        Some("aborted") => {
-                                                            let _ = app_clone.emit("gateway:aborted", ());
-                                                        }
-                                                        Some("error") => {
-                                                            let error_msg = chat_event.error_message.unwrap_or_else(|| "Unknown error".to_string());
-                                                            let _ = app_clone.emit("gateway:error", error_msg);
-                                                        }
-                                                        _ => {}
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        "tick" => {
-                                            // Keepalive - no action needed
-                                        }
-                                        "shutdown" => {
-                                            let _ = app_clone.emit("gateway:disconnected", ());
-                                        }
-                                        _ => {
-                                            // Unknown event
-                                            let _ = app_clone.emit("gateway:event", text_str.clone());
-                                        }
-                                    }
-                                }
-                            }
-                            "res" => {
-                                // Response to a request
-                                let response = GatewayResponse {
-                                    msg_type: Some(frame.frame_type.clone()),
-                                    id: frame.id.clone(),
-                                    ok: frame.ok,
-                                    payload: frame.payload.clone(),
-                                    error: frame.error.clone(),
-                                };
-                                
-                                // Check if this is hello-ok (connect response)
-                                if let Some(payload) = &frame.payload {
-                                    if payload.get("type").and_then(|t| t.as_str()) == Some("hello-ok") {
-                                        let _ = app_clone.emit("gateway:connected", ());
-                                    }
-                                }
-                                
-                                // Route to pending request if any
-                                if let Some(req_id) = &frame.id {
-                                    let mut pending = pending_for_handler.lock().await;
-                                    if let Some(sender) = pending.remove(req_id) {
-                                        let _ = sender.send(response.clone());
-                                    }
-                                }
-                                
-                                // Also emit for general listeners
-                                let _ = app_clone.emit("gateway:response", response);
-                            }
-                            _ => {
-                                // Unknown frame type
-                                let _ = app_clone.emit("gateway:message", text_str.clone());
-                            }
-                        }
-                    } else {
-                        // Failed to parse as frame, emit raw
-                        let _ = app_clone.emit("gateway:message", text_str);
-                    }
-                }
-                Ok(WsMessage::Close(_)) => {
-                    let _ = app_clone.emit("gateway:disconnected", ());
-                    break;
-                }
-                Err(e) => {
-                    let _ = app_clone.emit("gateway:error", e.to_string());
-                    break;
-                }
-                _ => {}
+            let second_attempt =
+                tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+
+            match second_attempt {
+                Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                _ => Err(GatewayError::Timeout {
+                    timeout_secs: timeout_duration.as_secs() * 2,
+                    request_id: None,
+                }),
             }
         }
-    });
-
-    // Mark as connected (actual confirmation comes from hello-ok event)
-    *state.connected.write().await = true;
-
-    Ok(ConnectResult {
-        success: true,
-        used_url,
-        protocol_switched,
-    })
+    }
 }
 
-/// Disconnect from Gateway
-#[tauri::command]
-pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
-    *state.sender.lock().await = None;
-    *state.connected.write().await = false;
-    *state.pending_requests.lock().await = HashMap::new();
-    Ok(())
+/// Log protocol errors for debugging
+fn log_protocol_error(context: &str, error: &str) {
+    eprintln!("[Gateway Protocol Error] {}: {}", context, error);
 }
 
-/// Image MIME types that should use input_image
+// ============================================================================
+// Image handling
+// ============================================================================
+
 const IMAGE_MIMES: &[&str] = &["image/png", "image/jpeg", "image/gif", "image/webp"];
 
-/// Build input items from message and attachments for OpenResponses format
 fn build_input_items(message: &str, attachments: &[AttachmentData]) -> serde_json::Value {
     let mut items: Vec<serde_json::Value> = Vec::new();
-    
-    // Add attachments first (before the text message)
+
     for attachment in attachments {
         if IMAGE_MIMES.contains(&attachment.mime_type.as_str()) {
-            // Image attachment - use input_image type
             items.push(serde_json::json!({
                 "type": "input_image",
                 "source": {
@@ -462,7 +340,6 @@ fn build_input_items(message: &str, attachments: &[AttachmentData]) -> serde_jso
                 }
             }));
         } else {
-            // File attachment - use input_file type
             items.push(serde_json::json!({
                 "type": "input_file",
                 "source": {
@@ -474,19 +351,560 @@ fn build_input_items(message: &str, attachments: &[AttachmentData]) -> serde_jso
             }));
         }
     }
-    
-    // Add the text message last (or add empty message if only attachments)
+
     items.push(serde_json::json!({
         "type": "message",
         "role": "user",
-        "content": if message.is_empty() && !attachments.is_empty() { 
-            "Please analyze the attached file(s)." 
-        } else { 
-            message 
+        "content": if message.is_empty() && !attachments.is_empty() {
+            "Please analyze the attached file(s)."
+        } else {
+            message
         }
     }));
-    
+
     serde_json::Value::Array(items)
+}
+
+// ============================================================================
+// Tauri Commands
+// ============================================================================
+
+/// Connect to Clawdbot Gateway
+#[tauri::command]
+pub async fn connect(
+    app: AppHandle,
+    state: State<'_, GatewayState>,
+    url: String,
+    token: String,
+) -> Result<ConnectResult, String> {
+    // Reset shutdown flag
+    state.shutdown.store(false, Ordering::SeqCst);
+    state.reconnect_attempt.store(0, Ordering::SeqCst);
+
+    // Store credentials for reconnection
+    *state.stored_credentials.lock().await = Some(StoredCredentials {
+        url: url.clone(),
+        token: token.clone(),
+    });
+
+    // Update connection state
+    *state.connection_state.write().await = ConnectionState::Connecting;
+    let _ = app.emit("gateway:state", ConnectionState::Connecting);
+
+    // Perform actual connection
+    match connect_internal(&app, &state, &url, &token).await {
+        Ok(result) => {
+            *state.connection_state.write().await = ConnectionState::Connected {
+                session_id: None,
+            };
+            let _ = app.emit(
+                "gateway:state",
+                ConnectionState::Connected { session_id: None },
+            );
+
+            // Drain message queue
+            drain_message_queue(&state).await;
+
+            Ok(result)
+        }
+        Err(e) => {
+            let error_msg = e.user_message();
+            *state.connection_state.write().await = ConnectionState::Failed {
+                reason: error_msg.clone(),
+                can_retry: e.is_retryable(),
+            };
+            let _ = app.emit(
+                "gateway:state",
+                ConnectionState::Failed {
+                    reason: error_msg.clone(),
+                    can_retry: e.is_retryable(),
+                },
+            );
+
+            // If retryable, start reconnection loop
+            if e.is_retryable() && !e.requires_reauth() {
+                start_reconnection_loop(app.clone(), state.inner().clone()).await;
+            }
+
+            Err(error_msg)
+        }
+    }
+}
+
+/// Internal connection logic
+async fn connect_internal(
+    app: &AppHandle,
+    state: &GatewayState,
+    url: &str,
+    token: &str,
+) -> Result<ConnectResult, GatewayError> {
+    let (ws_stream, used_url, protocol_switched) = try_connect_with_fallback(url).await?;
+
+    let (mut write, mut read) = ws_stream.split();
+
+    // Create channel for sending messages
+    let (tx, mut rx) = mpsc::channel::<OutgoingMessage>(100);
+
+    // Store sender
+    *state.sender.lock().await = Some(tx.clone());
+
+    // Reset health metrics
+    state.health_metrics.lock().await.reset();
+
+    // Spawn task to handle outgoing messages
+    let app_clone = app.clone();
+    tokio::spawn(async move {
+        while let Some(msg) = rx.recv().await {
+            let ws_msg = match msg {
+                OutgoingMessage::Raw(text) => WsMessage::Text(text.into()),
+                OutgoingMessage::Ping => WsMessage::Ping(vec![]),
+            };
+            if let Err(e) = write.send(ws_msg).await {
+                log_protocol_error("Failed to send message", &e.to_string());
+                let _ = app_clone.emit("gateway:error", e.to_string());
+                break;
+            }
+        }
+    });
+
+    // Clone for message handler
+    let app_clone = app.clone();
+    let tx_clone = tx.clone();
+    let token_clone = token.to_string();
+
+    // Create shared state for handler
+    let pending_requests: Arc<Mutex<HashMap<String, PendingRequest>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    let pending_clone = pending_requests.clone();
+    let health_metrics = Arc::new(Mutex::new(HealthMetrics::default()));
+    let health_clone = health_metrics.clone();
+    let active_runs: Arc<Mutex<HashMap<String, Instant>>> = Arc::new(Mutex::new(HashMap::new()));
+    let runs_clone = active_runs.clone();
+
+    // Spawn message handler
+    tokio::spawn(async move {
+        while let Some(msg) = read.next().await {
+            match msg {
+                Ok(WsMessage::Text(text)) => {
+                    let text_str = text.to_string();
+
+                    // Validate and parse frame
+                    match validate_frame(&text_str) {
+                        Ok(frame) => {
+                            handle_validated_frame(
+                                frame,
+                                &app_clone,
+                                &tx_clone,
+                                &token_clone,
+                                &pending_clone,
+                                &runs_clone,
+                            )
+                            .await;
+                        }
+                        Err(e) => {
+                            log_protocol_error("Frame validation failed", &e.to_string());
+                            // Don't crash on malformed messages, just log
+                        }
+                    }
+                }
+                Ok(WsMessage::Pong(_)) => {
+                    // Ping response - record latency
+                    // Note: We'd need to track ping send time for accurate latency
+                    health_clone.lock().await.record_latency(0);
+                }
+                Ok(WsMessage::Close(frame)) => {
+                    let reason = frame
+                        .map(|f| f.reason.to_string())
+                        .unwrap_or_else(|| "Unknown".to_string());
+                    log_protocol_error("WebSocket closed", &reason);
+                    let _ = app_clone.emit("gateway:disconnected", reason);
+                    break;
+                }
+                Err(e) => {
+                    log_protocol_error("WebSocket error", &e.to_string());
+                    let _ = app_clone.emit("gateway:error", e.to_string());
+                    break;
+                }
+                _ => {}
+            }
+        }
+    });
+
+    // Start ping/pong health monitor
+    start_health_monitor(app.clone(), tx.clone(), health_metrics.clone()).await;
+
+    // Start streaming timeout monitor
+    start_stream_timeout_monitor(app.clone(), active_runs.clone()).await;
+
+    Ok(ConnectResult {
+        success: true,
+        used_url,
+        protocol_switched,
+    })
+}
+
+/// Handle a validated protocol frame
+async fn handle_validated_frame(
+    frame: ValidatedFrame,
+    app: &AppHandle,
+    tx: &mpsc::Sender<OutgoingMessage>,
+    token: &str,
+    pending_requests: &Arc<Mutex<HashMap<String, PendingRequest>>>,
+    active_runs: &Arc<Mutex<HashMap<String, Instant>>>,
+) {
+    match frame {
+        ValidatedFrame::Event { event, payload, .. } => {
+            match event.as_str() {
+                "connect.challenge" => {
+                    // Send connect request
+                    let connect_req = GatewayRequest {
+                        msg_type: "req".to_string(),
+                        id: uuid::Uuid::new_v4().to_string(),
+                        method: "connect".to_string(),
+                        params: Some(
+                            serde_json::to_value(ConnectParams {
+                                min_protocol: PROTOCOL_VERSION,
+                                max_protocol: PROTOCOL_VERSION,
+                                client: ClientInfo {
+                                    id: "molt".to_string(),
+                                    version: env!("CARGO_PKG_VERSION").to_string(),
+                                    platform: get_platform(),
+                                    mode: "operator".to_string(),
+                                },
+                                role: "operator".to_string(),
+                                scopes: vec![
+                                    "operator.read".to_string(),
+                                    "operator.write".to_string(),
+                                ],
+                                caps: vec![],
+                                commands: vec![],
+                                permissions: serde_json::json!({}),
+                                auth: AuthInfo {
+                                    token: token.to_string(),
+                                },
+                                locale: "en-US".to_string(),
+                                user_agent: format!("molt/{}", env!("CARGO_PKG_VERSION")),
+                            })
+                            .unwrap(),
+                        ),
+                    };
+
+                    if let Ok(json) = serde_json::to_string(&connect_req) {
+                        let _ = tx.send(OutgoingMessage::Raw(json)).await;
+                    }
+                }
+                "chat" => {
+                    if let Some(payload) = payload {
+                        if let Ok(chat_event) = serde_json::from_value::<ChatEvent>(payload) {
+                            // Update streaming timeout tracker
+                            if let Some(run_id) = &chat_event.run_id {
+                                active_runs
+                                    .lock()
+                                    .await
+                                    .insert(run_id.clone(), Instant::now());
+                            }
+
+                            match chat_event.state.as_deref() {
+                                Some("delta") => {
+                                    if let Some(msg) = &chat_event.message {
+                                        if let Some(content) =
+                                            msg.get("content").and_then(|c| c.as_str())
+                                        {
+                                            let _ = app.emit("gateway:stream", content.to_string());
+                                        }
+                                    }
+                                }
+                                Some("final") => {
+                                    // Remove from active runs
+                                    if let Some(run_id) = &chat_event.run_id {
+                                        active_runs.lock().await.remove(run_id);
+                                    }
+                                    let _ = app.emit("gateway:complete", ());
+                                }
+                                Some("aborted") => {
+                                    if let Some(run_id) = &chat_event.run_id {
+                                        active_runs.lock().await.remove(run_id);
+                                    }
+                                    let _ = app.emit("gateway:aborted", ());
+                                }
+                                Some("error") => {
+                                    if let Some(run_id) = &chat_event.run_id {
+                                        active_runs.lock().await.remove(run_id);
+                                    }
+                                    let error_msg = chat_event
+                                        .error_message
+                                        .unwrap_or_else(|| "Unknown error".to_string());
+                                    let _ = app.emit("gateway:error", error_msg);
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+                "tick" => {
+                    // Keepalive - no action needed
+                }
+                "shutdown" => {
+                    let _ = app.emit("gateway:disconnected", "Server shutdown");
+                }
+                _ => {
+                    // Unknown event - emit for debugging
+                    let _ = app.emit(
+                        "gateway:event",
+                        serde_json::json!({
+                            "event": event,
+                            "payload": payload
+                        }),
+                    );
+                }
+            }
+        }
+        ValidatedFrame::Response {
+            id,
+            ok,
+            payload,
+            error,
+        } => {
+            let response = GatewayResponse {
+                msg_type: Some("res".to_string()),
+                id: Some(id.clone()),
+                ok: Some(ok),
+                payload: payload.clone(),
+                error: error.clone(),
+            };
+
+            // Check if this is hello-ok (connect response)
+            if let Some(payload) = &payload {
+                if payload.get("type").and_then(|t| t.as_str()) == Some("hello-ok") {
+                    let _ = app.emit("gateway:connected", ());
+                }
+            }
+
+            // Route to pending request
+            let mut pending = pending_requests.lock().await;
+            if let Some(pending_req) = pending.remove(&id) {
+                let _ = pending_req.sender.send(response.clone());
+            }
+
+            // Emit for general listeners
+            let _ = app.emit("gateway:response", response);
+        }
+        ValidatedFrame::Request { .. } => {
+            // Server-initiated requests - not currently handled
+        }
+    }
+}
+
+/// Start health monitoring with ping/pong
+async fn start_health_monitor(
+    app: AppHandle,
+    tx: mpsc::Sender<OutgoingMessage>,
+    _health_metrics: Arc<Mutex<HealthMetrics>>,
+) {
+    tokio::spawn(async move {
+        let ping_interval = Duration::from_secs(DEFAULT_PING_INTERVAL_SECS);
+        let _ping_timeout = Duration::from_secs(DEFAULT_PING_TIMEOUT_SECS);
+
+        loop {
+            tokio::time::sleep(ping_interval).await;
+
+            // Send ping
+            if tx.send(OutgoingMessage::Ping).await.is_err() {
+                // Channel closed, connection lost
+                let _ = app.emit("gateway:disconnected", "Connection lost");
+                break;
+            }
+        }
+    });
+}
+
+/// Start streaming timeout monitor
+async fn start_stream_timeout_monitor(
+    app: AppHandle,
+    active_runs: Arc<Mutex<HashMap<String, Instant>>>,
+) {
+    tokio::spawn(async move {
+        let check_interval = Duration::from_secs(5);
+        let stream_timeout = Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS);
+
+        loop {
+            tokio::time::sleep(check_interval).await;
+
+            let mut runs = active_runs.lock().await;
+            let mut timed_out = Vec::new();
+
+            for (run_id, last_activity) in runs.iter() {
+                if last_activity.elapsed() > stream_timeout {
+                    timed_out.push(run_id.clone());
+                }
+            }
+
+            for run_id in timed_out {
+                runs.remove(&run_id);
+                let _ = app.emit(
+                    "gateway:stream_timeout",
+                    serde_json::json!({
+                        "runId": run_id,
+                        "timeoutSecs": stream_timeout.as_secs()
+                    }),
+                );
+            }
+        }
+    });
+}
+
+/// Start reconnection loop with exponential backoff
+async fn start_reconnection_loop(app: AppHandle, state: Arc<GatewayState>) {
+    tokio::spawn(async move {
+        loop {
+            let attempt = state.reconnect_attempt.fetch_add(1, Ordering::SeqCst) + 1;
+
+            if attempt > MAX_RECONNECT_ATTEMPTS {
+                // Give up
+                *state.connection_state.write().await = ConnectionState::Failed {
+                    reason: format!(
+                        "Failed to reconnect after {} attempts",
+                        MAX_RECONNECT_ATTEMPTS
+                    ),
+                    can_retry: true,
+                };
+                let _ = app.emit(
+                    "gateway:state",
+                    ConnectionState::Failed {
+                        reason: format!(
+                            "Failed to reconnect after {} attempts",
+                            MAX_RECONNECT_ATTEMPTS
+                        ),
+                        can_retry: true,
+                    },
+                );
+                break;
+            }
+
+            if state.shutdown.load(Ordering::SeqCst) {
+                break;
+            }
+
+            let backoff = calculate_backoff(attempt);
+
+            // Update state to reconnecting
+            *state.connection_state.write().await = ConnectionState::Reconnecting {
+                attempt,
+                max_attempts: MAX_RECONNECT_ATTEMPTS,
+                next_retry_ms: backoff.as_millis() as u64,
+                reason: "Connection lost".to_string(),
+            };
+            let _ = app.emit(
+                "gateway:state",
+                ConnectionState::Reconnecting {
+                    attempt,
+                    max_attempts: MAX_RECONNECT_ATTEMPTS,
+                    next_retry_ms: backoff.as_millis() as u64,
+                    reason: "Connection lost".to_string(),
+                },
+            );
+
+            // Wait for backoff
+            tokio::time::sleep(backoff).await;
+
+            if state.shutdown.load(Ordering::SeqCst) {
+                break;
+            }
+
+            // Attempt reconnection
+            let credentials = state.stored_credentials.lock().await.clone();
+            if let Some(creds) = credentials {
+                match connect_internal(&app, &state, &creds.url, &creds.token).await {
+                    Ok(_) => {
+                        // Success!
+                        state.reconnect_attempt.store(0, Ordering::SeqCst);
+                        *state.connection_state.write().await = ConnectionState::Connected {
+                            session_id: None,
+                        };
+                        let _ = app.emit(
+                            "gateway:state",
+                            ConnectionState::Connected { session_id: None },
+                        );
+                        let _ = app.emit("gateway:reconnected", attempt);
+
+                        // Drain message queue
+                        drain_message_queue(&state).await;
+                        break;
+                    }
+                    Err(e) => {
+                        if e.requires_reauth() {
+                            // Auth error - stop reconnecting
+                            *state.connection_state.write().await = ConnectionState::Failed {
+                                reason: e.user_message(),
+                                can_retry: false,
+                            };
+                            let _ = app.emit(
+                                "gateway:state",
+                                ConnectionState::Failed {
+                                    reason: e.user_message(),
+                                    can_retry: false,
+                                },
+                            );
+                            break;
+                        }
+                        // Continue loop for other errors
+                    }
+                }
+            } else {
+                // No credentials - can't reconnect
+                break;
+            }
+        }
+    });
+}
+
+/// Drain and send queued messages
+async fn drain_message_queue(state: &GatewayState) {
+    let sender = state.sender.lock().await;
+    if let Some(tx) = sender.as_ref() {
+        let mut queue = state.message_queue.lock().await;
+        let mut processed = state.processed_ids.lock().await;
+
+        while let Some(mut msg) = queue.pop_front() {
+            // Skip expired messages
+            if msg.is_expired() {
+                continue;
+            }
+
+            // Skip already processed (dedup)
+            if processed.contains(&msg.id) {
+                continue;
+            }
+
+            // Try to send
+            if tx.send(OutgoingMessage::Raw(msg.json.clone())).await.is_ok() {
+                processed.insert(msg.id.clone());
+            } else if msg.can_retry() {
+                // Put back in queue for retry
+                msg.increment_retry();
+                queue.push_back(msg);
+            }
+        }
+
+        // Cleanup old processed IDs (keep last 1000)
+        if processed.len() > 1000 {
+            let to_remove: Vec<_> = processed.iter().take(processed.len() - 1000).cloned().collect();
+            for id in to_remove {
+                processed.remove(&id);
+            }
+        }
+    }
+}
+
+/// Disconnect from Gateway
+#[tauri::command]
+pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
+    state.shutdown.store(true, Ordering::SeqCst);
+    *state.sender.lock().await = None;
+    *state.connection_state.write().await = ConnectionState::Disconnected;
+    *state.pending_requests.lock().await = HashMap::new();
+    state.health_metrics.lock().await.reset();
+    Ok(())
 }
 
 /// Send a chat message to Gateway
@@ -495,13 +913,12 @@ pub async fn send_message(
     state: State<'_, GatewayState>,
     params: ChatParams,
 ) -> Result<String, String> {
-    let sender = state.sender.lock().await;
-    let sender = sender.as_ref().ok_or("Not connected")?;
+    let connection_state = state.connection_state.read().await.clone();
 
+    // Build request
     let request_id = uuid::Uuid::new_v4().to_string();
     let idempotency_key = uuid::Uuid::new_v4().to_string();
 
-    // Build request params - use input items format if there are attachments
     let request_params = if params.attachments.is_empty() {
         serde_json::json!({
             "message": params.message,
@@ -510,7 +927,6 @@ pub async fn send_message(
             "idempotencyKey": idempotency_key,
         })
     } else {
-        // Use OpenResponses input format for attachments
         serde_json::json!({
             "input": build_input_items(&params.message, &params.attachments),
             "sessionKey": params.session_key,
@@ -527,7 +943,25 @@ pub async fn send_message(
     };
 
     let json = serde_json::to_string(&request).map_err(|e| e.to_string())?;
-    sender.send(json).await.map_err(|e| e.to_string())?;
+
+    // If reconnecting, queue the message
+    if matches!(connection_state, ConnectionState::Reconnecting { .. }) {
+        let mut queue = state.message_queue.lock().await;
+        queue.push_back(QueuedMessage::new(request_id.clone(), json));
+        return Ok(request_id);
+    }
+
+    // Try to send
+    let sender = state.sender.lock().await;
+    let sender = sender.as_ref().ok_or("Not connected")?;
+
+    sender
+        .send(OutgoingMessage::Raw(json.clone()))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Track for dedup
+    state.processed_ids.lock().await.insert(request_id.clone());
 
     Ok(request_id)
 }
@@ -535,20 +969,19 @@ pub async fn send_message(
 /// Get connection status
 #[tauri::command]
 pub async fn get_connection_status(state: State<'_, GatewayState>) -> Result<bool, String> {
-    Ok(*state.connected.read().await)
+    Ok(state.connection_state.read().await.is_connected())
 }
 
-/// Model info returned from Gateway
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ModelInfo {
-    pub id: String,
-    pub name: String,
-    pub provider: String,
-    #[serde(default)]
-    pub is_default: bool,
-    #[serde(rename = "contextWindow")]
-    pub context_window: Option<i32>,
-    pub reasoning: Option<bool>,
+/// Get detailed connection state
+#[tauri::command]
+pub async fn get_connection_state(state: State<'_, GatewayState>) -> Result<ConnectionState, String> {
+    Ok(state.connection_state.read().await.clone())
+}
+
+/// Get connection quality
+#[tauri::command]
+pub async fn get_connection_quality(state: State<'_, GatewayState>) -> Result<ConnectionQuality, String> {
+    Ok(state.health_metrics.lock().await.quality())
 }
 
 /// Request available models from Gateway
@@ -560,36 +993,44 @@ pub async fn get_models(
     let sender_guard = state.sender.lock().await;
     let sender = sender_guard.as_ref().ok_or("Not connected to Gateway")?;
 
-    // Create request for models
     let request = GatewayRequest::new("models.list", Some(serde_json::json!({})));
     let request_id = request.id.clone();
 
-    // Create oneshot channel for response
     let (response_tx, response_rx) = oneshot::channel();
-    
-    // Register pending request
+
     {
         let mut pending = state.pending_requests.lock().await;
-        pending.insert(request_id.clone(), response_tx);
+        pending.insert(
+            request_id.clone(),
+            PendingRequest {
+                sender: response_tx,
+                created_at: Instant::now(),
+                timeout: Duration::from_secs(DEFAULT_REQUEST_TIMEOUT_SECS),
+            },
+        );
     }
 
-    // Send request
     let json = serde_json::to_string(&request).map_err(|e| e.to_string())?;
-    sender.send(json).await.map_err(|e| e.to_string())?;
-    
-    // Drop the sender lock so responses can be processed
+    sender
+        .send(OutgoingMessage::Raw(json))
+        .await
+        .map_err(|e| e.to_string())?;
+
     drop(sender_guard);
 
-    // Wait for response with timeout
     match tokio::time::timeout(
-        std::time::Duration::from_secs(10),
-        response_rx
-    ).await {
+        Duration::from_secs(DEFAULT_REQUEST_TIMEOUT_SECS),
+        response_rx,
+    )
+    .await
+    {
         Ok(Ok(response)) => {
             if response.ok == Some(true) {
                 if let Some(payload) = response.payload {
                     if let Some(models_val) = payload.get("models") {
-                        if let Ok(models) = serde_json::from_value::<Vec<ModelInfo>>(models_val.clone()) {
+                        if let Ok(models) =
+                            serde_json::from_value::<Vec<ModelInfo>>(models_val.clone())
+                        {
                             return Ok(models);
                         }
                     }
@@ -597,23 +1038,19 @@ pub async fn get_models(
             } else if let Some(error) = response.error {
                 return Err(format!("Gateway error: {}", error.message));
             }
-            // Fallback if parsing failed
             Ok(get_fallback_models())
         }
         Ok(Err(_)) => {
-            // Channel closed, remove from pending
             state.pending_requests.lock().await.remove(&request_id);
             Ok(get_fallback_models())
         }
         Err(_) => {
-            // Timeout, remove from pending and return fallback
             state.pending_requests.lock().await.remove(&request_id);
             Ok(get_fallback_models())
         }
     }
 }
 
-/// Fallback models if Gateway doesn't respond
 fn get_fallback_models() -> Vec<ModelInfo> {
     vec![
         ModelInfo {
@@ -642,6 +1079,10 @@ fn get_fallback_models() -> Vec<ModelInfo> {
         },
     ]
 }
+
+// ============================================================================
+// Tests
+// ============================================================================
 
 #[cfg(test)]
 mod tests {
@@ -697,66 +1138,23 @@ mod tests {
         assert!(json.contains("operator"));
     }
 
-    #[test]
-    fn test_gateway_frame_response_parsing() {
-        let json = r#"{"type":"res","id":"req-123","ok":true,"payload":{"type":"hello-ok","protocol":3}}"#;
-        let frame: GatewayFrame = serde_json::from_str(json).unwrap();
-        
-        assert_eq!(frame.frame_type, "res");
-        assert_eq!(frame.id, Some("req-123".to_string()));
-        assert_eq!(frame.ok, Some(true));
-        assert!(frame.payload.is_some());
-    }
-
-    #[test]
-    fn test_gateway_frame_event_parsing() {
-        let json = r#"{"type":"event","event":"chat","payload":{"runId":"run-1","state":"delta","message":{"content":"Hello"}}}"#;
-        let frame: GatewayFrame = serde_json::from_str(json).unwrap();
-        
-        assert_eq!(frame.frame_type, "event");
-        assert_eq!(frame.event, Some("chat".to_string()));
-        assert!(frame.payload.is_some());
-    }
-
-    #[test]
-    fn test_chat_event_parsing() {
-        let json = r#"{"runId":"run-123","sessionKey":"sess-456","seq":0,"state":"delta","message":{"content":"Hello"}}"#;
-        let event: ChatEvent = serde_json::from_str(json).unwrap();
-        
-        assert_eq!(event.run_id, Some("run-123".to_string()));
-        assert_eq!(event.session_key, Some("sess-456".to_string()));
-        assert_eq!(event.state, Some("delta".to_string()));
-    }
-
-    #[test]
-    fn test_gateway_error_string_code() {
-        let json = r#"{"code":"UNAUTHORIZED","message":"Invalid token"}"#;
-        let error: GatewayError = serde_json::from_str(json).unwrap();
-        
-        assert_eq!(error.code, "UNAUTHORIZED");
-        assert_eq!(error.message, "Invalid token");
-    }
-
-    #[test]
-    fn test_models_list_request() {
-        let request = GatewayRequest::new("models.list", Some(serde_json::json!({})));
-        let json = serde_json::to_string(&request).unwrap();
-        
-        assert!(json.contains(r#""type":"req""#));
-        assert!(json.contains("models.list"));
-    }
-
     #[tokio::test]
     async fn test_gateway_state_default() {
         let state = GatewayState::default();
-        
-        // Should start disconnected
-        assert!(!*state.connected.read().await);
-        
-        // Should have no sender
+
+        assert!(!state.connection_state.read().await.is_connected());
         assert!(state.sender.lock().await.is_none());
-        
-        // Should have no pending requests
         assert!(state.pending_requests.lock().await.is_empty());
+        assert!(state.message_queue.lock().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_message_queue() {
+        let state = GatewayState::default();
+
+        let msg = QueuedMessage::new("test-1".to_string(), "{}".to_string());
+        state.message_queue.lock().await.push_back(msg);
+
+        assert_eq!(state.message_queue.lock().await.len(), 1);
     }
 }

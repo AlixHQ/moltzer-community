@@ -13,6 +13,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  isPending?: boolean; // User message waiting for Gateway confirmation
   attachments?: Attachment[];
   sources?: Source[];
   thinkingContent?: string;
@@ -86,6 +87,7 @@ interface Store {
   // Messages
   addMessage: (conversationId: string, message: Omit<Message, "id" | "timestamp">) => Message;
   updateMessage: (conversationId: string, messageId: string, content: string) => void;
+  markMessageSent: (conversationId: string, messageId: string) => void;
   deleteMessage: (conversationId: string, messageId: string) => void;
   deleteMessagesAfter: (conversationId: string, messageId: string) => void;
   appendToCurrentMessage: (content: string) => void;
@@ -270,6 +272,30 @@ export const useStore = create<Store>()((set, get) => ({
         if (message) {
           persistMessage(conversationId, message).catch(err => {
             console.error('Failed to persist updated message:', err);
+          });
+        }
+      },
+
+      markMessageSent: (conversationId, messageId) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === conversationId
+              ? {
+                  ...c,
+                  messages: c.messages.map((m) =>
+                    m.id === messageId ? { ...m, isPending: false } : m
+                  ),
+                }
+              : c
+          ),
+        }));
+
+        // Persist the updated message
+        const conversation = get().conversations.find(c => c.id === conversationId);
+        const message = conversation?.messages.find(m => m.id === messageId);
+        if (message) {
+          persistMessage(conversationId, { ...message, isPending: false }).catch(err => {
+            console.error('Failed to persist message sent status:', err);
           });
         }
       },

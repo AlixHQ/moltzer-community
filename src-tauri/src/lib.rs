@@ -5,6 +5,7 @@
 mod gateway;
 mod keychain;
 mod discovery;
+mod protocol;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,6 +31,8 @@ pub fn run() {
             gateway::disconnect,
             gateway::send_message,
             gateway::get_connection_status,
+            gateway::get_connection_state,
+            gateway::get_connection_quality,
             gateway::get_models,
             keychain::keychain_get,
             keychain::keychain_set,

@@ -48,7 +48,6 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
     // Global timeout for entire detection (30 seconds max)
     const globalTimeout = setTimeout(() => {
       if (!isCancelledRef.current && isMountedRef.current) {
-        console.log('[DetectionStep] Global timeout reached, calling onNoGateway');
         isCancelledRef.current = true;
         onNoGateway();
       }
@@ -58,46 +57,36 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
       for (let i = 0; i < commonUrls.length; i++) {
         // Check if cancelled or unmounted before each attempt
         if (isCancelledRef.current || !isMountedRef.current) {
-          console.log('[DetectionStep] Cancelled or unmounted before attempt', i);
           clearTimeout(globalTimeout);
           return;
         }
         
         const url = commonUrls[i];
-        console.log(`[DetectionStep] Trying URL ${i + 1}/${commonUrls.length}: ${url}`);
         setCurrentUrl(url);
         setProgress(((i + 1) / commonUrls.length) * 100);
         
         try {
-          console.log(`[DetectionStep] Invoking connect for ${url}...`);
           const result = await invoke<ConnectResult>("connect", { url, token: "" });
-          console.log(`[DetectionStep] Connect succeeded for ${url}:`, result);
           
           // Check again after async operation
           if (isCancelledRef.current || !isMountedRef.current) {
-            console.log('[DetectionStep] Cancelled or unmounted after connect success');
             clearTimeout(globalTimeout);
             return;
           }
           
           // Success! Gateway found - but don't auto-proceed, let user confirm
           clearTimeout(globalTimeout);
-          console.log('[DetectionStep] Gateway found! Showing confirmation...');
           
           if (isCancelledRef.current || !isMountedRef.current) {
-            console.log('[DetectionStep] Cancelled or unmounted after connect success');
             return;
           }
           
           // Show confirmation UI instead of auto-proceeding
-          console.log('[DetectionStep] Setting foundUrl for confirmation:', result.used_url);
           setFoundUrl(result.used_url);
           return;
-        } catch (err) {
-          console.log(`[DetectionStep] Connect failed for ${url}:`, err);
+        } catch {
           // Check before delay
           if (isCancelledRef.current || !isMountedRef.current) {
-            console.log('[DetectionStep] Cancelled or unmounted after error');
             clearTimeout(globalTimeout);
             return;
           }
@@ -111,20 +100,16 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
       
       // Check before calling onNoGateway
       if (isCancelledRef.current || !isMountedRef.current) {
-        console.log('[DetectionStep] Cancelled or unmounted before onNoGateway');
         return;
       }
 
       // No Gateway found after checking all URLs
-      console.log('[DetectionStep] No gateway found, waiting 500ms...');
       await new Promise(resolve => setTimeout(resolve, 500));
       
       if (isCancelledRef.current || !isMountedRef.current) {
-        console.log('[DetectionStep] Cancelled or unmounted after final wait');
         return;
       }
       
-      console.log('[DetectionStep] Calling onNoGateway');
       onNoGateway();
     } catch (err) {
       clearTimeout(globalTimeout);
@@ -137,7 +122,6 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
   }, [onGatewayFound, onNoGateway]);
 
   useEffect(() => {
-    console.log('[DetectionStep] useEffect running, hasRun:', hasRunRef.current);
     // Reset mounted/cancelled state on mount
     isMountedRef.current = true;
     isCancelledRef.current = false;
@@ -156,21 +140,18 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
     
     // Cleanup on unmount
     return () => {
-      console.log('[DetectionStep] Cleanup - unmounting');
       isMountedRef.current = false;
     };
   }, [autoDetectGateway]);
 
   // Handle skip - cancel detection and call onSkip
   const handleSkip = useCallback(() => {
-    console.log('[DetectionStep] Skip clicked');
     isCancelledRef.current = true;
     onSkip();
   }, [onSkip]);
 
   // Handler for confirming the found URL
   const handleConfirmUrl = useCallback(() => {
-    console.log('[DetectionStep] User confirmed URL:', foundUrl);
     if (foundUrl) {
       onGatewayFound(foundUrl);
     }
@@ -178,7 +159,6 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
 
   // Handler for entering URL manually instead
   const handleEnterManually = useCallback(() => {
-    console.log('[DetectionStep] User chose to enter manually');
     onSkip();
   }, [onSkip]);
 
