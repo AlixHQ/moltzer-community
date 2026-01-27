@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useStore, ModelInfo } from "../stores/store";
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "../lib/utils";
@@ -118,7 +118,7 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
     }
   };
 
-  const fetchModels = async () => {
+  const fetchModels = useCallback(async () => {
     setModelsLoading(true);
     try {
       const models = await invoke<ModelInfo[]>("get_models");
@@ -130,7 +130,7 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
     } finally {
       setModelsLoading(false);
     }
-  };
+  }, [setModelsLoading, setAvailableModels]);
 
   const handleSave = async () => {
     // Validate URL before saving

@@ -1,6 +1,6 @@
 # CI/CD Setup - Next Steps
 
-This document outlines the steps needed to complete the CI/CD setup for Moltzerzer client.
+This document outlines the steps needed to complete the CI/CD setup for Moltzer client.
 
 ## ✅ What's Already Done
 

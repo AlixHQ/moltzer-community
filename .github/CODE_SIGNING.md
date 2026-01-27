@@ -1,4 +1,4 @@
-# Code Signing Guide for Moltzerzer client
+# Code Signing Guide for Moltzer client
 
 This guide explains how to set up code signing for macOS, Windows, and Linux releases of the Moltzer client.
 

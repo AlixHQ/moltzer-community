@@ -119,7 +119,7 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
         onNoGateway();
       }
     }
-  }, [onGatewayFound, onNoGateway]);
+  }, [onNoGateway]);
 
   useEffect(() => {
     // Reset mounted/cancelled state on mount

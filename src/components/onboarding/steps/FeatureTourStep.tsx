@@ -69,7 +69,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
       clearInterval(interval);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onComplete]);
+  }, [onComplete, features.length]);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8">

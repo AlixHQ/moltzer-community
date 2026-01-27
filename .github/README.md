@@ -1,4 +1,4 @@
-# Moltzerzer client - CI/CD
+# Moltzer client - CI/CD
 
 This directory contains the complete CI/CD configuration for the Moltzer client.
 

@@ -48,7 +48,7 @@ export function ChatView() {
       const timer = setTimeout(() => setMessagesLoading(false), 150);
       return () => clearTimeout(timer);
     }
-  }, [currentConversation?.id]);
+  }, [currentConversation]);
 
   // Auto-scroll to bottom on new messages (only if already near bottom)
   useEffect(() => {
@@ -101,7 +101,7 @@ export function ChatView() {
       // No subsequent messages, proceed directly
       executeEdit(messageId, newContent);
     }
-  }, [currentConversation, isSending, currentStreamingMessageId]);
+  }, [currentConversation, isSending, currentStreamingMessageId, executeEdit]);
 
   // Actually execute the edit (after confirmation if needed)
   const executeEdit = useCallback(async (messageId: string, newContent: string) => {
