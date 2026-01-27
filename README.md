@@ -1,24 +1,27 @@
-# Clawd Client
+# Molt Client
 
-A native macOS and iOS client for [Clawdbot](https://github.com/clawdbot/clawdbot) — ChatGPT-style interface for your personal AI assistant.
+A native cross-platform client for [Moltbot](https://github.com/moltbot/moltbot) — ChatGPT-style interface for your personal AI assistant.
 
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20iOS-blue)
-![Swift](https://img.shields.io/badge/swift-5.9-orange)
+Built with **Tauri** for lightweight, native performance on macOS, Windows, and Linux.
+
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
+![Tauri](https://img.shields.io/badge/tauri-v2-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
-- 🎨 **Native SwiftUI** — Beautiful, responsive UI on macOS and iOS
+- 🚀 **Lightweight** — ~10MB binary (not Electron!)
+- 🎨 **Native feel** — Uses system webview, respects OS conventions
 - 💬 **Streaming responses** — See AI responses as they're generated
 - 📎 **File attachments** — Upload images, PDFs, and documents
 - 🎤 **Voice messages** — Record and send audio
 - 🧠 **Thinking mode** — Enable extended reasoning for complex tasks
 - 🌙 **Dark/Light mode** — Auto-follows system appearance
-- 📚 **Large history** — SwiftData handles unlimited conversation history
-- 🔒 **Local storage** — Your conversations stay on your device
+- 📚 **Large history** — Local storage handles unlimited conversations
 - ⚡ **Model picker** — Choose from available AI models
 - 📋 **Code highlighting** — Syntax-colored code blocks with copy button
 - 📌 **Pinned chats** — Keep important conversations at the top
+- 🔒 **Privacy first** — Your data stays on your device
 
 ## Screenshots
 
@@ -26,89 +29,129 @@ A native macOS and iOS client for [Clawdbot](https://github.com/clawdbot/clawdbo
 
 ## Requirements
 
-- macOS 14.0+ or iOS 17.0+
-- Xcode 15.0+
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (for project generation)
-- Running [Clawdbot Gateway](https://docs.clawd.bot/gateway)
+### Runtime
+- macOS 10.15+ / Windows 10+ / Linux (with WebKit2GTK)
+- Running [Moltbot Gateway](https://docs.clawd.bot/gateway)
+
+### Development
+- [Rust](https://rustup.rs/) (latest stable)
+- [Node.js](https://nodejs.org/) 18+
+- Platform-specific dependencies (see below)
+
+#### macOS
+```bash
+xcode-select --install
+```
+
+#### Windows
+```bash
+# Install Visual Studio Build Tools
+winget install Microsoft.VisualStudio.2022.BuildTools
+```
+
+#### Linux (Debian/Ubuntu)
+```bash
+sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
+  libssl-dev libayatana-appindicator3-dev librsvg2-dev
+```
 
 ## Installation
+
+### From Releases
+
+Download the latest release for your platform from the [Releases](https://github.com/dokterdok/molt-client/releases) page.
 
 ### From Source
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/dokterdok/clawd-client.git
-   cd clawd-client
+   git clone https://github.com/dokterdok/molt-client.git
+   cd molt-client
    ```
 
-2. Install XcodeGen (if not already installed):
+2. Install dependencies:
    ```bash
-   brew install xcodegen
+   npm install
    ```
 
-3. Generate the Xcode project:
+3. Run in development mode:
    ```bash
-   xcodegen generate
+   npm run tauri dev
    ```
 
-4. Open in Xcode:
+4. Build for production:
    ```bash
-   open ClawdClient.xcodeproj
+   npm run tauri build
    ```
 
-5. Build and run (⌘R)
+## Configuration
 
-### Configuration
+On first launch, configure your Moltbot Gateway connection:
 
-On first launch, configure your Clawdbot Gateway connection:
-
-1. Open Settings (⌘,)
+1. Open Settings (gear icon)
 2. Enter your Gateway URL (default: `ws://localhost:18789`)
 3. Enter your auth token (from `clawdbot.json`)
 
 ## Architecture
 
 ```
-ClawdClient/
-├── Shared/                 # Cross-platform code
-│   ├── API/
-│   │   └── GatewayClient.swift    # WebSocket client
-│   ├── Models/
-│   │   ├── Message.swift          # Message model
-│   │   └── Conversation.swift     # Conversation model
-│   ├── Views/
-│   │   ├── ChatView.swift         # Main chat interface
-│   │   ├── SidebarView.swift      # Conversation list
-│   │   └── Components/
-│   │       ├── MessageBubble.swift    # Message rendering
-│   │       ├── ChatInputView.swift    # Input area
-│   │       └── ModelPicker.swift      # Model selection
-│   └── ClawdClientApp.swift       # App entry point
-├── macOS/                  # macOS-specific code
-├── iOS/                    # iOS-specific code
-└── Resources/              # Assets, icons
+molt-client/
+├── src/                    # React frontend
+│   ├── components/         # UI components
+│   │   ├── ChatView.tsx    # Main chat interface
+│   │   ├── Sidebar.tsx     # Conversation list
+│   │   ├── MessageBubble.tsx
+│   │   └── ChatInput.tsx
+│   ├── stores/             # Zustand state management
+│   ├── hooks/              # React hooks
+│   └── lib/                # Utilities
+├── src-tauri/              # Rust backend
+│   ├── src/
+│   │   ├── lib.rs          # App entry point
+│   │   └── gateway.rs      # WebSocket client
+│   ├── Cargo.toml          # Rust dependencies
+│   └── tauri.conf.json     # Tauri configuration
+└── package.json            # Node dependencies
 ```
+
+## Tech Stack
+
+- **[Tauri v2](https://v2.tauri.app/)** — Rust-based app framework
+- **[React 18](https://react.dev/)** — UI framework
+- **[TypeScript](https://www.typescriptlang.org/)** — Type safety
+- **[Tailwind CSS](https://tailwindcss.com/)** — Styling
+- **[Zustand](https://zustand-demo.pmnd.rs/)** — State management
+- **[Vite](https://vitejs.dev/)** — Build tool
 
 ## Development
 
-### Building
+### Commands
 
 ```bash
-# Generate project
-xcodegen generate
+# Start dev server
+npm run tauri dev
 
-# Build macOS app
-xcodebuild -scheme ClawdClient-macOS -configuration Debug build
+# Build production binary
+npm run tauri build
 
-# Build iOS app
-xcodebuild -scheme ClawdClient-iOS -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15 Pro' build
+# Lint
+npm run lint
+
+# Format
+npm run format
+
+# Run tests
+npm test
 ```
 
-### Testing
+### Project Setup
 
-```bash
-xcodebuild test -scheme ClawdClient-macOS
-```
+The frontend is a standard Vite + React + TypeScript setup. The backend is Rust with Tauri.
+
+Key files:
+- `src-tauri/src/gateway.rs` — WebSocket connection to Moltbot Gateway
+- `src/stores/store.ts` — Application state (conversations, messages, settings)
+- `src/components/` — React components
 
 ## Roadmap
 
@@ -117,11 +160,10 @@ xcodebuild test -scheme ClawdClient-macOS
 - [ ] Markdown table rendering
 - [ ] Search within conversations
 - [ ] Export conversations
-- [ ] iCloud sync
 - [ ] Keyboard shortcuts
-- [ ] Menu bar quick access (macOS)
-- [ ] Widgets (iOS)
-- [ ] Apple Watch companion app
+- [ ] System tray (macOS/Windows/Linux)
+- [ ] iOS/Android support (Tauri v2 mobile)
+- [ ] GitHub Actions CI/CD
 
 ## Contributing
 
@@ -139,10 +181,10 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-- [Clawdbot](https://github.com/clawdbot/clawdbot) — The AI gateway this client connects to
-- [SwiftUI](https://developer.apple.com/xcode/swiftui/) — Apple's declarative UI framework
-- [SwiftData](https://developer.apple.com/documentation/swiftdata) — Apple's data persistence framework
+- [Moltbot](https://github.com/moltbot/moltbot) — The AI gateway this client connects to
+- [Tauri](https://tauri.app/) — Making native apps lightweight again
+- The open source community
 
 ---
 
-Made with 🦞 by the Clawdbot community
+Made with 🦞 by the Moltbot community
