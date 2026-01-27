@@ -1,13 +1,22 @@
-# Molt
-
-**A native, lightweight desktop client for Clawdbot** — ChatGPT-style interface for your personal AI assistant, built with Tauri for true native performance.
-
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
-![Tauri](https://img.shields.io/badge/tauri-v2-orange)
-![License](https://img.shields.io/badge/license-MIT-green)
-
 <div align="center">
-  <img src="docs/screenshot.png" alt="Molt Screenshot" width="800" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+  
+# 🦞 Molt
+
+**A native, lightweight desktop client for Clawdbot**
+
+ChatGPT-style interface for your personal AI assistant, built with Tauri for true native performance
+
+[![CI](https://github.com/dokterdok/molt-client/actions/workflows/ci.yml/badge.svg)](https://github.com/dokterdok/molt-client/actions/workflows/ci.yml)
+[![Release](https://github.com/dokterdok/molt-client/actions/workflows/release.yml/badge.svg)](https://github.com/dokterdok/molt-client/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)](https://github.com/dokterdok/molt-client/releases)
+[![Tauri](https://img.shields.io/badge/tauri-v2-orange)](https://tauri.app/)
+[![Version](https://img.shields.io/badge/version-1.0.0-green)](https://github.com/dokterdok/molt-client/releases/latest)
+
+<img src=".github/social-preview.png" alt="Molt - Native Desktop Client" width="800" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);" />
+
+[Download](https://github.com/dokterdok/molt-client/releases) • [Documentation](./SETUP.md) • [Features](./FEATURES.md) • [Contributing](./CONTRIBUTING.md)
+
 </div>
 
 ---
