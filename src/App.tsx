@@ -14,13 +14,18 @@ import { loadPersistedData } from "./lib/persistence";
 // Check if running on macOS (for traffic light padding)
 const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
 
+// Exponential backoff delays: 5s → 10s → 30s → 60s (capped)
+const BACKOFF_DELAYS = [5, 10, 30, 60];
+
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isConnecting, setIsConnecting] = useState(true);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const { toasts, dismissToast, showError, showSuccess, showWarning } = useToast();
+  const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
+  const [retryNowFn, setRetryNowFn] = useState<(() => void) | null>(null);
+  const { toasts, dismissToast, showError, showSuccess } = useToast();
   const { 
     currentConversation,
     connected,
@@ -123,12 +128,21 @@ export default function App() {
     }
 
     let reconnectTimer: number | undefined;
+    let countdownInterval: number | undefined;
     let connectingFlag = false;
     let attempts = 0;
+
+    const clearTimers = () => {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (countdownInterval) clearInterval(countdownInterval);
+      setRetryCountdown(null);
+      setRetryNowFn(null);
+    };
 
     const connectToGateway = async () => {
       if (connectingFlag) return;
       connectingFlag = true;
+      clearTimers();
       setIsConnecting(true);
       attempts++;
       setReconnectAttempts(attempts);
@@ -158,35 +172,63 @@ export default function App() {
       } catch (err) {
         console.error("Failed to connect:", err);
         setIsConnecting(false);
+        connectingFlag = false;
         
-        // Note: We don't show toasts during auto-retry.
-        // The header bar already shows "Connection lost — Attempting to reconnect"
-        // which is sufficient feedback without flooding the screen with toasts.
+        // Calculate delay using exponential backoff: 5s → 10s → 30s → 60s (capped)
+        const backoffIndex = Math.min(attempts - 1, BACKOFF_DELAYS.length - 1);
+        const delaySeconds = BACKOFF_DELAYS[backoffIndex];
         
-        // Retry connection with exponential backoff (max 30s)
-        const delay = Math.min(5000 * Math.pow(1.5, Math.min(attempts - 1, 4)), 30000);
-        reconnectTimer = window.setTimeout(() => {
+        // Start countdown
+        let countdown = delaySeconds;
+        setRetryCountdown(countdown);
+        
+        // Create retry now function
+        const retryNow = () => {
+          clearTimers();
           connectingFlag = false;
           connectToGateway();
-        }, delay);
-      } finally {
-        connectingFlag = false;
+        };
+        setRetryNowFn(() => retryNow);
+        
+        // Update countdown every second
+        countdownInterval = window.setInterval(() => {
+          countdown--;
+          if (countdown <= 0) {
+            clearTimers();
+            connectingFlag = false;
+            connectToGateway();
+          } else {
+            setRetryCountdown(countdown);
+          }
+        }, 1000);
       }
     };
 
     connectToGateway();
 
     return () => {
-      if (reconnectTimer) clearTimeout(reconnectTimer);
+      clearTimers();
     };
   }, [settings.gatewayUrl, settings.gatewayToken, showSuccess, showOnboarding]);
 
   // Listen for Gateway events
   useEffect(() => {
+    let reconnectTimer: number | undefined;
+    let countdownInterval: number | undefined;
+    let disconnectAttempts = 0;
+
+    const clearTimers = () => {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (countdownInterval) clearInterval(countdownInterval);
+    };
+
     const unlisten = Promise.all([
       listen("gateway:connected", async () => {
         setConnected(true);
         setIsConnecting(false);
+        setRetryCountdown(null);
+        setRetryNowFn(null);
+        disconnectAttempts = 0;
         // Fetch models on connection
         try {
           const models = await invoke<any[]>("get_models");
@@ -199,12 +241,22 @@ export default function App() {
       }),
       listen("gateway:disconnected", () => {
         setConnected(false);
-        // Suppress toasts during onboarding
-        if (!showOnboarding) {
-          showWarning("Connection lost. Attempting to reconnect...");
-        }
-        // Auto-reconnect after 5 seconds
-        setTimeout(async () => {
+        clearTimers();
+        
+        // No toast spam - the header bar shows the status
+        // Start reconnect with exponential backoff
+        disconnectAttempts++;
+        setReconnectAttempts(disconnectAttempts);
+        
+        const backoffIndex = Math.min(disconnectAttempts - 1, BACKOFF_DELAYS.length - 1);
+        const delaySeconds = BACKOFF_DELAYS[backoffIndex];
+        
+        let countdown = delaySeconds;
+        setRetryCountdown(countdown);
+        
+        const attemptReconnect = async () => {
+          clearTimers();
+          setRetryCountdown(null);
           setIsConnecting(true);
           try {
             await invoke("connect", { 
@@ -214,14 +266,44 @@ export default function App() {
             if (!showOnboarding) {
               showSuccess("Reconnected to Gateway");
             }
+            disconnectAttempts = 0;
           } catch (err) {
             console.error("Reconnection failed:", err);
             setIsConnecting(false);
-            if (!showOnboarding) {
-              showError("Reconnection failed. Will retry...");
-            }
+            // Schedule next retry with backoff
+            disconnectAttempts++;
+            setReconnectAttempts(disconnectAttempts);
+            const nextBackoffIndex = Math.min(disconnectAttempts - 1, BACKOFF_DELAYS.length - 1);
+            const nextDelaySeconds = BACKOFF_DELAYS[nextBackoffIndex];
+            
+            let nextCountdown = nextDelaySeconds;
+            setRetryCountdown(nextCountdown);
+            
+            setRetryNowFn(() => attemptReconnect);
+            
+            countdownInterval = window.setInterval(() => {
+              nextCountdown--;
+              if (nextCountdown <= 0) {
+                clearTimers();
+                attemptReconnect();
+              } else {
+                setRetryCountdown(nextCountdown);
+              }
+            }, 1000);
           }
-        }, 5000);
+        };
+        
+        setRetryNowFn(() => attemptReconnect);
+        
+        countdownInterval = window.setInterval(() => {
+          countdown--;
+          if (countdown <= 0) {
+            clearTimers();
+            attemptReconnect();
+          } else {
+            setRetryCountdown(countdown);
+          }
+        }, 1000);
       }),
       listen<string>("gateway:stream", (event) => {
         appendToCurrentMessage(event.payload);
@@ -232,11 +314,12 @@ export default function App() {
     ]);
 
     return () => {
+      clearTimers();
       unlisten.then((listeners) => {
         listeners.forEach((fn) => fn());
       });
     };
-  }, [setConnected, appendToCurrentMessage, completeCurrentMessage, settings.gatewayUrl, settings.gatewayToken]);
+  }, [setConnected, appendToCurrentMessage, completeCurrentMessage, settings.gatewayUrl, settings.gatewayToken, showOnboarding, showSuccess]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
@@ -297,7 +380,22 @@ export default function App() {
               <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
             </span>
             <span className="font-medium">Connection lost</span>
-            <span className="hidden sm:inline">— Attempting to reconnect to Gateway...</span>
+            {retryCountdown !== null ? (
+              <>
+                <span className="hidden sm:inline">— Retrying in {retryCountdown}s...</span>
+                <span className="sm:hidden">— {retryCountdown}s</span>
+                {retryNowFn && (
+                  <button
+                    onClick={retryNowFn}
+                    className="ml-2 px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
+                  >
+                    Retry Now
+                  </button>
+                )}
+              </>
+            ) : (
+              <span className="hidden sm:inline">— Connecting...</span>
+            )}
           </div>
         )}
         
@@ -362,7 +460,24 @@ export default function App() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
                   <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
                 </span>
-                <span className="hidden sm:inline select-none" data-tauri-drag-region>Reconnecting...</span>
+                {retryCountdown !== null ? (
+                  <>
+                    <span className="hidden sm:inline select-none" data-tauri-drag-region>
+                      Reconnecting in {retryCountdown}s...
+                    </span>
+                    <span className="sm:hidden select-none" data-tauri-drag-region>{retryCountdown}s</span>
+                    {retryNowFn && (
+                      <button
+                        onClick={retryNowFn}
+                        className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
+                      >
+                        Retry
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <span className="hidden sm:inline select-none" data-tauri-drag-region>Reconnecting...</span>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm animate-in fade-in duration-200" title="Connected to Gateway" data-tauri-drag-region>
