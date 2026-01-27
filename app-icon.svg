@@ -1,13 +1,105 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clean light background (like iOS icons) -->
+  <rect width="1024" height="1024" rx="226" fill="#F8F9FA"/>
+  
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    <!-- Vibrant orange-red gradient for the lobster (like emoji) -->
+    <linearGradient id="lobsterGradient" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF4500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2F02;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Darker orange for details -->
+    <linearGradient id="darkOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DC2F02;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9D0208;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Subtle shadow -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <path d="M128 160 h256 a32 32 0 0 1 32 32 v160 a32 32 0 0 1 -32 32 h-160 l-64 48 v-48 h-32 a32 32 0 0 1 -32 -32 v-160 a32 32 0 0 1 32 -32z" fill="white"/>
-  <circle cx="200" cy="272" r="24" fill="#6366f1"/>
-  <circle cx="288" cy="272" r="24" fill="#6366f1"/>
-  <circle cx="376" cy="272" r="24" fill="#6366f1"/>
+  
+  <g transform="translate(512, 512)" filter="url(#softShadow)">
+    <!-- Main body -->
+    <ellipse cx="0" cy="40" rx="140" ry="170" fill="url(#lobsterGradient)"/>
+    
+    <!-- Head -->
+    <ellipse cx="0" cy="-80" rx="100" ry="90" fill="url(#lobsterGradient)"/>
+    
+    <!-- Eyes (black with white highlight) -->
+    <circle cx="-35" cy="-95" r="18" fill="#1A1A1A"/>
+    <circle cx="35" cy="-95" r="18" fill="#1A1A1A"/>
+    <circle cx="-30" cy="-100" r="7" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="40" cy="-100" r="7" fill="#FFFFFF" opacity="0.9"/>
+    
+    <!-- Antennae -->
+    <path d="M -40 -140 Q -60 -200 -75 -250" 
+          stroke="url(#darkOrange)" 
+          stroke-width="12" 
+          stroke-linecap="round" 
+          fill="none"/>
+    <path d="M 40 -140 Q 60 -200 75 -250" 
+          stroke="url(#darkOrange)" 
+          stroke-width="12" 
+          stroke-linecap="round" 
+          fill="none"/>
+    
+    <!-- Antenna tips -->
+    <circle cx="-75" cy="-250" r="10" fill="url(#darkOrange)"/>
+    <circle cx="75" cy="-250" r="10" fill="url(#darkOrange)"/>
+    
+    <!-- Left claw -->
+    <g transform="translate(-160, 0) rotate(-25)">
+      <ellipse cx="0" cy="0" rx="65" ry="45" fill="url(#lobsterGradient)"/>
+      <!-- Claw pinchers -->
+      <path d="M -35 -15 L -65 -30 L -60 -10 Z" fill="url(#darkOrange)"/>
+      <path d="M -35 15 L -65 30 L -60 10 Z" fill="url(#darkOrange)"/>
+    </g>
+    
+    <!-- Right claw -->
+    <g transform="translate(160, 0) rotate(25)">
+      <ellipse cx="0" cy="0" rx="65" ry="45" fill="url(#lobsterGradient)"/>
+      <!-- Claw pinchers -->
+      <path d="M 35 -15 L 65 -30 L 60 -10 Z" fill="url(#darkOrange)"/>
+      <path d="M 35 15 L 65 30 L 60 10 Z" fill="url(#darkOrange)"/>
+    </g>
+    
+    <!-- Body segments -->
+    <ellipse cx="0" cy="80" rx="125" ry="50" fill="url(#lobsterGradient)" opacity="0.95"/>
+    <ellipse cx="0" cy="140" rx="110" ry="45" fill="url(#lobsterGradient)" opacity="0.9"/>
+    
+    <!-- Tail section -->
+    <ellipse cx="0" cy="195" rx="95" ry="40" fill="url(#lobsterGradient)" opacity="0.85"/>
+    
+    <!-- Tail fan (spread out) -->
+    <g transform="translate(0, 230)">
+      <!-- Center fan -->
+      <ellipse cx="0" cy="15" rx="35" ry="55" fill="url(#darkOrange)" opacity="0.9"/>
+      <!-- Left fans -->
+      <ellipse cx="-50" cy="20" rx="30" ry="50" fill="url(#darkOrange)" opacity="0.85" transform="rotate(-20, -50, 20)"/>
+      <ellipse cx="-90" cy="30" rx="25" ry="45" fill="url(#darkOrange)" opacity="0.8" transform="rotate(-35, -90, 30)"/>
+      <!-- Right fans -->
+      <ellipse cx="50" cy="20" rx="30" ry="50" fill="url(#darkOrange)" opacity="0.85" transform="rotate(20, 50, 20)"/>
+      <ellipse cx="90" cy="30" rx="25" ry="45" fill="url(#darkOrange)" opacity="0.8" transform="rotate(35, 90, 30)"/>
+    </g>
+    
+    <!-- Small legs (optional detail) -->
+    <g opacity="0.8">
+      <ellipse cx="-70" cy="50" rx="25" ry="12" fill="url(#darkOrange)" transform="rotate(-45, -70, 50)"/>
+      <ellipse cx="-80" cy="90" rx="25" ry="12" fill="url(#darkOrange)" transform="rotate(-35, -80, 90)"/>
+      <ellipse cx="70" cy="50" rx="25" ry="12" fill="url(#darkOrange)" transform="rotate(45, 70, 50)"/>
+      <ellipse cx="80" cy="90" rx="25" ry="12" fill="url(#darkOrange)" transform="rotate(35, 80, 90)"/>
+    </g>
+  </g>
 </svg>
