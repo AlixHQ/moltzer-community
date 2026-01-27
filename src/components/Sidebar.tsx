@@ -1,13 +1,15 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useStore, Conversation } from "../stores/store";
-import { SettingsDialog } from "./SettingsDialog";
-import { SearchDialog } from "./SearchDialog";
 import { ConfirmDialog } from "./ui/confirm-dialog";
-import { ExportDialog } from "./ExportDialog";
 import { EmptyState } from "./ui/empty-state";
 import { ConversationSkeleton } from "./ui/skeleton";
 import { ScrollShadow } from "./ui/scroll-shadow";
 import { cn } from "../lib/utils";
+
+// Lazy load heavy dialogs for better initial load performance
+const SettingsDialog = lazy(() => import("./SettingsDialog").then(m => ({ default: m.SettingsDialog })));
+const SearchDialog = lazy(() => import("./SearchDialog").then(m => ({ default: m.SearchDialog })));
+const ExportDialog = lazy(() => import("./ExportDialog").then(m => ({ default: m.ExportDialog })));
 import { formatDistanceToNow } from "date-fns";
 import {
   Plus,
@@ -255,22 +257,28 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
         </Button>
       </div>
 
-      {/* Dialogs */}
-      <SettingsDialog 
-        open={settingsOpen} 
-        onClose={() => setSettingsOpen(false)}
-        onRerunSetup={onRerunSetup}
-      />
-      <SearchDialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} />
-      {conversationToExport && (
-        <ExportDialog
-          open={exportDialogOpen}
-          onClose={() => {
-            setExportDialogOpen(false);
-            setConversationToExport(null);
-          }}
-          conversation={conversationToExport}
+      {/* Dialogs - lazy loaded for better performance */}
+      <Suspense fallback={null}>
+        <SettingsDialog 
+          open={settingsOpen} 
+          onClose={() => setSettingsOpen(false)}
+          onRerunSetup={onRerunSetup}
         />
+      </Suspense>
+      <Suspense fallback={null}>
+        <SearchDialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} />
+      </Suspense>
+      {conversationToExport && (
+        <Suspense fallback={null}>
+          <ExportDialog
+            open={exportDialogOpen}
+            onClose={() => {
+              setExportDialogOpen(false);
+              setConversationToExport(null);
+            }}
+            conversation={conversationToExport}
+          />
+        </Suspense>
       )}
     </div>
   );
