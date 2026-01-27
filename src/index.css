@@ -240,6 +240,10 @@ code {
   --tw-enter-translate-x: -0.5rem;
 }
 
+.slide-in-from-right-full {
+  --tw-enter-translate-x: 100%;
+}
+
 .duration-100 {
   animation-duration: 100ms;
 }

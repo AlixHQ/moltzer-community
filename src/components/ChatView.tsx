@@ -10,6 +10,7 @@ export function ChatView() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
   // Auto-scroll to bottom on new messages (only if already near bottom)
   useEffect(() => {
@@ -31,29 +32,30 @@ export function ChatView() {
   };
 
   const handleSendMessage = async (content: string, attachments: File[]) => {
-    if (!currentConversation) return;
+    if (!currentConversation || isSending) return;
     setError(null);
+    setIsSending(true);
 
-    // Add user message
-    addMessage(currentConversation.id, {
-      role: "user",
-      content,
-      attachments: attachments.map((f) => ({
-        id: crypto.randomUUID(),
-        filename: f.name,
-        mimeType: f.type,
-      })),
-    });
-
-    // Add placeholder for assistant response
-    addMessage(currentConversation.id, {
-      role: "assistant",
-      content: "",
-      isStreaming: true,
-    });
-
-    // Send to gateway
     try {
+      // Add user message
+      addMessage(currentConversation.id, {
+        role: "user",
+        content,
+        attachments: attachments.map((f) => ({
+          id: crypto.randomUUID(),
+          filename: f.name,
+          mimeType: f.type,
+        })),
+      });
+
+      // Add placeholder for assistant response
+      addMessage(currentConversation.id, {
+        role: "assistant",
+        content: "",
+        isStreaming: true,
+      });
+
+      // Send to gateway
       await invoke("send_message", {
         params: {
           message: content,
@@ -64,7 +66,13 @@ export function ChatView() {
       });
     } catch (err: any) {
       console.error("Failed to send message:", err);
-      setError(err.toString());
+      const errorMsg = err.toString().replace("Error: ", "");
+      setError(errorMsg);
+      
+      // Auto-dismiss error after 10 seconds
+      setTimeout(() => setError(null), 10000);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -154,7 +162,11 @@ export function ChatView() {
       {/* Input */}
       <div className="border-t border-border bg-background/80 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto">
-          <ChatInput onSend={handleSendMessage} disabled={!connected} />
+          <ChatInput 
+            onSend={handleSendMessage} 
+            disabled={!connected || isSending}
+            isSending={isSending}
+          />
         </div>
       </div>
     </div>

@@ -31,6 +31,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       className={cn("group flex gap-3", isUser && "flex-row-reverse")}
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
+      role="article"
+      aria-label={`Message from ${isUser ? "You" : "Molt"}`}
     >
       {/* Avatar */}
       <div
@@ -97,7 +99,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                             <span className="text-xs text-zinc-400 font-mono">{match[1]}</span>
                             <button
                               onClick={() => copyToClipboard(code)}
-                              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+                              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2 py-1"
+                              aria-label={copiedCode === code ? "Code copied" : "Copy code to clipboard"}
                             >
                               {copiedCode === code ? (
                                 <>
@@ -177,8 +180,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           )}>
             <button
               onClick={copyMessage}
-              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
               title="Copy message"
+              aria-label="Copy message to clipboard"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />

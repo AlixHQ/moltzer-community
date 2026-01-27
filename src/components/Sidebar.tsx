@@ -95,7 +95,8 @@ export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
       <div className="px-3 pb-3">
         <button
           onClick={handleNewChat}
-          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98]"
+          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="Create new conversation"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -109,7 +110,8 @@ export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
       <div className="px-3 pb-2">
         <button
           onClick={() => setSearchDialogOpen(true)}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-border bg-background/50 hover:bg-muted/50 transition-colors text-muted-foreground"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-border bg-background/50 hover:bg-muted/50 transition-colors text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="Search messages"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -127,6 +129,7 @@ export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-1.5 text-sm rounded-md border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          aria-label="Filter conversations by title or content"
         />
       </div>
 
@@ -181,7 +184,8 @@ export function Sidebar({ onToggle: _onToggle }: SidebarProps) {
       <div className="p-3 border-t border-border space-y-1">
         <button 
           onClick={() => setSettingsOpen(true)}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="Open settings"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -271,10 +275,11 @@ function ConversationItem({
   const [showMenu, setShowMenu] = useState(false);
 
   return (
-    <div
+    <button
       className={cn(
-        "group relative flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-all",
+        "group relative flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-all w-full text-left",
         "animate-in fade-in slide-in-from-left-2 duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-primary/50",
         isSelected 
           ? "bg-muted shadow-sm" 
           : "hover:bg-muted/50"
@@ -285,6 +290,18 @@ function ConversationItem({
         e.preventDefault();
         setShowMenu(true);
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+        if (e.key === "Delete" || e.key === "Backspace") {
+          e.preventDefault();
+          onDelete();
+        }
+      }}
+      aria-label={`Conversation: ${conversation.title}${isSelected ? " (active)" : ""}`}
+      aria-current={isSelected ? "page" : undefined}
     >
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{conversation.title}</p>
@@ -303,8 +320,9 @@ function ConversationItem({
             e.stopPropagation();
             onPin();
           }}
-          className="p-1 hover:bg-background rounded transition-colors"
-          title={conversation.isPinned ? "Unpin" : "Pin"}
+          className="p-1 hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          title={conversation.isPinned ? "Unpin conversation" : "Pin conversation"}
+          aria-label={conversation.isPinned ? "Unpin conversation" : "Pin conversation"}
         >
           <svg 
             className={cn(
@@ -324,7 +342,10 @@ function ConversationItem({
             e.stopPropagation();
             setShowMenu(true);
           }}
-          className="p-1 hover:bg-background rounded transition-colors"
+          className="p-1 hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="More options"
+          aria-expanded={showMenu}
+          aria-haspopup="menu"
         >
           <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -368,6 +389,6 @@ function ConversationItem({
           </div>
         </>
       )}
-    </div>
+    </button>
   );
 }

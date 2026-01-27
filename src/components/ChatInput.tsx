@@ -1,13 +1,15 @@
 import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { cn } from "../lib/utils";
+import { Spinner } from "./ui/spinner";
 
 interface ChatInputProps {
   onSend: (content: string, attachments: File[]) => void;
   disabled?: boolean;
+  isSending?: boolean;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isFocused, setIsFocused] = useState(false);
@@ -139,7 +141,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
-          placeholder={disabled ? "Connect to Gateway to send messages..." : "Message Molt..."}
+          placeholder={
+            isSending 
+              ? "Sending message..." 
+              : disabled 
+              ? "Connect to Gateway to send messages..." 
+              : "Message Molt..."
+          }
           rows={1}
           className={cn(
             "flex-1 py-3 bg-transparent resize-none",
@@ -169,23 +177,28 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
               : "text-muted-foreground cursor-not-allowed"
           )}
           title="Send message (Enter)"
+          aria-label={isSending ? "Sending message..." : "Send message"}
         >
-          <svg 
-            className={cn(
-              "w-5 h-5 transition-transform duration-200",
-              canSend && "translate-x-0.5"
-            )} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
+          {isSending ? (
+            <Spinner size="sm" className="border-primary-foreground border-t-transparent" />
+          ) : (
+            <svg 
+              className={cn(
+                "w-5 h-5 transition-transform duration-200",
+                canSend && "translate-x-0.5"
+              )} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+          )}
         </button>
       </div>
 
