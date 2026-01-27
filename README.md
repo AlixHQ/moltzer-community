@@ -13,9 +13,9 @@ ChatGPT-style interface for your personal AI assistant, built with Tauri for tru
 [![Tauri](https://img.shields.io/badge/tauri-v2-orange)](https://tauri.app/)
 [![Version](https://img.shields.io/badge/version-1.0.0-green)](https://github.com/dokterdok/molt-client/releases/latest)
 
-<img src=".github/social-preview.png" alt="Molt - Native Desktop Client" width="800" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);" />
+<img src=".github/social-preview.png" alt="Molt desktop client showing a conversation interface with Claude AI, featuring a dark theme and modern UI design" width="800" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);" />
 
-[Download](https://github.com/dokterdok/molt-client/releases) • [Documentation](./SETUP.md) • [Features](./FEATURES.md) • [Contributing](./CONTRIBUTING.md)
+[Download](https://github.com/dokterdok/molt-client/releases) • [Quick Start](#-quick-start) • [Features](#-features) • [Documentation](./SETUP.md) • [Contributing](./CONTRIBUTING.md)
 
 </div>
 
@@ -23,7 +23,7 @@ ChatGPT-style interface for your personal AI assistant, built with Tauri for tru
 
 ## 🦞 What is Molt?
 
-Molt is a native desktop application that connects to your Clawdbot Gateway, providing a fast, beautiful interface for chatting with Claude and other AI models. Unlike browser-based or Electron apps, Molt uses your operating system's native webview, resulting in:
+Molt is a **native desktop application** that connects to your Clawdbot Gateway, providing a fast, beautiful interface for chatting with Claude and other AI models. Unlike browser-based or Electron apps, Molt uses your operating system's native webview, resulting in:
 
 - **~10MB binary** (not 300MB like Electron!)
 - **Minimal RAM usage** (~50MB vs 500MB)
@@ -31,6 +31,18 @@ Molt is a native desktop application that connects to your Clawdbot Gateway, pro
 - **Secure credential storage** via OS keychain
 
 Think of it as "ChatGPT for Clawdbot" — but better, because it's yours.
+
+---
+
+## ⚡ Get Started in 60 Seconds
+
+**Already have Clawdbot Gateway running?**
+
+1. **[Download Molt](https://github.com/dokterdok/molt-client/releases)** for your platform
+2. **Launch the app** and enter your Gateway URL (usually `ws://localhost:18789`)
+3. **Start chatting!** Press **⌘N** (Mac) or **Ctrl+N** (Windows/Linux) for a new conversation
+
+**Need to install Clawdbot Gateway first?** See our [Setup Guide](./SETUP.md).
 
 ---
 
@@ -136,7 +148,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed build instructions.
 ### First Message
 
 Try something like:
-```
+```text
 Hello! Can you explain what Molt is and what you can help me with?
 ```
 
@@ -209,7 +221,7 @@ Molt will connect to your Clawdbot Gateway and stream Claude's response in real-
 
 Molt is built with a modern, maintainable architecture:
 
-```
+```text
 molt-client/
 ├── src/                          # React frontend
 │   ├── components/               # UI components

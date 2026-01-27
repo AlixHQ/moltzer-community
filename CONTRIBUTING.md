@@ -1,6 +1,22 @@
-# Contributing to Molt
+# Contributing to Molt 🦞
 
-Thank you for your interest in contributing to Molt! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Molt! Whether you're fixing a bug, adding a feature, or improving documentation, we appreciate your help in making Molt better for everyone.
+
+This document provides guidelines and instructions for contributing. Don't worry if you're new to open source — we're here to help!
+
+## 👋 First Time Contributing?
+
+Welcome! Here are some good ways to start:
+
+- **Fix typos or improve documentation** — Check out [README.md](README.md), [SETUP.md](SETUP.md), or [FEATURES.md](FEATURES.md)
+- **Report bugs** — Use our [bug report template](https://github.com/dokterdok/molt-client/issues/new?template=bug_report.yml)
+- **Suggest features** — Use our [feature request template](https://github.com/dokterdok/molt-client/issues/new?template=feature_request.yml)
+- **Look for "good first issue" labels** — These are beginner-friendly tasks
+- **Ask questions** — Use [GitHub Discussions](https://github.com/dokterdok/molt-client/discussions) or open a [question issue](https://github.com/dokterdok/molt-client/issues/new?template=question.yml)
+
+Not sure where to start? That's totally normal! Open a discussion and we'll help you find something that fits your skills and interests.
+
+---
 
 ## 🚀 Getting Started
 
@@ -200,16 +216,41 @@ If you discover a security vulnerability, please **do not** open a public issue.
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
+## 💬 Communication & Community
+
+**We value:**
+- **Kindness** — Be welcoming to newcomers and patient with questions
+- **Clarity** — Clear communication helps everyone understand your ideas
+- **Collaboration** — We're building this together, not competing
+- **Growth** — Everyone is learning, including maintainers
+
+**Preferred communication:**
+- **Public discussions** for questions and ideas (helps others learn too!)
+- **Issues** for bugs and feature requests
+- **Pull requests** for code contributions
+- **Email** (support@molt.dev) for security issues or private matters
+
 ## 🙏 Code of Conduct
 
-Be respectful, inclusive, and professional. We're all here to build something great together.
+**In short:** Be respectful, inclusive, and professional. We're all here to build something great together.
+
+- ✅ Welcome newcomers and help them get started
+- ✅ Give constructive feedback with kindness
+- ✅ Respect different skill levels and perspectives
+- ✅ Assume good intentions
+- ❌ Don't be dismissive or condescending
+- ❌ Don't harass, discriminate, or be abusive
+- ❌ Don't spam or self-promote excessively
+
+Violations may result in warnings, temporary bans, or permanent removal from the community.
 
 ## ❓ Questions?
 
 - **Discussions:** [GitHub Discussions](https://github.com/dokterdok/molt-client/discussions)
+- **Questions:** [Ask a question](https://github.com/dokterdok/molt-client/issues/new?template=question.yml)
 - **Issues:** [GitHub Issues](https://github.com/dokterdok/molt-client/issues)
 - **Email:** support@molt.dev
 
 ---
 
-Thank you for contributing to Molt! 🦞
+Thank you for contributing to Molt! Every contribution, big or small, makes a difference. 🦞
