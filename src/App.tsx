@@ -159,10 +159,9 @@ export default function App() {
         console.error("Failed to connect:", err);
         setIsConnecting(false);
         
-        // Show error on first attempt only (not during onboarding)
-        if (attempts === 1 && !showOnboarding) {
-          showError("Failed to connect to Gateway. Retrying...");
-        }
+        // Note: We don't show toasts during auto-retry.
+        // The header bar already shows "Connection lost — Attempting to reconnect"
+        // which is sufficient feedback without flooding the screen with toasts.
         
         // Retry connection with exponential backoff (max 30s)
         const delay = Math.min(5000 * Math.pow(1.5, Math.min(attempts - 1, 4)), 30000);
@@ -180,7 +179,7 @@ export default function App() {
     return () => {
       if (reconnectTimer) clearTimeout(reconnectTimer);
     };
-  }, [settings.gatewayUrl, settings.gatewayToken, showError, showSuccess, showOnboarding]);
+  }, [settings.gatewayUrl, settings.gatewayToken, showSuccess, showOnboarding]);
 
   // Listen for Gateway events
   useEffect(() => {
