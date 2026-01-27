@@ -505,6 +505,13 @@ export default function App() {
   return (
     <>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      {/* Skip to main content link for keyboard navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       <div className="flex h-screen bg-background text-foreground overflow-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -545,8 +552,9 @@ export default function App() {
         {!connected && !isConnecting && (
           <div 
             className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between gap-2 text-amber-700 dark:text-amber-300 text-sm animate-in slide-in-from-top-2 duration-300"
-            role="alert"
+            role="status"
             aria-live="polite"
+            aria-atomic="true"
           >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="relative flex w-2 h-2 flex-shrink-0">
@@ -666,7 +674,7 @@ export default function App() {
         </header>
 
         {/* Chat or Welcome */}
-        <div className="flex-1 min-h-0 relative">
+        <main id="main-content" className="flex-1 min-h-0 relative">
           {currentConversation ? <ChatView /> : <WelcomeView />}
           
           {/* Data loading overlay */}
