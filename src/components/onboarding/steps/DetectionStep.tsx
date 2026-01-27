@@ -19,13 +19,28 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
   const [isVisible, setIsVisible] = useState(false);
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   
   // Track mounted state to prevent updates after unmount
   const isMountedRef = useRef(true);
   // Track if detection was cancelled
   const isCancelledRef = useRef(false);
+  // Track if detection has already run to prevent double-execution
+  const hasRunRef = useRef(false);
+
+  console.log('[DetectionStep] Render');
 
   const autoDetectGateway = useCallback(async () => {
+    // Prevent running twice
+    if (hasRunRef.current) {
+      console.log('[DetectionStep] Detection already ran, skipping');
+      return;
+    }
+    hasRunRef.current = true;
+    
+    console.log('[DetectionStep] Starting auto-detection...');
+    setError(null);
+    
     const commonUrls = [
       "ws://localhost:18789",
       "ws://127.0.0.1:18789",
@@ -33,63 +48,103 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
       "wss://localhost:18789",
     ];
 
-    for (let i = 0; i < commonUrls.length; i++) {
-      // Check if cancelled or unmounted before each attempt
+    // Global timeout for entire detection (30 seconds max)
+    const globalTimeout = setTimeout(() => {
+      if (!isCancelledRef.current && isMountedRef.current) {
+        console.log('[DetectionStep] Global timeout reached, calling onNoGateway');
+        isCancelledRef.current = true;
+        onNoGateway();
+      }
+    }, 30000);
+
+    try {
+      for (let i = 0; i < commonUrls.length; i++) {
+        // Check if cancelled or unmounted before each attempt
+        if (isCancelledRef.current || !isMountedRef.current) {
+          console.log('[DetectionStep] Cancelled or unmounted before attempt', i);
+          clearTimeout(globalTimeout);
+          return;
+        }
+        
+        const url = commonUrls[i];
+        console.log(`[DetectionStep] Trying URL ${i + 1}/${commonUrls.length}: ${url}`);
+        setCurrentUrl(url);
+        setProgress(((i + 1) / commonUrls.length) * 100);
+        
+        try {
+          console.log(`[DetectionStep] Invoking connect for ${url}...`);
+          const result = await invoke<ConnectResult>("connect", { url, token: "" });
+          console.log(`[DetectionStep] Connect succeeded for ${url}:`, result);
+          
+          // Check again after async operation
+          if (isCancelledRef.current || !isMountedRef.current) {
+            console.log('[DetectionStep] Cancelled or unmounted after connect success');
+            clearTimeout(globalTimeout);
+            return;
+          }
+          
+          // Success! Gateway found
+          clearTimeout(globalTimeout);
+          console.log('[DetectionStep] Gateway found! Waiting 300ms...');
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          if (isCancelledRef.current || !isMountedRef.current) {
+            console.log('[DetectionStep] Cancelled or unmounted after wait');
+            return;
+          }
+          
+          console.log('[DetectionStep] Calling onGatewayFound with:', result.used_url);
+          onGatewayFound(result.used_url);
+          return;
+        } catch (err) {
+          console.log(`[DetectionStep] Connect failed for ${url}:`, err);
+          // Check before delay
+          if (isCancelledRef.current || !isMountedRef.current) {
+            console.log('[DetectionStep] Cancelled or unmounted after error');
+            clearTimeout(globalTimeout);
+            return;
+          }
+          // Try next URL with a short delay
+          await new Promise(resolve => setTimeout(resolve, 300));
+          continue;
+        }
+      }
+
+      clearTimeout(globalTimeout);
+      
+      // Check before calling onNoGateway
       if (isCancelledRef.current || !isMountedRef.current) {
+        console.log('[DetectionStep] Cancelled or unmounted before onNoGateway');
+        return;
+      }
+
+      // No Gateway found after checking all URLs
+      console.log('[DetectionStep] No gateway found, waiting 500ms...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      if (isCancelledRef.current || !isMountedRef.current) {
+        console.log('[DetectionStep] Cancelled or unmounted after final wait');
         return;
       }
       
-      const url = commonUrls[i];
-      setCurrentUrl(url);
-      setProgress(((i + 1) / commonUrls.length) * 100);
-      
-      try {
-        const result = await invoke<ConnectResult>("connect", { url, token: "" });
-        
-        // Check again after async operation
-        if (isCancelledRef.current || !isMountedRef.current) {
-          return;
-        }
-        
-        // Success! Gateway found
-        await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause to show success
-        
-        if (isCancelledRef.current || !isMountedRef.current) {
-          return;
-        }
-        
-        onGatewayFound(result.used_url);
-        return;
-      } catch {
-        // Check before delay
-        if (isCancelledRef.current || !isMountedRef.current) {
-          return;
-        }
-        // Try next URL
-        await new Promise(resolve => setTimeout(resolve, 400)); // Delay between attempts
-        continue;
+      console.log('[DetectionStep] Calling onNoGateway');
+      onNoGateway();
+    } catch (err) {
+      clearTimeout(globalTimeout);
+      console.error('[DetectionStep] Unexpected error:', err);
+      if (!isCancelledRef.current && isMountedRef.current) {
+        setError(String(err));
+        onNoGateway();
       }
     }
-
-    // Check before calling onNoGateway
-    if (isCancelledRef.current || !isMountedRef.current) {
-      return;
-    }
-
-    // No Gateway found after checking all URLs
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (isCancelledRef.current || !isMountedRef.current) {
-      return;
-    }
-    
-    onNoGateway();
   }, [onGatewayFound, onNoGateway]);
 
   useEffect(() => {
-    // Reset refs on mount
+    console.log('[DetectionStep] useEffect running, hasRun:', hasRunRef.current);
+    // Reset mounted/cancelled state on mount
     isMountedRef.current = true;
     isCancelledRef.current = false;
+    // Don't reset hasRunRef here - it prevents double execution
     
     setTimeout(() => {
       if (isMountedRef.current) {
@@ -97,16 +152,21 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
       }
     }, 100);
     
-    autoDetectGateway();
+    // Only run if not already run
+    if (!hasRunRef.current) {
+      autoDetectGateway();
+    }
     
     // Cleanup on unmount
     return () => {
+      console.log('[DetectionStep] Cleanup - unmounting');
       isMountedRef.current = false;
     };
   }, [autoDetectGateway]);
 
   // Handle skip - cancel detection and call onSkip
   const handleSkip = useCallback(() => {
+    console.log('[DetectionStep] Skip clicked');
     isCancelledRef.current = true;
     onSkip();
   }, [onSkip]);
@@ -169,6 +229,13 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
             />
           </div>
         </div>
+
+        {/* Error display */}
+        {error && (
+          <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Info */}
         <div

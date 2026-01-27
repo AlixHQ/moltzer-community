@@ -62,8 +62,8 @@ describe('Integration Tests', () => {
         content: 'Hello, world!',
       });
       
-      // Wait for persistence
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for persistence (async operation needs sufficient time)
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       const dbMessages = await db.messages.toArray();
       expect(dbMessages).toHaveLength(1);
