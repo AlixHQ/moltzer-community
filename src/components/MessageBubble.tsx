@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize from "rehype-sanitize";
-import { Message } from "../stores/store";
+import { Message, Attachment } from "../stores/store";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -12,15 +12,41 @@ import {
   Check,
   Link as LinkIcon,
   Cpu,
+  X,
+  Send,
+  FileText,
 } from "lucide-react";
+import { ImageRenderer } from "./ImageRenderer";
 
 interface MessageBubbleProps {
   message: Message;
+  onEdit?: (messageId: string, newContent: string) => void;
+  onRegenerate?: (messageId: string) => void;
+  isLastAssistantMessage?: boolean;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMessage: _isLastAssistantMessage }: MessageBubbleProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showTimestamp, setShowTimestamp] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(message.content);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus textarea when entering edit mode
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(
+        textareaRef.current.value.length,
+        textareaRef.current.value.length
+      );
+    }
+  }, [isEditing]);
+
+  // Reset edit content when message changes
+  useEffect(() => {
+    setEditContent(message.content);
+  }, [message.content]);
 
   const copyToClipboard = async (code: string) => {
     await navigator.clipboard.writeText(code);
@@ -30,6 +56,38 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   const copyMessage = async () => {
     await navigator.clipboard.writeText(message.content);
+  };
+
+  const _handleStartEdit = () => {
+    setEditContent(message.content);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(message.content);
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (editContent.trim() && editContent !== message.content && onEdit) {
+      onEdit(message.id, editContent.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleEditKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Escape") {
+      handleCancelEdit();
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    }
+  };
+
+  const _handleRegenerate = () => {
+    if (onRegenerate) {
+      onRegenerate(message.id);
+    }
   };
 
   const isUser = message.role === "user";
@@ -80,10 +138,56 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           className={cn(
             "relative",
             isUser ? "text-right" : "",
-            isUser && "bg-primary/5 rounded-2xl rounded-tr-sm px-4 py-3"
+            isUser && !isEditing && "bg-primary/5 rounded-2xl rounded-tr-sm px-4 py-3"
           )}
         >
-          {message.isStreaming && !message.content ? (
+          {isEditing ? (
+            <div className="w-full">
+              <textarea
+                ref={textareaRef}
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                className={cn(
+                  "w-full min-h-[100px] p-3 text-sm rounded-lg border border-primary/50",
+                  "bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/30",
+                  "text-left"
+                )}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = "auto";
+                  target.style.height = `${target.scrollHeight}px`;
+                }}
+              />
+              <div className="flex items-center gap-2 mt-2 justify-end">
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={!editContent.trim()}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
+                    editContent.trim()
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  )}
+                >
+                  <Send className="w-4 h-4" />
+                  Save & Send
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 text-right">
+                <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Enter</kbd> to save
+                <span className="mx-1.5">·</span>
+                <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]">Esc</kbd> to cancel
+              </p>
+            </div>
+          ) : message.isStreaming && !message.content ? (
             <TypingIndicator />
           ) : (
             <div className={cn(
@@ -152,6 +256,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                       </a>
                     );
                   },
+                  img({ src, alt }: any) {
+                    if (!src) return null;
+                    return (
+                      <ImageRenderer 
+                        src={src} 
+                        alt={alt || "Image"} 
+                        className="my-2"
+                      />
+                    );
+                  },
                   table({ children, ...props }: any) {
                     return (
                       <div className="overflow-x-auto my-4 rounded-lg border border-border">
@@ -174,8 +288,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           )}
         </div>
 
+        {/* Attachments */}
+        {message.attachments && message.attachments.length > 0 && (
+          <AttachmentsDisplay attachments={message.attachments} />
+        )}
+
         {/* Actions (visible on hover) */}
-        {!message.isStreaming && (
+        {!message.isStreaming && !isEditing && (
           <div className={cn(
             "flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
             isUser && "justify-end"
@@ -188,6 +307,28 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             >
               <Copy className="w-4 h-4" strokeWidth={2} />
             </button>
+            {/* Edit button for user messages */}
+            {isUser && onEdit && (
+              <button
+                onClick={handleStartEdit}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                title="Edit message (will resend)"
+                aria-label="Edit message"
+              >
+                <Pencil className="w-4 h-4" strokeWidth={2} />
+              </button>
+            )}
+            {/* Regenerate button for assistant messages (only last one) */}
+            {!isUser && isLastAssistantMessage && onRegenerate && (
+              <button
+                onClick={handleRegenerate}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                title="Regenerate response"
+                aria-label="Regenerate response"
+              >
+                <RefreshCw className="w-4 h-4" strokeWidth={2} />
+              </button>
+            )}
           </div>
         )}
 
@@ -241,6 +382,64 @@ function TypingIndicator() {
         />
       ))}
       <span className="sr-only">Molt is typing...</span>
+    </div>
+  );
+}
+
+interface AttachmentsDisplayProps {
+  attachments: Attachment[];
+}
+
+function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
+  // Separate images from other files
+  const images = attachments.filter(a => a.mimeType?.startsWith('image/'));
+  const files = attachments.filter(a => !a.mimeType?.startsWith('image/'));
+
+  return (
+    <div className="mt-3 space-y-3">
+      {/* Image grid */}
+      {images.length > 0 && (
+        <div className={cn(
+          "flex flex-wrap gap-2",
+          images.length === 1 ? "" : "grid grid-cols-2 sm:grid-cols-3"
+        )}>
+          {images.map((attachment) => {
+            // Construct image source from data or url
+            const src = attachment.data 
+              ? `data:${attachment.mimeType};base64,${attachment.data}`
+              : attachment.url;
+            
+            if (!src) return null;
+            
+            return (
+              <ImageRenderer
+                key={attachment.id}
+                src={src}
+                alt={attachment.filename || "Attached image"}
+                maxWidth={images.length === 1 ? 400 : 200}
+                maxHeight={images.length === 1 ? 400 : 200}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* File list */}
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {files.map((attachment) => (
+            <div
+              key={attachment.id}
+              className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg text-sm border border-border"
+            >
+              <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <span className="truncate max-w-[200px]" title={attachment.filename}>
+                {attachment.filename || 'Unnamed file'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
