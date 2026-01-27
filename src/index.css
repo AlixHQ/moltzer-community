@@ -339,13 +339,32 @@ code {
   animation-duration: 500ms;
 }
 
-/* Focus visible improvements */
+/* Focus visible improvements - WCAG 2.1 Level AA */
 .focus-visible\:outline-none:focus-visible {
   outline: none;
 }
 
 .focus-visible\:ring-2:focus-visible {
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.5);
+}
+
+/* Enhanced focus ring for all interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Special focus for dangerous actions */
+[data-destructive="true"]:focus-visible {
+  outline-color: hsl(var(--destructive));
 }
 
 /* Selection styling */
@@ -369,7 +388,7 @@ html {
   outline-offset: 2px;
 }
 
-/* Reduced motion support (P0: comprehensive) */
+/* Reduced motion support (P0: comprehensive) - WCAG 2.1 Level AAA */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -389,6 +408,30 @@ html {
   .animate-streaming-pulse {
     animation: none !important;
     border-color: hsl(var(--primary) / 0.5) !important;
+  }
+}
+
+/* High contrast mode support - Windows High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 240 10% 20%;
+  }
+  
+  .dark {
+    --border: 240 10% 80%;
+  }
+  
+  /* Ensure all borders are visible */
+  button,
+  input,
+  textarea,
+  select {
+    border: 2px solid currentColor !important;
+  }
+  
+  /* Increase focus indicator */
+  *:focus-visible {
+    outline-width: 3px !important;
   }
 }
 
