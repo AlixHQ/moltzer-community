@@ -1,4 +1,4 @@
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect, useCallback, JSX } from "react";
 import { WelcomeStep } from "./steps/WelcomeStep";
 import { DetectionStep } from "./steps/DetectionStep";
 import { NoGatewayStep } from "./steps/NoGatewayStep";
@@ -40,100 +40,139 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   );
   const [gatewayToken, setGatewayToken] = useState("");
 
+  // Debug: Log current step on every render
+  console.log('[OnboardingFlow] Render - currentStep:', currentStep);
+
   // Restore progress on mount
   useEffect(() => {
+    console.log('[OnboardingFlow] Mount - checking saved progress');
     const savedProgress = localStorage.getItem('molt-onboarding-progress');
     if (savedProgress) {
       try {
         const progress: OnboardingProgress = JSON.parse(savedProgress);
+        console.log('[OnboardingFlow] Found saved progress:', progress);
         // If saved within last 24 hours, restore
         if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
           if (progress.gatewayUrl) setGatewayUrl(progress.gatewayUrl);
           // Token is NOT restored from localStorage - it's in keychain
           // Start at detection if we have partial progress
           if (progress.step === 'setup-started' || progress.step === 'detection-failed') {
+            console.log('[OnboardingFlow] Restoring to detection step');
             setCurrentStep('detection');
           }
         }
       } catch (err) {
-        console.error('Failed to restore onboarding progress:', err);
+        console.error('[OnboardingFlow] Failed to restore onboarding progress:', err);
       }
     }
   }, []);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && currentStep !== "complete") {
-        handleSkip();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentStep]);
-
-  const handleNext = (nextStep: OnboardingStep) => {
+  // Stable transition function
+  const transitionTo = useCallback((nextStep: OnboardingStep) => {
+    console.log('[OnboardingFlow] transitionTo called:', nextStep);
     setIsAnimating(true);
     setTimeout(() => {
+      console.log('[OnboardingFlow] Setting currentStep to:', nextStep);
       setCurrentStep(nextStep);
       setIsAnimating(false);
     }, 150);
-  };
+  }, []);
 
-  const handleBack = (prevStep: OnboardingStep) => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentStep(prevStep);
-      setIsAnimating(false);
-    }, 150);
-  };
-
-  const handleSkip = () => {
+  // All callbacks wrapped in useCallback for stability
+  const handleSkip = useCallback(() => {
+    console.log('[OnboardingFlow] handleSkip called');
     // Mark onboarding as skipped (not completed)
     localStorage.setItem("molt-onboarding-skipped", "true");
     onComplete();
-  };
+  }, [onComplete]);
 
-  const handleComplete = () => {
+  const handleComplete = useCallback(() => {
+    console.log('[OnboardingFlow] handleComplete called');
     // Mark onboarding as fully completed
     localStorage.setItem("molt-onboarding-completed", "true");
     localStorage.removeItem("molt-onboarding-skipped");
     onComplete();
-  };
+  }, [onComplete]);
 
-  const handleGatewayFound = (url: string) => {
+  const handleGatewayFound = useCallback((url: string) => {
+    console.log('[OnboardingFlow] handleGatewayFound called with:', url);
     setGatewayUrl(url);
     // Skip directly to success when auto-detected
-    handleNext("success");
-  };
+    transitionTo("success");
+  }, [transitionTo]);
 
-  const handleNoGateway = () => {
+  const handleNoGateway = useCallback(() => {
+    console.log('[OnboardingFlow] handleNoGateway called');
     // Save progress
     localStorage.setItem('molt-onboarding-progress', JSON.stringify({
       step: 'detection-failed',
       timestamp: Date.now()
     }));
-    handleNext("no-gateway");
-  };
+    transitionTo("no-gateway");
+  }, [transitionTo]);
 
-  const handleRetryDetection = () => {
-    handleNext("detection");
-  };
+  const handleRetryDetection = useCallback(() => {
+    console.log('[OnboardingFlow] handleRetryDetection called');
+    transitionTo("detection");
+  }, [transitionTo]);
 
-  const handleManualSetup = () => {
+  const handleManualSetup = useCallback(() => {
+    console.log('[OnboardingFlow] handleManualSetup called');
     // Save progress (token NOT stored in localStorage - security)
     localStorage.setItem('molt-onboarding-progress', JSON.stringify({
       step: 'setup-started',
       gatewayUrl,
       timestamp: Date.now()
     }));
-    handleNext("setup");
-  };
+    transitionTo("setup");
+  }, [transitionTo, gatewayUrl]);
+
+  const handleWelcomeNext = useCallback(() => {
+    console.log('[OnboardingFlow] handleWelcomeNext called');
+    transitionTo("detection");
+  }, [transitionTo]);
+
+  const handleBackToWelcome = useCallback(() => {
+    console.log('[OnboardingFlow] handleBackToWelcome called');
+    transitionTo("welcome");
+  }, [transitionTo]);
+
+  const handleBackToNoGateway = useCallback(() => {
+    console.log('[OnboardingFlow] handleBackToNoGateway called');
+    transitionTo("no-gateway");
+  }, [transitionTo]);
+
+  const handleSetupSuccess = useCallback(() => {
+    console.log('[OnboardingFlow] handleSetupSuccess called');
+    transitionTo("success");
+  }, [transitionTo]);
+
+  const handleSuccessNext = useCallback(() => {
+    console.log('[OnboardingFlow] handleSuccessNext called');
+    transitionTo("tour");
+  }, [transitionTo]);
+
+  const handleExplainerNext = useCallback(() => {
+    console.log('[OnboardingFlow] handleExplainerNext called');
+    transitionTo("setup");
+  }, [transitionTo]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && currentStep !== "complete") {
+        console.log('[OnboardingFlow] Escape pressed, skipping');
+        handleSkip();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentStep, handleSkip]);
 
   const steps: Record<OnboardingStep, JSX.Element> = {
     welcome: (
       <WelcomeStep
-        onNext={() => handleNext("detection")}
+        onNext={handleWelcomeNext}
         onSkip={handleSkip}
       />
     ),
@@ -148,14 +187,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <NoGatewayStep
         onRetryDetection={handleRetryDetection}
         onManualSetup={handleManualSetup}
-        onBack={() => handleBack("welcome")}
+        onBack={handleBackToWelcome}
         onSkip={handleSkip}
       />
     ),
     explainer: (
       <GatewayExplainerStep
-        onNext={() => handleNext("setup")}
-        onBack={() => handleBack("welcome")}
+        onNext={handleExplainerNext}
+        onBack={handleBackToWelcome}
         onSkip={handleSkip}
       />
     ),
@@ -165,16 +204,16 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         gatewayToken={gatewayToken}
         onGatewayUrlChange={setGatewayUrl}
         onGatewayTokenChange={setGatewayToken}
-        onSuccess={() => handleNext("success")}
-        onBack={() => handleBack("no-gateway")}
+        onSuccess={handleSetupSuccess}
+        onBack={handleBackToNoGateway}
         onSkip={handleSkip}
         skipAutoDetect={true} // Already tried in DetectionStep
       />
     ),
     success: (
       <SuccessStep
-        onNext={() => handleNext("tour")}
-        onSkip={() => handleComplete()}
+        onNext={handleSuccessNext}
+        onSkip={handleComplete}
       />
     ),
     tour: (
