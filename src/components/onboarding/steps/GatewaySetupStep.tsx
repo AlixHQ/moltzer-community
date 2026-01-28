@@ -322,8 +322,8 @@ export function GatewaySetupStep({
     // Reset cancelled state for new test
     isCancelledRef.current = false;
     
-    // Auto-fix: Trim whitespace from inputs
-    const trimmedUrl = gatewayUrl.trim();
+    // Auto-fix: Trim whitespace and normalize URL
+    let trimmedUrl = gatewayUrl.trim();
     const trimmedToken = gatewayToken.trim();
     
     if (!trimmedUrl) {
@@ -331,7 +331,18 @@ export function GatewaySetupStep({
       return;
     }
 
-    // Apply trimmed values
+    // Auto-convert http/https to ws/wss (common paste mistake)
+    if (trimmedUrl.startsWith("http://")) {
+      trimmedUrl = trimmedUrl.replace("http://", "ws://");
+    } else if (trimmedUrl.startsWith("https://")) {
+      trimmedUrl = trimmedUrl.replace("https://", "wss://");
+    }
+    // Add ws:// prefix if no protocol specified
+    if (!trimmedUrl.startsWith("ws://") && !trimmedUrl.startsWith("wss://")) {
+      trimmedUrl = "ws://" + trimmedUrl;
+    }
+
+    // Apply normalized values
     if (trimmedUrl !== gatewayUrl) {
       onGatewayUrlChange(trimmedUrl);
     }
