@@ -492,6 +492,32 @@ export default function App() {
           }, 100);
         }
       }),
+      // Menu event listeners
+      listen("menu:new_conversation", () => {
+        if (!eventListenerMounted) return;
+        const { createConversation, selectConversation } = useStore.getState();
+        const newConv = createConversation();
+        selectConversation(newConv.id);
+      }),
+      listen("menu:toggle_sidebar", () => {
+        if (!eventListenerMounted) return;
+        setSidebarOpen(prev => !prev);
+      }),
+      listen("menu:search", () => {
+        if (!eventListenerMounted) return;
+        // Trigger search dialog via keyboard shortcut simulation
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true }));
+      }),
+      listen("menu:preferences", () => {
+        if (!eventListenerMounted) return;
+        // Trigger settings dialog via keyboard shortcut simulation
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: ",", metaKey: true }));
+      }),
+      listen("menu:export", () => {
+        if (!eventListenerMounted) return;
+        // Trigger export dialog
+        window.dispatchEvent(new CustomEvent("menu:open_export"));
+      }),
     ]);
 
     // Register global shortcut for quick input (Cmd/Ctrl+Shift+Space)

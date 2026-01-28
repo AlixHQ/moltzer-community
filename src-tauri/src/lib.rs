@@ -5,10 +5,12 @@
 //! - OS keychain integration for secure credential storage
 //! - Gateway discovery on local network
 //! - Native system integration (notifications, window management)
+//! - Native menu bar with standard macOS/Windows conventions
 
 mod discovery;
 mod gateway;
 mod keychain;
+mod menu;
 mod protocol;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -29,7 +31,18 @@ pub fn run() {
         .setup(|app| {
             use tauri::Manager;
             app.manage(gateway::GatewayState::default());
+            
+            // Build and set native menu bar
+            #[cfg(desktop)]
+            {
+                let menu = menu::build_menu(app.handle())?;
+                app.set_menu(menu)?;
+            }
+            
             Ok(())
+        })
+        .on_menu_event(|app, event| {
+            menu::handle_menu_event(app, event.id().as_ref());
         })
         .invoke_handler(tauri::generate_handler![
             gateway::connect,
