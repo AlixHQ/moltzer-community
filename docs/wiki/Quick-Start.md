@@ -1,122 +1,77 @@
-# Quick Start: Get Moltz Running in 5 Minutes
+# Quick Start
 
-Get up and running with Moltz in just a few minutes.
+Get Moltz running in under 5 minutes.
 
 ---
 
-## Prerequisites
-
-You need **Clawdbot Gateway** installed first. Don't have it?
+## 1. Install Gateway (30 seconds)
 
 ```bash
 npm install -g clawdbot
 clawdbot setup
+```
+
+Gateway is now running in the background.
+
+**Don't have npm?** [Download Node.js](https://nodejs.org/) first (2-minute install).
+
+---
+
+## 2. Download Moltz (10 seconds)
+
+**macOS:** [Apple Silicon](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_aarch64.dmg) | [Intel](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_x64.dmg)
+
+**Windows:** [Download installer](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_x64.msi)
+
+**Linux:** [.deb](https://github.com/AlixHQ/moltz/releases/latest/download/moltz_amd64.deb) | [.rpm](https://github.com/AlixHQ/moltz/releases/latest/download/moltz.rpm) | [AppImage](https://github.com/AlixHQ/moltz/releases/latest/download/moltz.AppImage)
+
+---
+
+## 3. Install Moltz (20 seconds)
+
+**macOS:** Open `.dmg` → Drag to Applications → Open  
+**Windows:** Run `.msi` → Click through installer  
+**Linux:** `sudo dpkg -i moltz_amd64.deb` (or equivalent)
+
+**Security warnings?** Right-click → Open (macOS) or "More info" → "Run anyway" (Windows). We're a new open-source app, not yet code-signed.
+
+---
+
+## 4. Connect & Chat (1 minute)
+
+1. Launch Moltz
+2. Click "Test Connection" (Gateway URL is already filled in)
+3. Type a message
+4. Press Enter
+
+Done! You're chatting with AI.
+
+---
+
+## Need Help?
+
+**Connection failed?**
+```bash
+# Check Gateway is running
+clawdbot status
+
+# If not, start it
 clawdbot start
 ```
 
-✅ **Gateway running?** Continue below.
+**Still stuck?** [Full setup guide](./Getting-Started.md) | [Troubleshooting](./Troubleshooting.md)
 
 ---
 
-## Step 1: Install Moltz (2 minutes)
+## Keyboard Shortcuts to Remember
 
-### macOS
-1. Download [Moltz.dmg](https://github.com/AlixHQ/moltz/releases/latest)
-2. Drag to Applications
-3. Open Moltz (right-click → Open if you get a security warning)
+- `Cmd/Ctrl + N` — New conversation
+- `Cmd/Ctrl + K` — Search all conversations
+- `Cmd/Ctrl + Shift + Space` — Summon Moltz from anywhere
+- `Shift + Enter` — New line without sending
 
-### Windows
-1. Download [Moltz.msi](https://github.com/AlixHQ/moltz/releases/latest)
-2. Run installer
-3. Click "More info" → "Run anyway" if SmartScreen blocks it
-
-### Linux
-```bash
-# Debian/Ubuntu
-wget https://github.com/AlixHQ/moltz/releases/latest/download/moltz_amd64.deb
-sudo dpkg -i moltz_amd64.deb
-```
+[See all shortcuts](./Configuration.md#keyboard-shortcuts)
 
 ---
 
-## Step 2: Connect to Gateway (1 minute)
-
-When Moltz opens:
-
-1. **Gateway URL:** `ws://localhost:18789` (already filled in)
-2. **Token:** Get it with `clawdbot token show` in terminal
-3. Click **Test Connection**
-4. Click **Continue**
-
-✅ **Connected?** You're ready!
-
----
-
-## Step 3: Send Your First Message (30 seconds)
-
-1. Click **+ New Conversation** (or press `Cmd/Ctrl+N`)
-2. Type: "Explain what Moltz is in one sentence"
-3. Press `Enter`
-4. Watch the AI respond in real-time
-
-🎉 **You're chatting with AI!**
-
----
-
-## What's Next?
-
-### Essential Shortcuts
-
-| Action | Shortcut |
-|--------|----------|
-| **Quick Ask** (summon from anywhere) | `Cmd/Ctrl+Shift+Space` |
-| New conversation | `Cmd/Ctrl+N` |
-| Search conversations | `Cmd/Ctrl+K` |
-| Settings | `Cmd/Ctrl+,` |
-
-### Learn More
-
-- **[User Guide](./User-Guide.md)** — Master all features
-- **[Configuration](./Configuration.md)** — Customize Moltz
-- **[Troubleshooting](./Troubleshooting.md)** — Fix issues
-
----
-
-## Common First-Time Issues
-
-### "Cannot connect to Gateway"
-
-**Fix:**
-```bash
-# Make sure Gateway is running
-clawdbot start
-
-# Check the URL is correct
-clawdbot config
-```
-
-### "Wrong token"
-
-**Fix:**
-```bash
-# Get your token
-clawdbot token show
-
-# Or regenerate if lost
-clawdbot token regenerate
-```
-
-### macOS "Can't open app"
-
-**Fix:**
-1. Right-click Moltz in Applications
-2. Click "Open"
-3. Click "Open" again in dialog
-
----
-
-## That's It!
-
-You're now using Moltz. Explore the features, customize your setup, and enjoy native AI chat on your desktop.
-
-**Questions?** Check the [User Guide](./User-Guide.md) or [open an issue](https://github.com/AlixHQ/moltz/issues).
+**Want to learn more?** Check out the [User Guide](./User-Guide.md).

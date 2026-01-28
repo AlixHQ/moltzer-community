@@ -345,6 +345,10 @@ export function ChatView() {
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto"
         onScroll={handleScroll}
+        role="log"
+        aria-label="Conversation messages"
+        aria-live="polite"
+        aria-atomic="false"
       >
         <div className="max-w-3xl mx-auto px-4 py-6">
           {messagesLoading ? (

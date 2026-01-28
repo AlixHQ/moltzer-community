@@ -8,12 +8,22 @@ Product roadmap and feature timeline for Moltz.
 
 **Make AI chat as natural and accessible as any desktop app.**
 
-Moltz aims to be the best native AI chat experience:
-- **Fast** — Native performance, not a web wrapper
-- **Familiar** — UI you already know from web AI tools
-- **Private** — Local storage, encrypted data
-- **Flexible** — Any AI model, any Gateway
-- **Open** — Open-source, transparent, community-driven
+Imagine an AI assistant that:
+- **Appears instantly** when you need it (global hotkey)
+- **Remembers context** across all your conversations
+- **Works offline** when your internet cuts out
+- **Respects your privacy** (encrypted, local-first storage)
+- **Never costs you** per-message (just Gateway costs)
+- **Integrates seamlessly** with your workflow
+
+That's where we're going. We're building the AI chat app we wish existed.
+
+**Moltz principles:**
+- **Speed matters** — Native performance, not web wrappers
+- **Privacy first** — Your data stays on your device
+- **Open always** — Open-source, transparent, community-driven
+- **User control** — You choose the model, the Gateway, the data
+- **Desktop-native** — Built for keyboard shortcuts and power users
 
 ---
 

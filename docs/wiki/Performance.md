@@ -14,6 +14,20 @@ Performance benchmarks, optimization strategies, and audit findings.
 
 ---
 
+## Performance at a Glance
+
+**TL;DR: Moltz is fast.**
+
+- Launches in **1.5 seconds**
+- Sends messages in **80 milliseconds**
+- Scrolls smoothly at **60 FPS** (even with 1000+ messages)
+- Uses **85 MB RAM** when idle
+- **10 MB download** (vs. 150 MB for Electron apps)
+
+**Compare to web apps:** No browser overhead, no tab fighting for resources, instant hotkey response.
+
+---
+
 ## Performance Overview
 
 Moltz is designed for speed. Native desktop app built with Tauri + React delivers excellent performance across all platforms.

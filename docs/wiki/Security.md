@@ -17,6 +17,21 @@ Security architecture, audit findings, and best practices.
 
 ---
 
+## Quick Security Check
+
+**Is your Moltz setup secure? Check these:**
+
+- [ ] Using `wss://` (not `ws://`) for remote connections
+- [ ] Token stored in system keychain (not written in notes)
+- [ ] Auto-update enabled (Settings → About)
+- [ ] Encryption status shows ✅ Enabled (Settings → Privacy)
+- [ ] Using strong Gateway token (20+ random characters)
+- [ ] Disk encryption enabled (FileVault/BitLocker)
+
+**All checked?** You're secure. Read below for details.
+
+---
+
 ## Security Overview
 
 Moltz takes security seriously. This document outlines our security architecture and recent audit findings.

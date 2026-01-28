@@ -578,21 +578,26 @@ Generate documentation from AI conversations:
 
 ## Troubleshooting
 
-See [Troubleshooting Guide](./Troubleshooting.md) for:
+Running into issues? Check these common solutions:
 
-- Connection issues
-- Performance problems
-- Data recovery
-- Error messages
+- **Connection problems:** [Troubleshooting → Connection](./Troubleshooting.md#connection-issues)
+- **App feels slow:** [Troubleshooting → Performance](./Troubleshooting.md#performance-issues)
+- **Lost conversations:** [Troubleshooting → Data Recovery](./Troubleshooting.md#data--storage-issues)
+- **Keyboard shortcuts not working:** [Troubleshooting → Platform Issues](./Troubleshooting.md#platform-specific-issues)
 
 ---
 
 ## Need Help?
 
-- **Documentation:** [Moltz Wiki](./Home.md)
-- **Issues:** [GitHub Issues](https://github.com/AlixHQ/moltz/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/AlixHQ/moltz/discussions)
+**Can't find what you're looking for?**
+- **Quick answers:** [Troubleshooting → FAQ](./Troubleshooting.md#faq)
+- **Report bugs:** [GitHub Issues](https://github.com/AlixHQ/moltz/issues)
+- **Ask questions:** [GitHub Discussions](https://github.com/AlixHQ/moltz/discussions)
+- **Security issues:** Email security@alix.com (don't post publicly)
 
 ---
 
-**Next:** [Configuration Guide](./Configuration.md) for detailed settings
+**Next Steps:**
+- **[Configuration Guide](./Configuration.md)** — Customize every aspect of Moltz
+- **[Features](./Features.md)** — Discover what else Moltz can do
+- **[Keyboard Shortcuts Cheatsheet](#keyboard-shortcuts)** — Become a power user

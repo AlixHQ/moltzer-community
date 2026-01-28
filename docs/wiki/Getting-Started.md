@@ -1,361 +1,200 @@
-# Getting Started with Moltz
+# Getting Started
 
-This guide will help you install Moltz and connect to Clawdbot Gateway for the first time.
-
-**⚡ In a hurry?** Check the [Quick Start](./Quick-Start.md) guide to get running in 5 minutes.
+Get Moltz running in 5 minutes.
 
 ---
 
-## Prerequisites
+## What You're Installing
 
-Before installing Moltz, you need **Clawdbot Gateway** running on your machine or accessible over your network.
+**Moltz** is a desktop app for chatting with AI (ChatGPT, Claude, etc.).
 
-### Install Clawdbot Gateway
+**Clawdbot Gateway** is the behind-the-scenes service that connects Moltz to AI providers. Think of it like a router for AI requests.
 
-Clawdbot Gateway is the AI routing service that connects Moltz to AI providers (Claude, GPT, Gemini, etc.).
+**Why two things?** Gateway handles your API keys and runs in the background. Moltz is the friendly UI you actually use.
 
-**Installation:**
+---
+
+## Quick Install (Most People)
+
+### 1. Download Moltz
+
+**macOS:**
+- [Download for Apple Silicon (M1/M2/M3)](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_aarch64.dmg)
+- [Download for Intel](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_x64.dmg)
+
+**Windows:**
+- [Download installer](https://github.com/AlixHQ/moltz/releases/latest/download/Moltz_x64.msi)
+
+**Linux:**
+- [.deb (Ubuntu/Debian)](https://github.com/AlixHQ/moltz/releases/latest/download/moltz_amd64.deb)
+- [.rpm (Fedora)](https://github.com/AlixHQ/moltz/releases/latest/download/moltz.rpm)
+- [AppImage (Universal)](https://github.com/AlixHQ/moltz/releases/latest/download/moltz.AppImage)
+
+---
+
+### 2. Install Moltz
+
+**macOS:**
+1. Open the `.dmg` file
+2. Drag Moltz to your Applications folder
+3. Double-click to open
+
+**Seeing "unidentified developer"?** Right-click → Open → Open again. (We're new, don't have expensive code signing yet.)
+
+**Windows:**
+1. Run the `.msi` installer
+2. Click through the wizard
+3. Launch from Start Menu
+
+**"Windows protected your PC"?** Click "More info" → "Run anyway". (We're open-source, you can verify the code.)
+
+**Linux:**
+```bash
+# Debian/Ubuntu
+sudo dpkg -i moltz_amd64.deb
+
+# Fedora
+sudo rpm -i moltz.rpm
+
+# AppImage
+chmod +x moltz.AppImage
+./moltz.AppImage
+```
+
+---
+
+### 3. Install Clawdbot Gateway
+
+Moltz needs Gateway to actually talk to AI. Install it:
+
 ```bash
 npm install -g clawdbot
 clawdbot setup
 ```
 
-For detailed instructions, see the [official Clawdbot documentation](https://github.com/clawdbot/clawdbot).
+**Don't have Node.js?** [Install it first](https://nodejs.org/) (takes 2 minutes).
 
-**Default Gateway URL:** `ws://localhost:18789`
-
----
-
-## Installation
-
-### macOS
-
-#### Download
-
-1. Go to [Moltz Releases](https://github.com/AlixHQ/moltz/releases)
-2. Download the latest `.dmg` file
-   - **Apple Silicon:** `Moltz_1.0.0_aarch64.dmg`
-   - **Intel:** `Moltz_1.0.0_x64.dmg`
-
-#### Install
-
-1. Open the downloaded `.dmg` file
-2. Drag **Moltz** to your Applications folder
-3. Launch Moltz from Applications or Spotlight
-
-**First Launch:** macOS will ask permission to run the app. Click "Open" when prompted.
-
-#### ⚠️ "Unidentified Developer" Warning?
-Early releases aren't code-signed yet, so macOS will complain. This is normal for new open-source apps.
-
-**To open anyway:**
-1. Right-click the Moltz app in Applications
-2. Click "Open"
-3. Click "Open" again in the dialog
-4. You only need to do this once
+**What just happened?** Gateway is now running in the background on port 18789.
 
 ---
 
-### Windows
+### 4. Connect Moltz to Gateway
 
-#### Download
+Launch Moltz. You'll see the setup wizard:
 
-1. Go to [Moltz Releases](https://github.com/AlixHQ/moltz/releases)
-2. Download the latest `.msi` installer: `Moltz_1.0.0_x64_en-US.msi`
+**📸 SCREENSHOT NEEDED: Onboarding welcome screen**
 
-#### Install
+Click **Next**.
 
-1. Double-click the downloaded `.msi` file
-2. Follow the installation wizard
-3. Launch Moltz from the Start Menu or Desktop shortcut
+**📸 SCREENSHOT NEEDED: Gateway setup screen**
 
-#### 🛡️ Windows SmartScreen Warning?
-Windows may block the installer since we're a new publisher without expensive certificates.
+**Most people:** Just click "Test Connection". If Gateway is running, you're done!
 
-**To install anyway:**
-1. Click "More info" in the SmartScreen popup
-2. Click "Run anyway" button
-3. This is safe—our code is open-source and auditable
+**Connection failed?** See [Troubleshooting](#connection-issues) below.
 
 ---
 
-### Linux
+### 5. Start Chatting
 
-#### Download
+**📸 SCREENSHOT NEEDED: Empty chat view with input field**
 
-Choose the appropriate package for your distribution:
-
-- **Debian/Ubuntu:** `moltz_1.0.0_amd64.deb`
-- **Red Hat/Fedora:** `moltz-1.0.0-1.x86_64.rpm`
-- **AppImage (Universal):** `moltz_1.0.0_amd64.AppImage`
-
-#### Install
-
-**Debian/Ubuntu:**
-```bash
-sudo dpkg -i moltz_1.0.0_amd64.deb
-sudo apt-get install -f  # Install dependencies if needed
-```
-
-**Fedora:**
-```bash
-sudo rpm -i moltz-1.0.0-1.x86_64.rpm
-```
-
-**AppImage:**
-```bash
-chmod +x moltz_1.0.0_amd64.AppImage
-./moltz_1.0.0_amd64.AppImage
-```
-
----
-
-## First Launch
-
-### Onboarding Flow
-
-When you launch Moltz for the first time, you'll go through a brief onboarding:
-
-#### Step 1: Welcome
-Introduction to Moltz and its features.
-
-#### Step 2: Gateway Setup
-Enter your Clawdbot Gateway connection details:
-
-**Local Gateway (Default):**
-- **URL:** `ws://localhost:18789`
-- **Token:** (from your Gateway setup)
-
-**Remote Gateway:**
-- **URL:** `wss://your-gateway.example.com`
-- **Token:** Your authentication token
-
-**Finding Your Token:**
-```bash
-# Show your current token
-clawdbot token show
-```
-
-Or find it manually in the Gateway config file:
-- **macOS/Linux:** `~/.config/clawdbot/config.json`
-- **Windows:** `%USERPROFILE%\.config\clawdbot\config.json`
-
-Look for the `"token"` field in the JSON file.
-
-#### Step 3: Test Connection
-Moltz will verify the connection to your Gateway. You should see:
-- ✅ **Connected** — Gateway is reachable
-- 🔒 **Secure** — TLS enabled (for wss:// URLs)
-- 🤖 **Ready** — AI models available
-
-**Connection Issues?** See [Troubleshooting → Connection Problems](./Troubleshooting.md#connection-problems)
-
-#### Step 4: Feature Tour
-Quick walkthrough of key features (optional, can skip).
-
----
-
-## Connection Setup
-
-### Local Connection
-
-Most users run Gateway on the same machine:
-
-```
-URL: ws://localhost:18789
-Token: <your-token>
-```
-
-**Pros:**
-- Fastest connection
-- No network configuration needed
-- Most secure (traffic doesn't leave your machine)
-
-**Cons:**
-- Gateway must run on same machine
-
----
-
-### Remote Connection
-
-Connect to Gateway on another machine (e.g., home server, VPS):
-
-```
-URL: wss://gateway.example.com
-Token: <your-token>
-```
-
-**Important:** Always use `wss://` (secure WebSocket) for remote connections.
-
-#### Tailscale Connection
-
-Connecting over Tailscale VPN:
-
-```
-URL: wss://gateway-machine.tailnet-name.ts.net
-Token: <your-token>
-```
-
-**Known Issue (macOS):** Initial connection may take 2-3 minutes on macOS + Tailscale. This is a macOS networking limitation, not a Moltz bug. Subsequent connections are instant.
-
-**Workaround:** Be patient on first connection, or use IPv4-only endpoint if available.
-
----
-
-### Testing Your Connection
-
-Use the **Test Connection** button in Gateway Setup to verify:
-
-1. **Network reachability** — Can Moltz reach the Gateway URL?
-2. **WebSocket handshake** — Does the Gateway respond?
-3. **Authentication** — Is your token valid?
-4. **Protocol compatibility** — Client/Gateway versions compatible?
-
-**Expected result:** Connection test completes in 2-10 seconds.
-
----
-
-## Your First Conversation
-
-Once connected:
-
-1. Click **+ New Conversation** or press `Cmd/Ctrl+N`
-2. Type a message in the input field
-3. Press `Enter` or click Send
-4. Watch the AI response stream in real-time
+Type a message, press Enter, watch the magic happen.
 
 **Tips:**
-- Use `Shift+Enter` for multi-line messages
-- Attach files with the 📎 button (up to 10 MB)
-- Edit your last message with `↑` arrow key
+- `Shift+Enter` for new lines
+- `↑` arrow to edit your last message
+- Click 📎 to attach files
 
 ---
 
-## Quick Setup Checklist
+## Connection Issues
 
-- [ ] Clawdbot Gateway installed and running
-- [ ] Gateway token retrieved
-- [ ] Moltz installed
-- [ ] Connection tested successfully
-- [ ] First conversation created
-- [ ] Keyboard shortcuts explored (see [Configuration](./Configuration.md))
+### "Cannot connect to Gateway"
+
+**Most common fix:**
+```bash
+# Is Gateway running?
+clawdbot status
+
+# Not running? Start it:
+clawdbot start
+```
+
+**Still not working?**
+1. Check your token: `clawdbot token show`
+2. Copy the token
+3. In Moltz: Settings → Connection → paste token
+4. Click "Test Connection"
+
+---
+
+### "Gateway not found"
+
+Gateway isn't installed. Go back to step 3 above.
+
+---
+
+### Windows: "Command 'clawdbot' not found"
+
+Node.js isn't in your PATH. Two options:
+
+**Option 1 (Easy):** Reinstall Node.js, check "Add to PATH"
+
+**Option 2 (Manual):**
+```bash
+npm config get prefix
+# Add that path to your System Environment Variables
+```
+
+---
+
+## Advanced Setup
+
+### Remote Gateway (Power Users)
+
+Running Gateway on another machine? No problem.
+
+**In Moltz:**
+1. Settings → Connection
+2. Change URL to `wss://your-gateway-hostname`
+3. Paste your token
+4. Test connection
+
+**Using Tailscale?** First connection on macOS takes ~2 minutes (known macOS bug). Be patient. After that, it's instant.
+
+---
+
+### Multiple Gateways
+
+Not supported yet. Coming in v1.1. For now, change the URL in Settings when switching.
 
 ---
 
 ## Next Steps
 
-- **[User Guide](./User-Guide.md)** — Learn to use Moltz effectively
-- **[Configuration](./Configuration.md)** — Customize settings, themes, shortcuts
-- **[Features](./Features.md)** — Discover all available features
-- **[Troubleshooting](./Troubleshooting.md)** — Solve common issues
+**New to Moltz?**
+- [User Guide](./User-Guide.md) — Learn keyboard shortcuts, tips, tricks
+- [Features](./Features.md) — See everything Moltz can do
+
+**Want to customize?**
+- [Configuration](./Configuration.md) — Themes, fonts, shortcuts
+
+**Something broken?**
+- [Troubleshooting](./Troubleshooting.md) — Common problems & fixes
 
 ---
 
-## Common First-Time Issues
+## Still Stuck?
 
-### "Cannot connect to Gateway"
+1. Check [GitHub Issues](https://github.com/AlixHQ/moltz/issues) for known problems
+2. Ask in [Discussions](https://github.com/AlixHQ/moltz/discussions)
+3. Open a new issue with:
+   - What you tried
+   - Error messages (Settings → View Logs)
+   - Your OS and versions
 
-**Causes:**
-1. Gateway not running → Start Gateway: `clawdbot start`
-2. Wrong URL → Check Gateway settings
-3. Wrong token → Regenerate: `clawdbot token regenerate`
-4. Firewall blocking connection → Allow port 18789
-
-**See:** [Troubleshooting → Connection Problems](./Troubleshooting.md#connection-problems)
-
----
-
-### "Connection timeout"
-
-**For Tailscale users:**
-- First connection can take 2-3 minutes on macOS
-- Wait patiently, don't cancel
-- Subsequent connections will be instant
-
-**For others:**
-- Check network connectivity
-- Verify Gateway is reachable: `curl http://your-gateway:18789/health`
-- Try increasing timeout in Settings
+We're here to help!
 
 ---
 
-### "Protocol version mismatch"
-
-Your Moltz version is incompatible with your Gateway version.
-
-**Solution:**
-- Update both to latest versions
-- Moltz 1.x requires Gateway 1.x or higher
-- Check your versions: `clawdbot --version` and Moltz → About
-
----
-
-## System Integration
-
-### Global Hotkey
-
-Set up the **Quick Ask** hotkey to summon Moltz from anywhere:
-
-**Default:** `Cmd+Shift+Space` (macOS) / `Ctrl+Shift+Space` (Windows/Linux)
-
-**To customize:**
-1. Open Settings (`Cmd/Ctrl+,`)
-2. Go to Keyboard Shortcuts
-3. Click on Quick Ask
-4. Press your desired key combination
-
----
-
-### System Tray
-
-Moltz runs in the system tray for quick access:
-
-- **Left-click** — Show/hide main window
-- **Right-click** — Menu (New conversation, Settings, Quit)
-
-**macOS:** Icon appears in menu bar (top-right)  
-**Windows:** Icon in system tray (bottom-right)  
-**Linux:** Depends on desktop environment
-
----
-
-## Privacy & Security
-
-### Data Storage
-
-All conversations are stored **locally on your device** in an encrypted database:
-
-- **Location:**
-  - macOS: `~/Library/Application Support/com.moltz.client/`
-  - Windows: `%APPDATA%\com.moltz.client\`
-  - Linux: `~/.config/com.moltz.client/`
-
-- **Encryption:** AES-256-GCM with key derived from system keyring
-- **No cloud sync** — Your data never leaves your device (unless you configure backups)
-
-**See:** [Security](./Security.md) for details
-
----
-
-### Token Security
-
-Your Gateway token grants full access to your AI account. **Keep it secret.**
-
-**Best practices:**
-- Don't share tokens
-- Regenerate if compromised
-- Use different tokens for different devices
-- Revoke unused tokens
-
----
-
-## Need Help?
-
-- **Troubleshooting:** [Troubleshooting Guide](./Troubleshooting.md)
-- **User Guide:** [User Guide](./User-Guide.md)
-- **GitHub Issues:** [Report a bug](https://github.com/AlixHQ/moltz/issues)
-- **Discussions:** [Ask questions](https://github.com/AlixHQ/moltz/discussions)
-
----
-
-**Next:** [User Guide](./User-Guide.md) — Learn to use Moltz effectively
+**Last updated:** January 2026

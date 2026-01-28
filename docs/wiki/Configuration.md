@@ -218,18 +218,25 @@ Summons Moltz from any app:
 
 #### Clear All Data
 **Button:** Clear All Data  
-**Warning:** ⚠️ Permanent deletion
+**Warning:** ⚠️ PERMANENT DELETION - THIS CANNOT BE UNDONE!
 
 Deletes ALL conversations, messages, and settings.
 
-**Confirmation:** Requires typing "DELETE" to confirm.
+**Before you click:**
+1. **Export your data first!** (see Export All Data below)
+2. Make sure exports are saved safely
+3. Know that you can't recover after clicking
 
-**Use cases:**
-- Fresh start
-- Privacy (before selling/giving away computer)
-- Troubleshooting database corruption
+**Confirmation:** Requires typing "DELETE" to confirm (not "delete" or "deLeTe" - must be exact).
 
-**Backup first!** Use Export Data (below).
+**When to use:**
+- Starting fresh after switching workflows
+- Privacy: Before selling/giving away computer
+- Database corruption that export/import can't fix
+
+**When NOT to use:**
+- Don't use this to "free up space" — just delete old conversations instead
+- Don't use this for performance — try Performance Mode first
 
 ---
 

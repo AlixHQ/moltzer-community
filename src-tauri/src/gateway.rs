@@ -818,6 +818,9 @@ async fn connect_internal(
     // Reset health metrics
     state.health_metrics.lock().await.reset();
 
+    // CRITICAL-8: Reset shutdown flag for new connection
+    state.shutdown.store(false, Ordering::SeqCst);
+
     // Spawn task to handle outgoing messages
     let app_clone = app.clone();
     tokio::spawn(async move {
@@ -901,10 +904,10 @@ async fn connect_internal(
     start_health_monitor(app.clone(), tx.clone(), health_metrics.clone()).await;
 
     // Start streaming timeout monitor
-    start_stream_timeout_monitor(app.clone(), active_runs.clone()).await;
+    start_stream_timeout_monitor(app.clone(), active_runs.clone(), state.shutdown.clone()).await;
 
     // CRITICAL-1: Start cleanup task for expired pending requests
-    start_pending_requests_cleanup(pending_requests.clone()).await;
+    start_pending_requests_cleanup(pending_requests.clone(), state.shutdown.clone()).await;
 
     Ok(ConnectResult {
         success: true,
@@ -1099,6 +1102,7 @@ async fn start_health_monitor(
 async fn start_stream_timeout_monitor(
     app: AppHandle,
     active_runs: Arc<Mutex<HashMap<String, Instant>>>,
+    shutdown: Arc<AtomicBool>,
 ) {
     tokio::spawn(async move {
         let check_interval = Duration::from_secs(5);
@@ -1106,6 +1110,11 @@ async fn start_stream_timeout_monitor(
 
         loop {
             tokio::time::sleep(check_interval).await;
+
+            // CRITICAL-8: Exit task on shutdown to prevent leak
+            if shutdown.load(Ordering::SeqCst) {
+                break;
+            }
 
             let mut runs = active_runs.lock().await;
             let mut timed_out = Vec::new();
@@ -1133,12 +1142,18 @@ async fn start_stream_timeout_monitor(
 /// CRITICAL-1: Cleanup task for expired pending requests
 async fn start_pending_requests_cleanup(
     pending_requests: Arc<Mutex<HashMap<String, PendingRequest>>>,
+    shutdown: Arc<AtomicBool>,
 ) {
     tokio::spawn(async move {
         let cleanup_interval = Duration::from_secs(30);
         
         loop {
             tokio::time::sleep(cleanup_interval).await;
+            
+            // CRITICAL-8: Exit task on shutdown to prevent leak
+            if shutdown.load(Ordering::SeqCst) {
+                break;
+            }
             
             let mut pending = pending_requests.lock().await;
             let now = Instant::now();

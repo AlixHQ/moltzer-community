@@ -76,7 +76,7 @@ export function WelcomeView() {
   })();
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 animate-in fade-in duration-500">
+    <main className="flex-1 flex flex-col items-center justify-center p-8 animate-in fade-in duration-500">
       <div className="max-w-3xl w-full text-center">
         {/* Logo */}
         <div className="mb-8 animate-in zoom-in-50 duration-500">
@@ -132,8 +132,10 @@ export function WelcomeView() {
                 key={i}
                 onClick={() => handleSuggestionClick(suggestion)}
                 disabled={!connected}
+                aria-label={`Start conversation: ${suggestion.title}`}
+                aria-describedby={`suggestion-${i}-desc`}
                 className={cn(
-                  "group p-4 text-left rounded-xl border transition-[colors,transform,box-shadow] duration-200",
+                  "group p-4 text-left rounded-xl border transition-[colors,transform,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
                   "animate-in fade-in slide-in-from-bottom-2",
                   connected
                     ? "border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 cursor-pointer"
@@ -149,7 +151,7 @@ export function WelcomeView() {
                     <p className="font-medium group-hover:text-primary transition-colors truncate">
                       {suggestion.title}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p id={`suggestion-${i}-desc`} className="text-xs text-muted-foreground truncate">
                       {suggestion.description}
                     </p>
                   </div>
@@ -193,6 +195,6 @@ export function WelcomeView() {
           to search
         </p>
       </div>
-    </div>
+    </main>
   );
 }

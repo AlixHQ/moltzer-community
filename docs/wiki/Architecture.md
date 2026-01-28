@@ -830,9 +830,17 @@ graph TB
 
 ## Related Documentation
 
-- **[Developer Guide](./Developer-Guide.md)** — Building and debugging
-- **[Security](./Security.md)** — Security audit findings
-- **[Performance](./Performance.md)** — Optimization details
+**For Contributors:**
+- **[Developer Guide](./Developer-Guide.md)** — Set up your dev environment, build from source
+- **[Contributing](./Contributing.md)** — How to submit PRs, coding standards
+
+**Technical Deep Dives:**
+- **[Security Architecture](./Security.md#security-architecture)** — Encryption, threat model
+- **[Performance Optimizations](./Performance.md#optimization-strategies)** — How we achieve 60 FPS
+
+**Understanding the Stack:**
+- **[Features](./Features.md)** — What's built, what's planned
+- **[Roadmap](./Roadmap.md)** — Future architectural changes
 
 ---
 
