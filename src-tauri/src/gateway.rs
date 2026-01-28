@@ -345,39 +345,31 @@ async fn try_connect_with_fallback(
 > {
     let timeout_duration = Duration::from_secs(30);
 
-    // For Tailscale URLs, test IPv4 connectivity first
-    let connect_url = if url.contains(".ts.net") {
+    // For Tailscale URLs, test IPv4 connectivity first (diagnostic only, don't rewrite URL)
+    if url.contains(".ts.net") {
         if let Ok(parsed) = url::Url::parse(url) {
             if let Some(host) = parsed.host_str() {
                 let port = parsed.port().unwrap_or(if url.starts_with("wss") { 443 } else { 80 });
                 
-                // Test IPv4-only TCP connection first (diagnostic)
+                // Test IPv4-only TCP connection (diagnostic)
                 log_protocol_error("Tailscale", "Testing IPv4-only TCP connection...");
                 match test_tcp_connection_ipv4(host, port).await {
                     Ok(addr) => {
-                        // IPv4 works! Rewrite URL to use the resolved IP
-                        let ip_url = url.replace(host, &addr.ip().to_string());
-                        log_protocol_error("Tailscale", &format!("IPv4 works! Rewriting URL to: {}", ip_url));
-                        ip_url
+                        log_protocol_error("Tailscale", &format!("IPv4 test SUCCESS: {}", addr));
                     }
                     Err(e) => {
-                        log_protocol_error("Tailscale", &format!("DNS failed, using original URL: {}", e));
-                        url.to_string()
+                        log_protocol_error("Tailscale", &format!("IPv4 test FAILED: {}", e));
                     }
                 }
-            } else {
-                url.to_string()
             }
-        } else {
-            url.to_string()
         }
-    } else {
-        url.to_string()
-    };
+    }
+    
+    // Keep original URL for WebSocket (TLS needs hostname for SNI)
+    let connect_url = url.to_string();
 
-    // Use native-tls connector for better macOS compatibility
+    // Use native-tls connector
     let tls_connector = native_tls::TlsConnector::builder()
-        .danger_accept_invalid_certs(connect_url.contains(".ts.net") || connect_url.contains("100."))  // Allow for IP-based Tailscale
         .build()
         .map_err(|e| GatewayError::Network {
             message: format!("TLS connector error: {}", e),

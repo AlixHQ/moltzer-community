@@ -131,7 +131,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }, [transitionTo, gatewayUrl]);
 
   const handleWelcomeNext = useCallback(() => {
-    transitionTo("detection");
+    // Skip detection step - go directly to manual setup
+    // (Detection was causing delays on macOS with Tailscale)
+    transitionTo("setup");
   }, [transitionTo]);
 
   const handleBackToWelcome = useCallback(() => {
