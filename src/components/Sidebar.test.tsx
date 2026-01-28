@@ -177,8 +177,8 @@ describe("Sidebar", () => {
     it("should show empty state when no conversations exist", () => {
       render(<Sidebar onToggle={mockOnToggle} />);
 
-      expect(screen.getByText("No conversations yet")).toBeInTheDocument();
-      expect(screen.getByText("Start a new chat to begin")).toBeInTheDocument();
+      expect(screen.getByText("Ready to chat?")).toBeInTheDocument();
+      expect(screen.getByText("Create your first conversation to get started")).toBeInTheDocument();
     });
   });
 
