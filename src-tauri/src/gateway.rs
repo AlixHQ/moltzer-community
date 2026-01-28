@@ -23,7 +23,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, State};
 use tokio::sync::{mpsc, oneshot, Mutex, RwLock};
-use tokio_tungstenite::{connect_async, tungstenite::Message as WsMessage};
+use tokio_tungstenite::{connect_async_tls_with_config, tungstenite::Message as WsMessage, Connector};
 
 // ============================================================================
 // State Management
@@ -270,10 +270,22 @@ async fn try_connect_with_fallback(
     ),
     GatewayError,
 > {
-    let timeout_duration = Duration::from_secs(10); // Increased for Tailscale/remote connections
+    let timeout_duration = Duration::from_secs(15); // Increased for Tailscale/remote connections
+
+    // Use native-tls connector for better macOS compatibility
+    let tls_connector = native_tls::TlsConnector::new()
+        .map_err(|e| GatewayError::Network {
+            message: format!("TLS connector error: {}", e),
+            retryable: false,
+            retry_after: None,
+        })?;
+    let connector = Connector::NativeTls(tls_connector);
 
     // First, try the URL as provided
-    let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
+    let first_attempt = tokio::time::timeout(
+        timeout_duration, 
+        connect_async_tls_with_config(url, None, false, Some(connector.clone()))
+    ).await;
 
     match first_attempt {
         Ok(Ok((stream, _))) => Ok((stream, url.to_string(), false)),
@@ -294,7 +306,10 @@ async fn try_connect_with_fallback(
             };
 
             let second_attempt =
-                tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+                tokio::time::timeout(
+                    timeout_duration, 
+                    connect_async_tls_with_config(&alternate_url, None, false, Some(connector.clone()))
+                ).await;
 
             match second_attempt {
                 Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
@@ -329,7 +344,10 @@ async fn try_connect_with_fallback(
             };
 
             let second_attempt =
-                tokio::time::timeout(timeout_duration, connect_async(&alternate_url)).await;
+                tokio::time::timeout(
+                    timeout_duration, 
+                    connect_async_tls_with_config(&alternate_url, None, false, Some(connector))
+                ).await;
 
             match second_attempt {
                 Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
