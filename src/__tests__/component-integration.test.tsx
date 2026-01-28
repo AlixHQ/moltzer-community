@@ -472,7 +472,7 @@ describe('Full User Flow Integration', () => {
     const store = useStore.getState();
     store.createConversation();
     
-    const handleSend = vi.fn((content: string) => {
+    const handleSend = vi.fn((content: string, attachments: any[]) => {
       // Simulate message being added to store
       store.addMessage({
         id: `msg-${Date.now()}`,
@@ -488,7 +488,7 @@ describe('Full User Flow Integration', () => {
     const input = screen.getByPlaceholderText(/message/i);
     await user.type(input, 'Integration test message{Enter}');
     
-    expect(handleSend).toHaveBeenCalledWith('Integration test message');
+    expect(handleSend).toHaveBeenCalledWith('Integration test message', []);
     
     await waitFor(() => {
       const messages = useStore.getState().currentConversation?.messages || [];
@@ -503,7 +503,7 @@ describe('Full User Flow Integration', () => {
     const store = useStore.getState();
     store.createConversation();
     
-    const handleSend = vi.fn((content: string) => {
+    const handleSend = vi.fn((content: string, attachments: any[]) => {
       store.addMessage({
         id: `msg-${Date.now()}-${Math.random()}`,
         role: 'user',

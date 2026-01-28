@@ -8,7 +8,22 @@
 use keyring::Entry;
 
 /// Get a value from the keychain
-/// Uses spawn_blocking to prevent UI freezing on macOS
+///
+/// Retrieves a stored credential from the OS-native credential store.
+/// Uses spawn_blocking to prevent UI freezing on macOS where keychain access can be slow.
+///
+/// # Arguments
+/// * `service` - Service identifier (e.g., "com.moltzer.client")
+/// * `key` - Credential key (e.g., "gateway_token")
+///
+/// # Returns
+/// * `Ok(String)` - The stored credential value
+/// * `Err(String)` - Error if credential not found or access denied
+///
+/// # Platform Support
+/// - macOS: Uses Keychain
+/// - Windows: Uses Credential Manager
+/// - Linux: Uses Secret Service (libsecret)
 #[tauri::command]
 pub async fn keychain_get(service: String, key: String) -> Result<String, String> {
     tokio::task::spawn_blocking(move || {
@@ -20,7 +35,18 @@ pub async fn keychain_get(service: String, key: String) -> Result<String, String
 }
 
 /// Set a value in the keychain
-/// Uses spawn_blocking to prevent UI freezing on macOS
+///
+/// Stores a credential securely in the OS-native credential store.
+/// Uses spawn_blocking to prevent UI freezing on macOS where keychain access can be slow.
+///
+/// # Arguments
+/// * `service` - Service identifier (e.g., "com.moltzer.client")
+/// * `key` - Credential key (e.g., "gateway_token")
+/// * `value` - The credential value to store
+///
+/// # Returns
+/// * `Ok(())` - Credential stored successfully
+/// * `Err(String)` - Error if storage fails or access denied
 #[tauri::command]
 pub async fn keychain_set(service: String, key: String, value: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
@@ -32,7 +58,17 @@ pub async fn keychain_set(service: String, key: String, value: String) -> Result
 }
 
 /// Delete a value from the keychain
-/// Uses spawn_blocking to prevent UI freezing on macOS
+///
+/// Removes a stored credential from the OS-native credential store.
+/// Uses spawn_blocking to prevent UI freezing on macOS where keychain access can be slow.
+///
+/// # Arguments
+/// * `service` - Service identifier (e.g., "com.moltzer.client")
+/// * `key` - Credential key (e.g., "gateway_token")
+///
+/// # Returns
+/// * `Ok(())` - Credential deleted successfully
+/// * `Err(String)` - Error if credential not found or deletion fails
 #[tauri::command]
 pub async fn keychain_delete(service: String, key: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {

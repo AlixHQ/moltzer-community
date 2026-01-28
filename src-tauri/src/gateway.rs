@@ -732,6 +732,25 @@ fn build_input_items(message: &str, attachments: &[AttachmentData]) -> serde_jso
 // ============================================================================
 
 /// Connect to Clawdbot Gateway
+///
+/// Establishes a WebSocket connection to the specified Gateway URL using the provided token.
+/// Supports automatic protocol fallback (ws <-> wss) if initial connection fails.
+///
+/// # Arguments
+/// * `app` - Tauri application handle
+/// * `state` - Gateway connection state
+/// * `url` - WebSocket URL of the Gateway (e.g., "ws://localhost:18789")
+/// * `token` - Authentication token for the Gateway
+///
+/// # Returns
+/// * `Ok(ConnectResult)` - Connection successful with details about the connection
+/// * `Err(String)` - Connection failed with user-friendly error message
+///
+/// # Behavior
+/// - Automatically retries with protocol fallback if initial connection fails
+/// - Stores credentials for automatic reconnection on disconnect
+/// - Emits "gateway:state" events to notify frontend of connection status
+/// - On retryable errors, starts automatic reconnection loop
 #[tauri::command]
 pub async fn connect(
     app: AppHandle,
@@ -827,8 +846,8 @@ async fn connect_internal(
     tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
             let ws_msg = match msg {
-                OutgoingMessage::Raw(text) => WsMessage::Text(text),
-                OutgoingMessage::Ping => WsMessage::Ping(vec![]),
+                OutgoingMessage::Raw(text) => WsMessage::Text(text.into()),
+                OutgoingMessage::Ping => WsMessage::Ping(vec![].into()),
             };
             if let Err(e) = write.send(ws_msg).await {
                 log_protocol_error("Failed to send message", &e.to_string());
@@ -1326,6 +1345,17 @@ async fn drain_message_queue(state: &GatewayStateInner) {
 }
 
 /// Disconnect from Gateway
+///
+/// Gracefully closes the WebSocket connection and cleans up all connection state.
+///
+/// # Arguments
+/// * `state` - Gateway connection state
+///
+/// # Behavior
+/// - Sets shutdown flag to stop reconnection attempts
+/// - Clears message queue and pending requests
+/// - Resets connection state to Disconnected
+/// - Cancels all background tasks (ping monitor, stream timeout monitor)
 #[tauri::command]
 pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
     state.inner.shutdown.store(true, Ordering::SeqCst);
@@ -1340,6 +1370,24 @@ pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
 }
 
 /// Send a chat message to Gateway
+///
+/// Sends a chat message with optional attachments to the Gateway for AI processing.
+/// Messages are queued during reconnection and sent when connection is restored.
+///
+/// # Arguments
+/// * `state` - Gateway connection state
+/// * `params` - Chat parameters including message text, session key, model, thinking level, and attachments
+///
+/// # Returns
+/// * `Ok(String)` - Request ID for tracking the message
+/// * `Err(String)` - Error message if sending fails
+///
+/// # Behavior
+/// - Generates unique request ID and idempotency key
+/// - Supports image and file attachments with automatic type detection
+/// - Queues messages during reconnection (max 100, oldest dropped)
+/// - Tracks sent messages for deduplication (prevents duplicate sends)
+/// - Emits "gateway:stream", "gateway:complete", etc. events with responses
 #[tauri::command]
 pub async fn send_message(
     state: State<'_, GatewayState>,
@@ -1459,6 +1507,22 @@ pub async fn get_connection_quality(
 }
 
 /// Request available models from Gateway
+///
+/// Retrieves the list of available AI models from the Gateway.
+/// Falls back to a hardcoded list if the request fails.
+///
+/// # Arguments
+/// * `_app` - Tauri application handle (unused but required by Tauri)
+/// * `state` - Gateway connection state
+///
+/// # Returns
+/// * `Ok(Vec<ModelInfo>)` - List of available models with metadata
+/// * `Err(String)` - Error message if not connected
+///
+/// # Behavior
+/// - Sends "models.list" request to Gateway with 30s timeout
+/// - Returns fallback models (Claude Sonnet/Opus) if request fails
+/// - Automatically cleans up timed-out requests
 #[tauri::command]
 pub async fn get_models(
     _app: AppHandle,

@@ -30,6 +30,22 @@ pub struct UpdaterState {
 }
 
 /// Check for updates without showing built-in dialog
+///
+/// Checks for available application updates without showing the built-in Tauri updater dialog.
+/// Prevents concurrent update checks to avoid redundant network requests.
+///
+/// # Arguments
+/// * `app` - Tauri application handle
+///
+/// # Returns
+/// * `Ok(UpdateInfo)` - Update information (available: true if update found)
+/// * `Err(String)` - Error if check fails or already in progress
+///
+/// # Behavior
+/// - Prevents concurrent checks with mutex lock
+/// - Stores pending update in app state
+/// - Emits "update-available" event if update found
+/// - Updates last check timestamp
 #[tauri::command]
 pub async fn check_for_updates<R: Runtime>(app: AppHandle<R>) -> Result<UpdateInfo, String> {
     let state = app.state::<UpdaterState>();
@@ -52,6 +68,21 @@ pub async fn check_for_updates<R: Runtime>(app: AppHandle<R>) -> Result<UpdateIn
 }
 
 /// Download and install the update
+///
+/// Downloads and installs a pending application update.
+/// Emits progress events during download for UI feedback.
+///
+/// # Arguments
+/// * `app` - Tauri application handle
+///
+/// # Returns
+/// * `Ok(())` - Update downloaded and installed successfully (app will restart)
+/// * `Err(String)` - Error if no update available or download fails
+///
+/// # Behavior
+/// - Emits "update-download-progress" events with percentage (0-100)
+/// - Emits "update-downloaded" event when complete
+/// - Application will restart automatically after successful install
 #[tauri::command]
 pub async fn install_update<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
     use tauri_plugin_updater::UpdaterExt;
