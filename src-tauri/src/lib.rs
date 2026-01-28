@@ -41,6 +41,12 @@ pub fn run() {
                 
                 // Setup system tray
                 tray::setup_tray(app.handle())?;
+                
+                // Ensure quickinput window is hidden on startup
+                // (window_state plugin might restore it as visible)
+                if let Some(quickinput) = app.get_webview_window("quickinput") {
+                    let _ = quickinput.hide();
+                }
             }
             
             Ok(())

@@ -166,6 +166,26 @@ const debouncedPersist = (fn: () => void, delay = 500) => {
   persistTimer = window.setTimeout(fn, delay);
 };
 
+/**
+ * Persistence queue — serializes write operations per conversation
+ * to avoid race conditions between create and immediate updates.
+ */
+const persistenceQueue: Map<string, Promise<void>> = new Map();
+
+function enqueuePersistence(convId: string, op: () => Promise<void>): void {
+  const prev = persistenceQueue.get(convId) ?? Promise.resolve();
+  const next = prev.then(op).catch(() => {
+    // errors already logged inside the operation
+  });
+  persistenceQueue.set(convId, next);
+  next.finally(() => {
+    // only delete if this is still the latest operation
+    if (persistenceQueue.get(convId) === next) {
+      persistenceQueue.delete(convId);
+    }
+  });
+}
+
 export const useStore = create<Store>()((set, get) => ({
       // Connection
       connected: false,
@@ -206,10 +226,12 @@ export const useStore = create<Store>()((set, get) => ({
           currentConversationId: conversation.id,
         }));
 
-        // Persist to IndexedDB (async, non-blocking)
-        persistConversation(conversation).catch(err => {
-          console.error('Failed to persist new conversation:', err);
-        });
+        // Persist to IndexedDB (queued to prevent race with subsequent updates)
+        enqueuePersistence(conversation.id, () =>
+          persistConversation(conversation).catch(err => {
+            console.error('Failed to persist new conversation:', err);
+          })
+        );
 
         return conversation;
       },
@@ -254,13 +276,16 @@ export const useStore = create<Store>()((set, get) => ({
           ),
         }));
 
-        // Persist to IndexedDB
-        const conversation = get().conversations.find(c => c.id === id);
-        if (conversation) {
-          updatePersistedConversation(conversation).catch(err => {
-            console.error('Failed to persist pin status:', err);
-          });
-        }
+        // Persist to IndexedDB (queued after any pending create)
+        enqueuePersistence(id, () => {
+          const conversation = get().conversations.find(c => c.id === id);
+          if (conversation) {
+            return updatePersistedConversation(conversation).catch(err => {
+              console.error('Failed to persist pin status:', err);
+            });
+          }
+          return Promise.resolve();
+        });
       },
 
       // Messages
