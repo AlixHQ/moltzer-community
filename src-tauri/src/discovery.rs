@@ -264,7 +264,10 @@ async fn test_gateway(url: String, source: impl Into<String>) -> DiscoveredGatew
     // Try to connect with a short timeout (1 second)
     let connect_timeout = Duration::from_secs(1);
 
-    let reachable = matches!(timeout(connect_timeout, connect_async(&url)).await, Ok(Ok(_)));
+    let reachable = matches!(
+        timeout(connect_timeout, connect_async(&url)).await,
+        Ok(Ok(_))
+    );
 
     let response_time_ms = if reachable {
         Some(start.elapsed().as_millis() as u64)

@@ -258,7 +258,7 @@ pub enum ConnectionQuality {
     Fair,      // < 1000ms latency, some failures
     Poor,      // > 1000ms latency or frequent failures
     #[default]
-    Unknown,   // Not enough data
+    Unknown, // Not enough data
 }
 
 /// Health metrics for connection quality assessment
