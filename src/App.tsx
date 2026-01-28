@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { register, unregister } from "@tauri-apps/plugin-global-shortcut";
 import { Window } from "@tauri-apps/api/window";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
+import { KeyboardShortcutsDialog } from "./components/KeyboardShortcutsDialog";
 import { useStore, type ModelInfo } from "./stores/store";
 import { cn } from "./lib/utils";
 import { ToastContainer, useToast } from "./components/ui/toast";
@@ -78,6 +79,7 @@ export default function App() {
     null,
   );
   const [hasUpdateDismissed, setHasUpdateDismissed] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const { toasts, dismissToast, showError, showSuccess } = useToast();
   const {
     currentConversation,
@@ -182,7 +184,8 @@ export default function App() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, [settings.theme]);
 
-  // Keyboard shortcut for sidebar toggle
+  // Keyboard shortcut for sidebar toggle and help
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl + \ to toggle sidebar
@@ -193,6 +196,15 @@ export default function App() {
       // Escape to close sidebar on mobile
       if (e.key === "Escape" && sidebarOpen) {
         setSidebarOpen(false);
+      }
+      // ? to show keyboard shortcuts help
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+        // Only trigger if not typing in an input field
+        const target = e.target as HTMLElement;
+        if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA" && !target.isContentEditable) {
+          e.preventDefault();
+          setShowKeyboardHelp(true);
+        }
       }
     };
 
@@ -684,6 +696,10 @@ export default function App() {
       <Suspense fallback={null}>
         <UpdateNotification onUpdateDismissed={() => setHasUpdateDismissed(true)} />
       </Suspense>
+      <KeyboardShortcutsDialog 
+        open={showKeyboardHelp} 
+        onClose={() => setShowKeyboardHelp(false)} 
+      />
       {/* Skip to main content link for keyboard navigation */}
       <a
         href="#main-content"

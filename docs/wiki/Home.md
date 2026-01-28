@@ -31,7 +31,6 @@ Think of it as your AI assistant that lives on your machine, not in a browser ta
 
 ### 🏗️ Architecture & Development
 - **[Architecture](./Architecture.md)** — System design and components
-- **[API Reference](./API-Reference.md)** — Gateway protocol and IPC commands
 - **[Developer Guide](./Developer-Guide.md)** — Building and developing
 - **[Contributing](./Contributing.md)** — How to contribute to Moltz
 
@@ -70,7 +69,7 @@ This wiki is maintained by the Moltz team and community contributors. If you fin
 2. Submit a pull request with improvements
 3. Ask questions in [GitHub Discussions](https://github.com/AlixHQ/moltz/discussions)
 
-**Last updated:** January 2026  
+**Last updated:** January 2025  
 **Documentation version:** 1.0.0
 
 ---

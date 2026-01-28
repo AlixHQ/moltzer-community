@@ -633,11 +633,27 @@ cargo flamegraph --bin moltz
 
 ### "WebSocket connection failed"
 
-**Cause:** Gateway not running.
+**Cause:** Gateway not running or wrong configuration.
+
+**Diagnose:**
+```bash
+# Check if Gateway is running
+clawdbot status
+
+# Check Gateway health endpoint
+curl http://localhost:18789/health
+
+# Get your token
+clawdbot token show
+```
 
 **Solution:**
 ```bash
+# Start Gateway if not running
 clawdbot start
+
+# Or restart if it's having issues
+clawdbot restart
 ```
 
 ---
