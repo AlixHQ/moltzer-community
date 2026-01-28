@@ -124,16 +124,34 @@ impl GatewayError {
     }
 
     /// Get user-friendly error message
+    ///
+    /// Returns a message suitable for displaying to end users.
+    /// Technical details are omitted to avoid confusion.
     pub fn user_message(&self) -> String {
         match self {
-            Self::Network { .. } => {
-                "Unable to connect to Gateway. Please check your network connection.".to_string()
+            Self::Network { message, .. } => {
+                // Provide helpful troubleshooting hints based on the error
+                if message.contains("DNS") || message.contains("resolve") {
+                    "Unable to resolve Gateway address. Check your network connection or Gateway URL.".to_string()
+                } else if message.contains("timeout") || message.contains("timed out") {
+                    "Connection timed out. The Gateway may be unreachable or your network may be slow.".to_string()
+                } else if message.contains("refused") {
+                    "Connection refused. The Gateway may not be running or the port may be incorrect.".to_string()
+                } else {
+                    "Unable to connect to Gateway. Please check your network connection.".to_string()
+                }
             }
             Self::Protocol { message, .. } => {
                 format!("Communication error: {}. Try reconnecting.", message)
             }
             Self::Gateway { message, code, .. } => {
-                format!("[{}] {}", code, message)
+                // Make common error codes more user-friendly
+                match code.as_str() {
+                    "RATE_LIMITED" => "Too many requests. Please wait a moment and try again.".to_string(),
+                    "SERVICE_UNAVAILABLE" => "Gateway temporarily unavailable. Please try again in a moment.".to_string(),
+                    "OVERLOADED" => "Gateway is experiencing high load. Please try again shortly.".to_string(),
+                    _ => format!("[{}] {}", code, message)
+                }
             }
             Self::Auth { message, .. } => {
                 format!(
@@ -142,10 +160,14 @@ impl GatewayError {
                 )
             }
             Self::Timeout { timeout_secs, .. } => {
-                format!(
-                    "Request timed out after {}s. Please try again.",
-                    timeout_secs
-                )
+                if *timeout_secs > 30 {
+                    "Request timed out. The Gateway may be slow or unresponsive.".to_string()
+                } else {
+                    format!(
+                        "Request timed out after {}s. Please try again.",
+                        timeout_secs
+                    )
+                }
             }
             Self::StreamTimeout { idle_secs, .. } => {
                 format!(
@@ -153,11 +175,19 @@ impl GatewayError {
                     idle_secs
                 )
             }
-            Self::Validation { message, .. } => {
-                format!("Invalid request: {}", message)
+            Self::Validation { message, field } => {
+                if let Some(field_name) = field {
+                    format!("Invalid {}: {}", field_name, message)
+                } else {
+                    format!("Invalid request: {}", message)
+                }
             }
-            Self::Closed { reason, .. } => {
-                format!("Connection closed: {}", reason)
+            Self::Closed { reason, code, .. } => {
+                if let Some(close_code) = code {
+                    format!("Connection closed ({}): {}", close_code, reason)
+                } else {
+                    format!("Connection closed: {}", reason)
+                }
             }
         }
     }

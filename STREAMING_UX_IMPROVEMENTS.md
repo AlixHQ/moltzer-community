@@ -72,6 +72,33 @@ Added performance hints for browser optimization:
 - **GPU acceleration:** Offloaded animations to GPU via will-change hints
 - **Paint optimization:** CSS containment reduces browser repaints
 
+### 8. **Keyboard Shortcut for Stop**
+**New:** Added Esc key to stop generation
+- Power user feature for quick stopping
+- Works globally when streaming is active
+- Updated tooltip to show shortcut
+
+### 9. **Message Fade-In Optimization**
+**Before:** 250ms animation
+**After:** 200ms with will-change hint
+- Faster appearance feels more responsive
+- GPU acceleration for smoother motion
+
+### 10. **Layout Stability During Streaming**
+Added CSS containment to prevent layout shifts:
+- Code blocks: `contain: layout style`
+- Markdown container: `contain: content`
+- Reduces reflows when content changes
+
+---
+
+## Iteration 2 Improvements
+
+### Additional Enhancements:
+- **Stop button z-index:** Ensured it stays above other elements
+- **Tooltip clarity:** Added "(Esc)" to stop button for discoverability
+- **Animation consistency:** All animations now use optimized cubic-bezier curves
+
 ---
 
 ## Next Iteration Focus

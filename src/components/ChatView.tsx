@@ -544,10 +544,10 @@ export function ChatView() {
           <div className="max-w-3xl mx-auto flex items-center gap-3 text-amber-700 dark:text-amber-300 text-sm">
             <WifiOff className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
             <div className="flex-1 min-w-0">
-              <span className="font-medium">Offline mode</span>
+              <span className="font-medium">You're offline</span>
               <span className="mx-1.5">·</span>
               <span className="text-xs opacity-90">
-                Messages won't be sent until reconnected. Check the status bar above for retry options.
+                Check the connection status at the top to reconnect
               </span>
             </div>
           </div>

@@ -490,20 +490,23 @@ export const useStore = create<Store>()((set, get) => ({
     const { currentConversationId, currentStreamingMessageId } = get();
     if (!currentConversationId || !currentStreamingMessageId) return;
 
-    set((state) => ({
-      conversations: state.conversations.map((c) =>
-        c.id === currentConversationId
-          ? {
-              ...c,
-              messages: c.messages.map((m) =>
-                m.id === currentStreamingMessageId
-                  ? { ...m, content: m.content + content }
-                  : m,
-              ),
-            }
-          : c,
-      ),
-    }));
+    // Batch state update using callback form for optimal performance
+    set((state) => {
+      const updatedConversations = state.conversations.map((c) => {
+        if (c.id !== currentConversationId) return c;
+        
+        return {
+          ...c,
+          messages: c.messages.map((m) =>
+            m.id === currentStreamingMessageId
+              ? { ...m, content: m.content + content }
+              : m,
+          ),
+        };
+      });
+      
+      return { conversations: updatedConversations };
+    });
 
     // Debounced persistence for streaming (every 1s)
     const conversation = get().conversations.find(

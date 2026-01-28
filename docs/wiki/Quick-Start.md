@@ -9,6 +9,7 @@ Get Moltz running in under 5 minutes.
 ```bash
 npm install -g clawdbot
 clawdbot setup
+clawdbot gateway start
 ```
 
 Gateway is now running in the background.

@@ -11,11 +11,11 @@ Real solutions to real problems. No "have you tried turning it off and on again?
 **Fix #1: Gateway isn't running (95% of cases)**
 
 ```bash
-# macOS/Linux
-clawdbot start
+# Check if Gateway is running
+clawdbot gateway status
 
-# Windows
-clawdbot start
+# Not running? Start it:
+clawdbot gateway start
 ```
 
 Wait 5 seconds, then click "Test Connection" in Moltz again.
@@ -24,19 +24,19 @@ Wait 5 seconds, then click "Test Connection" in Moltz again.
 
 ---
 
-**Fix #2: Wrong token**
+**Fix #2: Gateway is running but not accessible**
 
 ```bash
-# Get your current token
-clawdbot token show
+# Can you reach Gateway?
+curl http://localhost:18789/health
+
+# Should return: {"status":"ok"}
 ```
 
-Copy the token (it's the long random string). 
-
-In Moltz:
-1. Settings → Connection
-2. Paste the token
-3. Click "Test Connection"
+If curl fails:
+- Gateway might be on a different port
+- Firewall might be blocking it
+- Check Gateway config: `clawdbot config get gateway`
 
 **Still not working?** Move to Fix #3.
 
@@ -45,18 +45,20 @@ In Moltz:
 **Fix #3: Gateway is on a different port**
 
 ```bash
-# Check what port Gateway is using
-clawdbot config get port
+# Check Gateway config
+clawdbot config get gateway
+
+# Look for "port" in the output
 ```
 
-If it says anything other than `18789`, update Moltz:
-1. Settings → Connection
+If Gateway is on a different port (not 18789):
+1. Settings → Connection in Moltz
 2. Change `ws://localhost:18789` to `ws://localhost:YOUR_PORT`
 3. Test connection
 
 **Still not working?** [Open an issue](https://github.com/AlixHQ/moltz/issues) with:
-- Output of `clawdbot status`
-- Output of `clawdbot config show`
+- Output of `clawdbot gateway status`
+- Output of `clawdbot gateway probe`
 - Error from Moltz (Settings → View Logs)
 
 ---

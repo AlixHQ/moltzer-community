@@ -61,10 +61,9 @@ export class ErrorBoundary extends Component<Props, State> {
                   strokeWidth={2}
                 />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
+              <h1 className="text-2xl font-bold mb-2">Oops! Something broke</h1>
               <p className="text-muted-foreground">
-                The application encountered an unexpected error and needs to
-                reload.
+                Moltz ran into an unexpected problem. Don't worry — your conversations are safe and encrypted.
               </p>
             </div>
 
@@ -97,7 +96,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </Button>
 
             <p className="mt-4 text-xs text-muted-foreground">
-              If this keeps happening, please check the logs or contact support.
+              If this keeps happening, try checking Settings or restarting the app. Your data is always safe.
             </p>
           </div>
         </div>

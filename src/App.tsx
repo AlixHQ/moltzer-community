@@ -712,12 +712,7 @@ export default function App() {
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 lg:hidden animate-in fade-in duration-200"
             onClick={() => setSidebarOpen(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setSidebarOpen(false);
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Close sidebar"
+            aria-hidden="true"
           />
         )}
 

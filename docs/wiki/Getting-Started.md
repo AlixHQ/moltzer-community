@@ -115,17 +115,17 @@ Type a message, press Enter, watch the magic happen.
 **Most common fix:**
 ```bash
 # Is Gateway running?
-clawdbot status
+clawdbot gateway status
 
 # Not running? Start it:
-clawdbot start
+clawdbot gateway start
 ```
 
 **Still not working?**
-1. Check your token: `clawdbot token show`
-2. Copy the token
-3. In Moltz: Settings → Connection → paste token
-4. Click "Test Connection"
+1. Check Gateway is accessible: `curl http://localhost:18789/health`
+2. Check Gateway config: `clawdbot config get gateway`
+3. Restart Gateway: `clawdbot gateway restart`
+4. In Moltz: Settings → Connection → click "Test Connection"
 
 ---
 

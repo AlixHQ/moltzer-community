@@ -130,13 +130,14 @@ describe("Store Race Conditions", () => {
 
       // Select conv1
       store.selectConversation(conv1.id);
-      expect(store.currentConversationId).toBe(conv1.id);
+      let freshStore = useStore.getState();
+      expect(freshStore.currentConversationId).toBe(conv1.id);
 
       // Delete conv2
       store.deleteConversation(conv2.id);
 
       // conv1 should still be selected
-      const freshStore = useStore.getState();
+      freshStore = useStore.getState();
       expect(freshStore.currentConversationId).toBe(conv1.id);
       expect(freshStore.conversations.length).toBe(1);
     });
@@ -195,12 +196,13 @@ describe("Store Race Conditions", () => {
         isStreaming: true,
       });
 
-      expect(store.currentStreamingMessageId).toBe(msg.id);
+      let freshStore = useStore.getState();
+      expect(freshStore.currentStreamingMessageId).toBe(msg.id);
 
       // Delete it while streaming
       store.deleteMessage(conv.id, msg.id);
 
-      const freshStore = useStore.getState();
+      freshStore = useStore.getState();
       const conversation = freshStore.conversations.find((c) => c.id === conv.id);
       expect(conversation?.messages.length).toBe(0);
       // Streaming ID should be cleared
@@ -299,7 +301,8 @@ describe("Store Race Conditions", () => {
       store.selectConversation(conv2.id);
 
       // Should switch conversation
-      expect(store.currentConversationId).toBe(conv2.id);
+      const freshStore = useStore.getState();
+      expect(freshStore.currentConversationId).toBe(conv2.id);
     });
 
     it("should handle starting a new streaming message while one exists", () => {
