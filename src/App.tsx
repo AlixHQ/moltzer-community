@@ -600,7 +600,7 @@ export default function App() {
         listeners.forEach((fn) => {
           try {
             if (typeof fn === 'function') fn();
-          } catch (e) {
+          } catch {
             // Ignore cleanup errors (listener may already be removed)
           }
         });

@@ -446,7 +446,7 @@ export function GatewaySetupStep({
     const CONNECT_TIMEOUT_MS = isTailscale ? 120000 : 15000; // 2 min for Tailscale, 15s otherwise
     
     if (isTailscale) {
-      console.log("[DEBUG] Tailscale URL detected, using extended timeout");
+      // Using extended timeout for Tailscale URLs
     }
 
     try {
@@ -458,7 +458,6 @@ export function GatewaySetupStep({
       }
 
       // Race between connect and timeout
-      console.log("[DEBUG] Calling connect with URL:", trimmedUrl);
       const connectPromise = invoke<ConnectResult>("connect", {
         url: trimmedUrl,
         token: trimmedToken,
