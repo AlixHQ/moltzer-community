@@ -155,7 +155,7 @@ export function ChatView() {
   }, []);
 
   // Handle regenerating an assistant response
-  const handleRegenerate = async (messageId: string) => {
+  const handleRegenerate = useCallback(async (messageId: string) => {
     if (!currentConversation || isSending || currentStreamingMessageId) return;
 
     // Find the assistant message
@@ -201,7 +201,7 @@ export function ChatView() {
     } finally {
       setIsSending(false);
     }
-  };
+  }, [currentConversation, isSending, currentStreamingMessageId, settings.defaultModel, deleteMessage, addMessage]);
 
   const handleSendMessage = async (content: string, attachments: PreparedAttachment[]) => {
     if (!currentConversation || isSending) return;
@@ -409,7 +409,7 @@ export function ChatView() {
       )}
 
       {/* Input */}
-      <div className="border-t border-border bg-background/80 backdrop-blur-sm">
+      <div className="border-t border-border/50 bg-background/90 backdrop-blur-md">
         <div className="max-w-3xl mx-auto">
           <ChatInput 
             onSend={handleSendMessage} 
@@ -423,6 +423,18 @@ export function ChatView() {
 }
 
 function EmptyConversation() {
+  const suggestions = [
+    { label: "Write code", prompt: "Help me write a function that " },
+    { label: "Explain concept", prompt: "Explain to me how " },
+    { label: "Brainstorm ideas", prompt: "Help me brainstorm ideas for " },
+    { label: "Debug error", prompt: "I'm getting this error: " },
+  ];
+
+  const handleSuggestion = (prompt: string) => {
+    // Dispatch to fill the chat input
+    window.dispatchEvent(new CustomEvent("quickinput:setmessage", { detail: { message: prompt } }));
+  };
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in duration-500">
       <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-400/10 to-red-500/10 mb-6 shadow-sm animate-in zoom-in-95 duration-500" style={{ animationDelay: "100ms" }}>
@@ -435,16 +447,18 @@ function EmptyConversation() {
         Type a message below to begin chatting. I can help with coding, writing, analysis, and much more.
       </p>
       
-      {/* Quick action suggestions */}
+      {/* Quick action suggestions — clickable to fill input */}
       <div className="flex flex-wrap gap-2 mt-8 justify-center max-w-lg animate-in fade-in slide-in-from-bottom-2 duration-500" style={{ animationDelay: "400ms" }}>
-        {["Write code", "Explain concept", "Brainstorm ideas", "Debug error"].map((action, i) => (
-          <span
-            key={action}
-            className="px-3 py-1.5 text-sm bg-muted/50 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border cursor-default"
+        {suggestions.map((action, i) => (
+          <button
+            key={action.label}
+            onClick={() => handleSuggestion(action.prompt)}
+            className="px-3 py-1.5 text-sm bg-muted/50 hover:bg-primary/8 rounded-full text-muted-foreground hover:text-primary transition-colors border border-transparent hover:border-primary/20 cursor-pointer"
             style={{ animationDelay: `${400 + i * 50}ms` }}
+            aria-label={`Start with: ${action.label}`}
           >
-            {action}
-          </span>
+            {action.label}
+          </button>
         ))}
       </div>
     </div>

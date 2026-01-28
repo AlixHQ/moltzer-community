@@ -1,17 +1,29 @@
-﻿/**
+/**
  * Persistence layer for Moltzer Client
  * 
  * Integrates:
- * - IndexedDB storage via Dexie
+ * - IndexedDB storage via Dexie (lazy-loaded for fast startup)
  * - End-to-end encryption via Web Crypto API
  * - Automatic sync between Zustand store and database
  * 
  * All conversation data is encrypted at rest with zero user friction.
  */
 
-import { db, type DBMessage, type DBConversation } from './db';
+import { type DBMessage, type DBConversation } from './db';
 import { encrypt, decrypt } from './encryption';
 import type { Conversation, Message } from '../stores/store';
+
+// Lazy-load the Dexie database (~95 kB) on first access.
+// All persistence functions are async anyway, so this adds zero latency
+// after the first call while freeing the main thread during initial render.
+let _db: typeof import('./db').db;
+async function getDb() {
+  if (!_db) {
+    const { db } = await import('./db');
+    _db = db;
+  }
+  return _db;
+}
 
 /**
  * Load all conversations and messages from IndexedDB
@@ -21,6 +33,8 @@ export async function loadPersistedData(): Promise<{
   conversations: Conversation[];
 }> {
   try {
+    const db = await getDb();
+
     // Load conversations
     const dbConversations = await db.conversations
       .orderBy('updatedAt')
@@ -92,6 +106,8 @@ export async function loadPersistedData(): Promise<{
  */
 export async function persistConversation(conversation: Conversation): Promise<void> {
   try {
+    const db = await getDb();
+
     // Encrypt title
     const encryptedTitle = await encrypt(conversation.title);
 
@@ -150,6 +166,8 @@ export async function persistConversation(conversation: Conversation): Promise<v
  */
 export async function deletePersistedConversation(conversationId: string): Promise<void> {
   try {
+    const db = await getDb();
+
     await db.transaction('rw', db.conversations, db.messages, async () => {
       await db.conversations.delete(conversationId);
       await db.messages.where('conversationId').equals(conversationId).delete();
@@ -169,6 +187,8 @@ export async function persistMessage(
   message: Message
 ): Promise<void> {
   try {
+    const db = await getDb();
+
     const encryptedContent = await encrypt(message.content);
     const encryptedThinking = message.thinkingContent
       ? await encrypt(message.thinkingContent)
@@ -202,6 +222,8 @@ export async function updatePersistedConversation(
   conversation: Conversation
 ): Promise<void> {
   try {
+    const db = await getDb();
+
     const encryptedTitle = await encrypt(conversation.title);
 
     const dbConv: DBConversation = {
@@ -230,6 +252,7 @@ export async function searchPersistedMessages(
   conversationId?: string
 ): Promise<Array<Message & { conversationId: string; conversationTitle: string }>> {
   try {
+    const db = await getDb();
     const searchWords = query.toLowerCase().split(/\s+/);
     
     let collection = db.messages.toCollection();
@@ -285,6 +308,7 @@ export async function searchPersistedMessages(
  */
 export async function deletePersistedMessage(messageId: string): Promise<void> {
   try {
+    const db = await getDb();
     await db.messages.delete(messageId);
   } catch (err) {
     console.error('Failed to delete message:', err);
@@ -297,6 +321,7 @@ export async function deletePersistedMessage(messageId: string): Promise<void> {
  */
 export async function deletePersistedMessages(messageIds: string[]): Promise<void> {
   try {
+    const db = await getDb();
     await db.messages.bulkDelete(messageIds);
   } catch (err) {
     console.error('Failed to delete messages:', err);
@@ -310,6 +335,8 @@ export async function deletePersistedMessages(messageIds: string[]): Promise<voi
  */
 export async function clearAllData(): Promise<void> {
   try {
+    const db = await getDb();
+
     await db.transaction('rw', db.conversations, db.messages, async () => {
       await db.conversations.clear();
       await db.messages.clear();
@@ -329,6 +356,7 @@ export async function getStorageStats(): Promise<{
   estimatedSize: string;
 }> {
   try {
+    const db = await getDb();
     const conversationCount = await db.conversations.count();
     const messageCount = await db.messages.count();
     

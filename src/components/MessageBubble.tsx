@@ -1,9 +1,4 @@
-﻿import { useState, useRef, useEffect, KeyboardEvent, ReactNode, isValidElement } from "react";
-import ReactMarkdown, { Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
-import rehypeSanitize from "rehype-sanitize";
-import { motion } from "framer-motion";
+import React, { useState, useRef, useEffect, KeyboardEvent, Suspense, memo } from "react";
 import { Message, Attachment } from "../stores/store";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -21,66 +16,16 @@ import {
 } from "lucide-react";
 import { ImageRenderer } from "./ImageRenderer";
 
-// Spring animation config for message appearance
-const messageVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 10,
-    scale: 0.98
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 500,
-      damping: 30,
-      mass: 0.8
-    }
-  }
-};
+// Lazy-load the heavy markdown renderer (~336 kB chunk with react-markdown + highlight.js)
+const MarkdownRenderer = React.lazy(() => import("./MarkdownRenderer").then(m => ({ default: m.MarkdownRenderer })));
 
-// Type definitions for ReactMarkdown components
-interface CodeProps {
-  inline?: boolean;
-  className?: string;
-  children?: ReactNode;
-  [key: string]: unknown;
-}
-
-interface LinkProps {
-  href?: string;
-  children?: ReactNode;
-  [key: string]: unknown;
-}
-
-interface ImageProps {
-  src?: string;
-  alt?: string;
-  [key: string]: unknown;
-}
-
-interface TableProps {
-  children?: ReactNode;
-  [key: string]: unknown;
-}
-
-/**
- * Recursively extracts plain text from React children.
- * Handles strings, numbers, arrays, and React elements (e.g., syntax-highlighted spans).
- */
-function extractTextFromChildren(children: ReactNode): string {
-  if (children == null) return "";
-  if (typeof children === "string") return children;
-  if (typeof children === "number") return String(children);
-  if (Array.isArray(children)) {
-    return children.map(extractTextFromChildren).join("");
-  }
-  if (isValidElement(children)) {
-    return extractTextFromChildren(children.props.children);
-  }
-  return "";
+// Lightweight plain-text fallback shown while markdown chunk loads
+function PlainTextFallback({ content }: { content: string }) {
+  return (
+    <div className="prose prose-sm dark:prose-invert max-w-none">
+      <p className="whitespace-pre-wrap break-words">{content}</p>
+    </div>
+  );
 }
 
 interface MessageBubbleProps {
@@ -90,7 +35,7 @@ interface MessageBubbleProps {
   isLastAssistantMessage?: boolean;
 }
 
-export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMessage }: MessageBubbleProps) {
+export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMessage }: MessageBubbleProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showTimestamp, setShowTimestamp] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -158,16 +103,12 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
   const isUser = message.role === "user";
 
   return (
-    <motion.div 
+    <div 
       className={cn("group flex gap-3", isUser && "flex-row-reverse")}
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
       role="article"
       aria-label={`Message from ${isUser ? "You" : "Moltzer"} sent ${formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}`}
-      variants={messageVariants}
-      initial="hidden"
-      animate="visible"
-      layout
     >
       {/* Avatar */}
       <div
@@ -220,7 +161,7 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
             "relative",
             isUser ? "text-right" : "",
             isUser && !isEditing && "bg-primary/5 rounded-2xl rounded-tr-sm px-4 py-3",
-            // Streaming state: subtle border pulse (P1)
+            // Streaming state: subtle border pulse
             message.isStreaming && !isUser && "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse"
           )}
         >
@@ -279,97 +220,13 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
           ) : message.isStreaming && !message.content ? (
             <TypingIndicator />
           ) : (
-            <div className={cn(
-              "prose prose-sm dark:prose-invert max-w-none",
-              "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-            )}>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeSanitize, rehypeHighlight]}
-                components={{
-                  code({ inline, className, children, ...props }: CodeProps) {
-                    const match = /language-(\w+)/.exec(className || "");
-                    // Extract plain text from children (handles syntax-highlighted spans from rehype-highlight)
-                    const code = extractTextFromChildren(children).replace(/\n$/, "");
-
-                    if (!inline && match) {
-                      return (
-                        <div className="relative group/code my-4 -mx-4 sm:mx-0">
-                          <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 dark:bg-zinc-800 rounded-t-lg border border-b-0 border-zinc-700">
-                            <span className="text-xs text-zinc-400 font-mono">{match[1]}</span>
-                            <button
-                              onClick={() => copyToClipboard(code)}
-                              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2 py-1"
-                              aria-label={copiedCode === code ? "Code copied" : "Copy code to clipboard"}
-                            >
-                              {copiedCode === code ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                                  Copied!
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" strokeWidth={2} />
-                                  Copy
-                                </>
-                              )}
-                            </button>
-                          </div>
-                          <pre className="!mt-0 !rounded-t-none !bg-zinc-900 dark:!bg-zinc-800 !border !border-t-0 !border-zinc-700 overflow-x-auto">
-                            <code className={cn(className, "text-sm")} {...props}>
-                              {children}
-                            </code>
-                          </pre>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <code
-                        className="px-1.5 py-0.5 rounded-md bg-muted text-sm font-mono before:content-none after:content-none"
-                        {...props}
-                      >
-                        {children}
-                      </code>
-                    );
-                  },
-                  a({ href, children, ...props }: LinkProps) {
-                    return (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                        {...props}
-                      >
-                        {children}
-                      </a>
-                    );
-                  },
-                  img({ src, alt }: ImageProps) {
-                    if (!src) return null;
-                    return (
-                      <ImageRenderer 
-                        src={src} 
-                        alt={alt || "Image"} 
-                        className="my-2"
-                      />
-                    );
-                  },
-                  table({ children, ...props }: TableProps) {
-                    return (
-                      <div className="overflow-x-auto my-4 rounded-lg border border-border">
-                        <table className="w-full" {...props}>
-                          {children}
-                        </table>
-                      </div>
-                    );
-                  },
-                } as Partial<Components>}
-              >
-                {message.content}
-              </ReactMarkdown>
-            </div>
+            <Suspense fallback={<PlainTextFallback content={message.content} />}>
+              <MarkdownRenderer
+                content={message.content}
+                copiedCode={copiedCode}
+                onCopyCode={copyToClipboard}
+              />
+            </Suspense>
           )}
 
           {/* Streaming cursor */}
@@ -453,9 +310,9 @@ export function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMe
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   );
-}
+});
 
 function TypingIndicator() {
   return (
@@ -480,7 +337,7 @@ interface AttachmentsDisplayProps {
   attachments: Attachment[];
 }
 
-function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
+const AttachmentsDisplay = memo(function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
   // Separate images from other files
   const images = attachments.filter(a => a.mimeType?.startsWith('image/'));
   const files = attachments.filter(a => !a.mimeType?.startsWith('image/'));
@@ -494,7 +351,6 @@ function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
           images.length === 1 ? "" : "grid grid-cols-2 sm:grid-cols-3"
         )}>
           {images.map((attachment) => {
-            // Construct image source from data or url
             const src = attachment.data 
               ? `data:${attachment.mimeType};base64,${attachment.data}`
               : attachment.url;
@@ -532,4 +388,4 @@ function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
       )}
     </div>
   );
-}
+});

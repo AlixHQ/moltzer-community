@@ -30,29 +30,25 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           // Split React into its own chunk
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+          // NOTE: Trailing slash after 'react/' prevents matching 'react-markdown', 'react-virtual', etc.
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
             return 'react-vendor';
           }
           // Split Radix UI
           if (id.includes('node_modules/@radix-ui')) {
             return 'radix-ui';
           }
-          // Split markdown rendering (heavy)
+          // Markdown rendering + syntax highlighting (heavy, lazy-loaded)
+          // Includes: react-markdown, remark-gfm, rehype-highlight, rehype-sanitize,
+          //           unified ecosystem (mdast, hast), lowlight, highlight.js languages
           if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || 
-              id.includes('unified') || id.includes('mdast') || id.includes('hast')) {
+              id.includes('unified') || id.includes('mdast') || id.includes('hast') ||
+              id.includes('lowlight') || id.includes('highlight.js')) {
             return 'markdown';
           }
-          // Split syntax highlighting (heavy)
-          if (id.includes('react-syntax-highlighter') || id.includes('refractor') || id.includes('prismjs')) {
-            return 'syntax';
-          }
-          // Split database
+          // Database (lazy-loaded via persistence.ts)
           if (id.includes('dexie')) {
             return 'dexie';
-          }
-          // Split framer-motion (animations)
-          if (id.includes('framer-motion')) {
-            return 'framer-motion';
           }
         },
       },

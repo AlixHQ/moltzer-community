@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, lazy, Suspense, useRef } from "react";
+﻿import React, { useState, useEffect, lazy, Suspense, useRef, useMemo } from "react";
 import { useStore, Conversation } from "../stores/store";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { EmptyState } from "./ui/empty-state";
@@ -73,22 +73,30 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [createConversation]);
 
-  // Search across both titles and message content
-  const filteredConversations = conversations.filter((c) => {
+  // Memoize filtered conversations to avoid re-scanning on every render
+  const filteredConversations = useMemo(() => {
     const query = searchQuery.toLowerCase();
-    if (!query) return true;
+    if (!query) return conversations;
     
-    // Check title
-    if (c.title.toLowerCase().includes(query)) return true;
-    
-    // Check message content
-    return c.messages.some((m) => 
-      m.content.toLowerCase().includes(query)
-    );
-  });
+    return conversations.filter((c) => {
+      // Check title
+      if (c.title.toLowerCase().includes(query)) return true;
+      
+      // Check message content
+      return c.messages.some((m) => 
+        m.content.toLowerCase().includes(query)
+      );
+    });
+  }, [conversations, searchQuery]);
 
-  const pinnedConversations = filteredConversations.filter((c) => c.isPinned);
-  const recentConversations = filteredConversations.filter((c) => !c.isPinned);
+  const pinnedConversations = useMemo(
+    () => filteredConversations.filter((c) => c.isPinned),
+    [filteredConversations]
+  );
+  const recentConversations = useMemo(
+    () => filteredConversations.filter((c) => !c.isPinned),
+    [filteredConversations]
+  );
 
   const handleNewChat = () => {
     createConversation();
@@ -174,7 +182,7 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
           placeholder="Filter conversations..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-1.5 text-sm rounded-md border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          className="w-full px-3 py-1.5 text-sm rounded-lg border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors placeholder:text-muted-foreground/60"
           aria-label="Filter conversations"
         />
       </div>
@@ -321,7 +329,7 @@ function ConversationSection({
   if (shouldVirtualize) {
     return (
       <div className="mb-4">
-        <h3 className="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <h3 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest">
           {icon || (title === "Pinned" ? <Pin className="w-3 h-3" /> : null)}
           {title}
         </h3>
@@ -367,7 +375,7 @@ function ConversationSection({
   // Default non-virtualized rendering for shorter lists
   return (
     <div className="mb-4">
-      <h3 className="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <h3 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest">
         {icon || (title === "Pinned" ? <Pin className="w-3 h-3" /> : null)}
         {title}
       </h3>
@@ -425,12 +433,12 @@ function ConversationItem({
   return (
     <button
       className={cn(
-        "group relative flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-all w-full text-left",
+        "group relative flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors w-full text-left",
         "animate-in fade-in slide-in-from-left-2 duration-200",
-        "focus:outline-none focus:ring-2 focus:ring-primary/50",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         isSelected 
-          ? "bg-muted shadow-sm" 
-          : "hover:bg-muted/50"
+          ? "bg-primary/8 border-l-2 border-primary shadow-sm" 
+          : "border-l-2 border-transparent hover:bg-muted/60"
       )}
       style={style}
       onClick={onSelect}
@@ -452,8 +460,8 @@ function ConversationItem({
       aria-current={isSelected ? "page" : undefined}
     >
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{conversation.title}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className={cn("text-sm truncate", isSelected ? "font-semibold" : "font-medium")}>{conversation.title}</p>
+        <p className="text-xs text-muted-foreground/60">
           {formatDistanceToNow(new Date(conversation.updatedAt), { addSuffix: true })}
         </p>
       </div>
@@ -497,7 +505,7 @@ function ConversationItem({
       {showMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg py-1 min-w-[140px] animate-in fade-in zoom-in-95 duration-100">
+          <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[140px] animate-in fade-in zoom-in-95 duration-100">
             <button
               className="w-full px-3 py-2 text-sm text-left hover:bg-muted flex items-center gap-2 transition-colors"
               onClick={(e) => {

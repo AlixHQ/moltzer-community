@@ -16,7 +16,9 @@ import {
   persistConversation, 
   deletePersistedConversation, 
   updatePersistedConversation,
-  persistMessage
+  persistMessage,
+  deletePersistedMessage,
+  deletePersistedMessages
 } from "../lib/persistence";
 import { getGatewayToken, setGatewayToken } from "../lib/keychain";
 
@@ -366,10 +368,8 @@ export const useStore = create<Store>()((set, get) => ({
         }));
 
         // Delete from IndexedDB
-        import('../lib/persistence').then(({ deletePersistedMessage }) => {
-          deletePersistedMessage(messageId).catch((err: Error) => {
-            console.error('Failed to delete message from DB:', err);
-          });
+        deletePersistedMessage(messageId).catch((err: Error) => {
+          console.error('Failed to delete message from DB:', err);
         });
       },
 
@@ -395,11 +395,9 @@ export const useStore = create<Store>()((set, get) => ({
         }));
 
         // Delete from IndexedDB
-        import('../lib/persistence').then(({ deletePersistedMessages }) => {
-          const messageIds = messagesToDelete.map(m => m.id);
-          deletePersistedMessages(messageIds).catch((err: Error) => {
-            console.error('Failed to delete messages from DB:', err);
-          });
+        const messageIds = messagesToDelete.map(m => m.id);
+        deletePersistedMessages(messageIds).catch((err: Error) => {
+          console.error('Failed to delete messages from DB:', err);
         });
       },
 
