@@ -26,8 +26,12 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const { selectConversation } = useStore();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [filteredResults, setFilteredResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [roleFilter, setRoleFilter] = useState<
+    "all" | "user" | "assistant"
+  >("all");
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -43,9 +47,21 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       });
       setQuery("");
       setResults([]);
+      setFilteredResults([]);
       setSelectedIndex(0);
+      setRoleFilter("all");
     }
   }, [open]);
+
+  // Apply role filter to results
+  useEffect(() => {
+    if (roleFilter === "all") {
+      setFilteredResults(results);
+    } else {
+      setFilteredResults(results.filter((r) => r.role === roleFilter));
+    }
+    setSelectedIndex(0);
+  }, [results, roleFilter]);
 
   // Search across all messages (including encrypted data in IndexedDB)
   const performSearch = useCallback(async (searchQuery: string) => {
@@ -125,13 +141,31 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     }
   }, [results]);
 
-  // Keyboard navigation with smooth scrolling
+  // Keyboard navigation with smooth scrolling and filtering
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Filter shortcuts (Alt/Option + key)
+    if (e.altKey) {
+      switch (e.key.toLowerCase()) {
+        case "a":
+          e.preventDefault();
+          setRoleFilter("all");
+          return;
+        case "u":
+          e.preventDefault();
+          setRoleFilter("user");
+          return;
+        case "m":
+          e.preventDefault();
+          setRoleFilter("assistant");
+          return;
+      }
+    }
+
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
         setSelectedIndex((i) => {
-          const newIndex = Math.min(i + 1, results.length - 1);
+          const newIndex = Math.min(i + 1, filteredResults.length - 1);
           // Scroll to selected item
           setTimeout(() => {
             resultsRef.current[newIndex]?.scrollIntoView({
@@ -158,8 +192,8 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         break;
       case "Enter":
         e.preventDefault();
-        if (results[selectedIndex]) {
-          selectConversation(results[selectedIndex].conversationId);
+        if (filteredResults[selectedIndex]) {
+          selectConversation(filteredResults[selectedIndex].conversationId);
           onClose();
         }
         break;
@@ -291,12 +325,58 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             </div>
           ) : results.length > 0 ? (
             <>
-              <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border/50">
-                {results.length} {results.length === 1 ? "result" : "results"}{" "}
-                found
+              <div className="px-4 py-2 border-b border-border/50 flex items-center justify-between">
+                <div className="text-xs text-muted-foreground">
+                  {filteredResults.length}{" "}
+                  {filteredResults.length === 1 ? "result" : "results"}
+                  {roleFilter !== "all" && (
+                    <span className="text-primary">
+                      {" "}
+                      • {roleFilter === "user" ? "Your messages" : "Moltz replies"}
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setRoleFilter("all")}
+                    className={cn(
+                      "px-2 py-1 text-xs rounded transition-colors",
+                      roleFilter === "all"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-muted/80",
+                    )}
+                    title="All messages (Alt+A)"
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setRoleFilter("user")}
+                    className={cn(
+                      "px-2 py-1 text-xs rounded transition-colors",
+                      roleFilter === "user"
+                        ? "bg-blue-500 text-white"
+                        : "bg-muted hover:bg-muted/80",
+                    )}
+                    title="Your messages only (Alt+U)"
+                  >
+                    You
+                  </button>
+                  <button
+                    onClick={() => setRoleFilter("assistant")}
+                    className={cn(
+                      "px-2 py-1 text-xs rounded transition-colors",
+                      roleFilter === "assistant"
+                        ? "bg-orange-500 text-white"
+                        : "bg-muted hover:bg-muted/80",
+                    )}
+                    title="Moltz replies only (Alt+M)"
+                  >
+                    Moltz
+                  </button>
+                </div>
               </div>
               <div className="py-2">
-                {results.map((result, index) => (
+                {filteredResults.map((result, index) => (
                 <button
                   key={`${result.conversationId}-${result.messageId}`}
                   ref={(el) => (resultsRef.current[index] = el)}
@@ -339,7 +419,22 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                 ))}
               </div>
             </>
-          
+          ) : query && results.length > 0 && filteredResults.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Frown className="w-8 h-8 mb-3 opacity-50" strokeWidth={1.5} />
+              <p className="text-sm font-medium mb-1">
+                No {roleFilter === "user" ? "user" : "assistant"} messages
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                Try a different filter
+              </p>
+              <button
+                onClick={() => setRoleFilter("all")}
+                className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded hover:bg-primary/90 transition-colors"
+              >
+                Show all results
+              </button>
+            </div>
           ) : query ? (
             <EmptyState
               icon={<Frown className="w-8 h-8" strokeWidth={1.5} />}

@@ -26,15 +26,15 @@ export function translateError(error: string | Error): UserFriendlyError {
     return {
       title: "Can't reach Gateway",
       message: "The Gateway isn't responding.",
-      suggestion: "Make sure the Gateway is running and the URL is correct.",
+      suggestion: "Is the Gateway running? Check your settings to verify the URL.",
     };
   }
 
   if (lowerError.includes("timeout") || lowerError.includes("timed out")) {
     return {
       title: "Connection timed out",
-      message: "The Gateway is taking too long to respond.",
-      suggestion: "Check your network connection or try again in a moment.",
+      message: "The Gateway took too long to respond.",
+      suggestion: "Check your network or try again in a moment.",
     };
   }
 
@@ -45,8 +45,8 @@ export function translateError(error: string | Error): UserFriendlyError {
   ) {
     return {
       title: "Connection issue",
-      message: "Couldn't establish a WebSocket connection.",
-      suggestion: "Verify the Gateway URL starts with ws:// or wss://",
+      message: "Couldn't establish a connection.",
+      suggestion: "Make sure your Gateway URL starts with ws:// or wss://",
     };
   }
 
@@ -57,8 +57,8 @@ export function translateError(error: string | Error): UserFriendlyError {
   ) {
     return {
       title: "Gateway not found",
-      message: "The Gateway address couldn't be resolved.",
-      suggestion: "Check the Gateway URL for typos.",
+      message: "Can't find that address.",
+      suggestion: "Double-check your Gateway URL for typos.",
     };
   }
 

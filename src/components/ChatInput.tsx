@@ -144,8 +144,9 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
   const handleSend = () => {
     if (disabled) return;
-    if (!message.trim() && attachments.length === 0) return;
-    onSend(message, attachments);
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage && attachments.length === 0) return;
+    onSend(trimmedMessage, attachments);
     setMessage("");
     setAttachments([]);
     // Reset textarea height

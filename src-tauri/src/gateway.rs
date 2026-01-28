@@ -1028,7 +1028,7 @@ async fn connect_internal(
     });
 
     // Start ping/pong health monitor
-    start_health_monitor(app.clone(), tx.clone(), health_metrics.clone()).await;
+    start_health_monitor(app.clone(), tx.clone(), health_metrics.clone(), Arc::new(state.shutdown.clone())).await;
 
     // Start streaming timeout monitor
     start_stream_timeout_monitor(app.clone(), active_runs.clone(), state_arc.clone()).await;
@@ -1215,6 +1215,7 @@ async fn start_health_monitor(
     app: AppHandle,
     tx: mpsc::Sender<OutgoingMessage>,
     _health_metrics: Arc<Mutex<HealthMetrics>>,
+    state: Arc<GatewayStateInner>,
 ) {
     tokio::spawn(async move {
         let ping_interval = Duration::from_secs(DEFAULT_PING_INTERVAL_SECS);
@@ -1222,6 +1223,11 @@ async fn start_health_monitor(
 
         loop {
             tokio::time::sleep(ping_interval).await;
+
+            // Exit on shutdown to prevent task leak
+            if state.shutdown.load(Ordering::SeqCst) {
+                break;
+            }
 
             // Send ping
             if tx.send(OutgoingMessage::Ping).await.is_err() {

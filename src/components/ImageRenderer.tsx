@@ -1,6 +1,7 @@
-import { useState, useCallback, SyntheticEvent, MouseEvent } from "react";
+import { useState, useCallback, SyntheticEvent, MouseEvent, useRef, useEffect } from "react";
 import { cn } from "../lib/utils";
 import { X, Loader2, ImageOff, ExternalLink, ZoomIn } from "lucide-react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 
 interface ImageRendererProps {
   src: string;

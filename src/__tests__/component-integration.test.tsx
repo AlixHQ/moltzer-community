@@ -39,7 +39,7 @@ describe('ChatInput Integration', () => {
     const input = screen.getByPlaceholderText(/message/i);
     await user.type(input, 'Test message{Enter}');
     
-    expect(handleSend).toHaveBeenCalledWith('Test message');
+    expect(handleSend).toHaveBeenCalledWith('Test message', []);
   });
 
   it('should add newline on Shift+Enter', async () => {
