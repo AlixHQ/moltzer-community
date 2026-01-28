@@ -270,7 +270,7 @@ async fn try_connect_with_fallback(
     ),
     GatewayError,
 > {
-    let timeout_duration = Duration::from_secs(2); // Fast timeout - user can retry
+    let timeout_duration = Duration::from_secs(10); // Increased for Tailscale/remote connections
 
     // First, try the URL as provided
     let first_attempt = tokio::time::timeout(timeout_duration, connect_async(url)).await;
