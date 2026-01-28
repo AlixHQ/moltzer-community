@@ -12,6 +12,8 @@
 
 </div>
 
+![Moltzer — Native Desktop AI Chat](.github/social-preview.png)
+
 ---
 
 ## Why Moltzer?

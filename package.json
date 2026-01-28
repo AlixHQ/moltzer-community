@@ -1,7 +1,7 @@
 {
   "name": "moltzer-client",
   "version": "1.0.0",
-  "description": "Native cross-platform desktop client for Clawdbot - A beautiful ChatGPT-style interface for your personal AI assistant",
+  "description": "Moltzer — Native cross-platform desktop AI chat client. Use any AI model (Claude, GPT, Gemini, local) from a fast, encrypted desktop app.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -63,6 +63,7 @@
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.18.0",
     "eslint-plugin-react-hooks": "^5.1.0",

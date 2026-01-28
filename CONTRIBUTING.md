@@ -9,10 +9,10 @@ This document provides guidelines and instructions for contributing. Don't worry
 Welcome! Here are some good ways to start:
 
 - **Fix typos or improve documentation** — Check out [README.md](README.md), [SETUP.md](SETUP.md), or [FEATURES.md](FEATURES.md)
-- **Report bugs** — Use our [bug report template](https://github.com/dokterdok/molt-client/issues/new?template=bug_report.yml)
-- **Suggest features** — Use our [feature request template](https://github.com/dokterdok/molt-client/issues/new?template=feature_request.yml)
+- **Report bugs** — Use our [bug report template](https://github.com/AlixHQ/moltzer-community/issues/new?template=bug_report.yml)
+- **Suggest features** — Use our [feature request template](https://github.com/AlixHQ/moltzer-community/issues/new?template=feature_request.yml)
 - **Look for "good first issue" labels** — These are beginner-friendly tasks
-- **Ask questions** — Use [GitHub Discussions](https://github.com/dokterdok/molt-client/discussions) or open a [question issue](https://github.com/dokterdok/molt-client/issues/new?template=question.yml)
+- **Ask questions** — Use [GitHub Discussions](https://github.com/AlixHQ/moltzer-community/discussions) or open a [question issue](https://github.com/AlixHQ/moltzer-community/issues/new?template=question.yml)
 
 Not sure where to start? That's totally normal! Open a discussion and we'll help you find something that fits your skills and interests.
 
@@ -33,8 +33,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/dokterdok/molt-client.git
-   cd molt-client
+   git clone https://github.com/AlixHQ/moltzer-community.git
+   cd moltzer-community
    ```
 
 2. **Install dependencies:**
@@ -52,7 +52,7 @@ The app will open with hot-reload enabled. Changes to the frontend will automati
 ## 🏗️ Project Structure
 
 ```
-molt-client/
+moltzer-community/
 ├── src/                      # React frontend
 │   ├── components/           # UI components
 │   ├── stores/               # Zustand state management
@@ -133,7 +133,7 @@ export async function sendMessage(
 
 **Example:**
 ```rust
-/// Connect to the Clawdbot Gateway
+/// Connect to the Moltzer Gateway
 ///
 /// # Arguments
 /// * `url` - WebSocket URL (ws:// or wss://)
@@ -283,7 +283,7 @@ Builds will be output to `src-tauri/target/release/`.
 
 ## 🐛 Reporting Bugs
 
-Use the [Bug Report template](https://github.com/dokterdok/molt-client/issues/new?template=bug_report.yml) and include:
+Use the [Bug Report template](https://github.com/AlixHQ/moltzer-community/issues/new?template=bug_report.yml) and include:
 
 - Clear description of the bug
 - Steps to reproduce
@@ -293,7 +293,7 @@ Use the [Bug Report template](https://github.com/dokterdok/molt-client/issues/ne
 
 ## 💡 Suggesting Features
 
-Use the [Feature Request template](https://github.com/dokterdok/molt-client/issues/new?template=feature_request.yml) and include:
+Use the [Feature Request template](https://github.com/AlixHQ/moltzer-community/issues/new?template=feature_request.yml) and include:
 
 - Problem you're trying to solve
 - Proposed solution
@@ -315,7 +315,7 @@ If you discover a security vulnerability, please **do not** open a public issue.
 
 ## 📄 License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the Apache License 2.0.
 
 ## 💬 Communication & Community
 
@@ -347,9 +347,9 @@ Violations may result in warnings, temporary bans, or permanent removal from the
 
 ## ❓ Questions?
 
-- **Discussions:** [GitHub Discussions](https://github.com/dokterdok/molt-client/discussions)
-- **Questions:** [Ask a question](https://github.com/dokterdok/molt-client/issues/new?template=question.yml)
-- **Issues:** [GitHub Issues](https://github.com/dokterdok/molt-client/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/AlixHQ/moltzer-community/discussions)
+- **Questions:** [Ask a question](https://github.com/AlixHQ/moltzer-community/issues/new?template=question.yml)
+- **Issues:** [GitHub Issues](https://github.com/AlixHQ/moltzer-community/issues)
 - **Email:** support@moltzer.dev
 
 ---
