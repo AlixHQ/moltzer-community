@@ -592,7 +592,7 @@ async fn handle_validated_frame(
                                 min_protocol: PROTOCOL_VERSION,
                                 max_protocol: PROTOCOL_VERSION,
                                 client: ClientInfo {
-                                    id: "moltzer".to_string(),
+                                    id: "control-ui".to_string(),  // Must be a recognized client type
                                     version: env!("CARGO_PKG_VERSION").to_string(),
                                     platform: get_platform(),
                                     mode: "operator".to_string(),
@@ -1196,7 +1196,7 @@ mod tests {
             min_protocol: 3,
             max_protocol: 3,
             client: ClientInfo {
-                id: "moltzer".to_string(),
+                id: "control-ui".to_string(),
                 version: "0.1.0".to_string(),
                 platform: "windows".to_string(),
                 mode: "operator".to_string(),
