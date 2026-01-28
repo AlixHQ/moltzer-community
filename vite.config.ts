@@ -26,5 +26,32 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // Produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Split React into its own chunk
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'react-vendor';
+          }
+          // Split Radix UI
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix-ui';
+          }
+          // Split markdown rendering (heavy)
+          if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || 
+              id.includes('unified') || id.includes('mdast') || id.includes('hast')) {
+            return 'markdown';
+          }
+          // Split syntax highlighting (heavy)
+          if (id.includes('react-syntax-highlighter') || id.includes('refractor') || id.includes('prismjs')) {
+            return 'syntax';
+          }
+          // Split database
+          if (id.includes('dexie')) {
+            return 'dexie';
+          }
+        },
+      },
+    },
   },
 });
