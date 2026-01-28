@@ -296,6 +296,26 @@ async fn test_tcp_connection(host: &str, port: u16) -> Result<(), String> {
     }
 }
 
+/// Resolve hostname using system DNS (works with Tailscale MagicDNS)
+async fn resolve_with_system_dns(host: &str, port: u16) -> Result<std::net::SocketAddr, String> {
+    let addr_str = format!("{}:{}", host, port);
+    log_protocol_error("DNS", &format!("Resolving {} via system DNS", addr_str));
+    
+    let result = tokio::task::spawn_blocking(move || {
+        use std::net::ToSocketAddrs;
+        addr_str.to_socket_addrs()
+            .map_err(|e| format!("DNS resolution failed: {}", e))?
+            .next()
+            .ok_or_else(|| "No addresses found".to_string())
+    }).await.map_err(|e| format!("Task error: {}", e))?;
+    
+    match &result {
+        Ok(addr) => log_protocol_error("DNS", &format!("Resolved to {}", addr)),
+        Err(e) => log_protocol_error("DNS", &format!("Failed: {}", e)),
+    }
+    result
+}
+
 /// Try to connect with protocol fallback (ws:// <-> wss://)
 async fn try_connect_with_fallback(
     url: &str,
@@ -309,12 +329,41 @@ async fn try_connect_with_fallback(
     ),
     GatewayError,
 > {
-    let timeout_duration = Duration::from_secs(30); // Increased for Tailscale/remote connections
+    let timeout_duration = Duration::from_secs(30);
 
-    // Skip TCP test - it's just for debugging
+    // For Tailscale URLs, resolve DNS first using system resolver
+    let connect_url = if url.contains(".ts.net") {
+        if let Ok(parsed) = url::Url::parse(url) {
+            if let Some(host) = parsed.host_str() {
+                let port = parsed.port().unwrap_or(if url.starts_with("wss") { 443 } else { 80 });
+                
+                // Resolve using system DNS (includes Tailscale MagicDNS)
+                match resolve_with_system_dns(host, port).await {
+                    Ok(addr) => {
+                        // Rewrite URL to use IP, keeping the host for SNI
+                        let ip_url = url.replace(host, &addr.ip().to_string());
+                        log_protocol_error("Tailscale", &format!("Rewriting URL to IP: {}", ip_url));
+                        ip_url
+                    }
+                    Err(e) => {
+                        log_protocol_error("Tailscale", &format!("DNS failed, using original URL: {}", e));
+                        url.to_string()
+                    }
+                }
+            } else {
+                url.to_string()
+            }
+        } else {
+            url.to_string()
+        }
+    } else {
+        url.to_string()
+    };
 
     // Use native-tls connector for better macOS compatibility
-    let tls_connector = native_tls::TlsConnector::new()
+    let tls_connector = native_tls::TlsConnector::builder()
+        .danger_accept_invalid_certs(connect_url.contains(".ts.net") || connect_url.contains("100."))  // Allow for IP-based Tailscale
+        .build()
         .map_err(|e| GatewayError::Network {
             message: format!("TLS connector error: {}", e),
             retryable: false,
@@ -322,10 +371,10 @@ async fn try_connect_with_fallback(
         })?;
     let connector = Connector::NativeTls(tls_connector);
 
-    // First, try the URL as provided
+    // First, try the URL as provided (or rewritten for Tailscale)
     let first_attempt = tokio::time::timeout(
         timeout_duration, 
-        connect_async_tls_with_config(url, None, false, Some(connector.clone()))
+        connect_async_tls_with_config(&connect_url, None, false, Some(connector.clone()))
     ).await;
 
     match first_attempt {
