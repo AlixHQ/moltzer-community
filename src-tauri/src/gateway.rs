@@ -1309,6 +1309,8 @@ pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
     *state.inner.connection_state.write().await = ConnectionState::Disconnected;
     *state.inner.pending_requests.lock().await = HashMap::new();
     *state.inner.active_runs.lock().await = HashMap::new(); // CRITICAL-2: Clear active runs on disconnect
+    *state.inner.message_queue.lock().await = VecDeque::new(); // CRITICAL-7: Clear message queue on disconnect
+    *state.inner.processed_ids.lock().await = HashSet::new(); // CRITICAL-7: Clear processed IDs on disconnect
     state.inner.health_metrics.lock().await.reset();
     Ok(())
 }

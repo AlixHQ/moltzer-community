@@ -310,4 +310,41 @@ describe("ChatInput", () => {
       expect(mockOnSend).toHaveBeenCalledWith(emojiText, []);
     });
   });
+
+  describe("file attachments", () => {
+    it("should send message with empty attachments array when no files attached", async () => {
+      const user = userEvent.setup();
+      render(<ChatInput onSend={mockOnSend} />);
+
+      const input = screen.getByPlaceholderText("Message Moltz...");
+      await user.type(input, "test message");
+      await user.keyboard("{Enter}");
+
+      expect(mockOnSend).toHaveBeenCalledWith("test message", []);
+    });
+
+    it("should enable send button when attachments exist even without text", () => {
+      render(<ChatInput onSend={mockOnSend} attachments={[{
+        id: "test-1",
+        filename: "test.jpg",
+        mimeType: "image/jpeg",
+        size: 1024,
+        dataUrl: "data:image/jpeg;base64,test"
+      }]} />);
+
+      const input = screen.getByPlaceholderText("Message Moltz...");
+      expect((input as HTMLTextAreaElement).value).toBe("");
+      
+      // Send button should be enabled due to attachment
+      const sendButton = screen.getByLabelText("Send message");
+      expect(sendButton).not.toBeDisabled();
+    });
+
+    it("should disable send button when loading files", () => {
+      render(<ChatInput onSend={mockOnSend} isLoadingFiles={true} />);
+
+      const sendButton = screen.getByLabelText("Send message");
+      expect(sendButton).toBeDisabled();
+    });
+  });
 });

@@ -92,11 +92,11 @@ describe("Store Edge Cases", () => {
       const store = useStore.getState();
       const conv = store.createConversation();
 
-      // Get fresh state - find conversation manually (getter doesn't work with getState snapshots)
+      // Check conversation was created and is in the list
       const freshStore = useStore.getState();
-      const current = freshStore.conversations.find(c => c.id === freshStore.currentConversationId);
-      expect(current).toBeDefined();
-      expect(current?.id).toBe(conv.id);
+      expect(freshStore.conversations.length).toBe(1);
+      expect(freshStore.conversations[0].id).toBe(conv.id);
+      expect(freshStore.currentConversationId).toBe(conv.id);
     });
   });
 

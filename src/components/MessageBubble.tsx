@@ -34,6 +34,16 @@ export const MessageBubble = memo(function MessageBubble({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const copyTimerRef = useRef<number | undefined>();
+
+  // Cleanup copy timer on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current !== undefined) {
+        clearTimeout(copyTimerRef.current);
+      }
+    };
+  }, []);
 
   // Auto-focus textarea when entering edit mode
   useEffect(() => {
@@ -54,7 +64,10 @@ export const MessageBubble = memo(function MessageBubble({
   const copyToClipboard = async (code: string) => {
     await navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
+    if (copyTimerRef.current !== undefined) {
+      clearTimeout(copyTimerRef.current);
+    }
+    copyTimerRef.current = window.setTimeout(() => setCopiedCode(null), 2000);
   };
 
   const copyMessage = async () => {

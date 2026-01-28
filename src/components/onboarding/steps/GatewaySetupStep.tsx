@@ -254,6 +254,7 @@ export function GatewaySetupStep({
   // Track mounted state and cancellation
   const isMountedRef = useRef(true);
   const isCancelledRef = useRef(false);
+  const autoAdvanceTimerRef = useRef<number | undefined>();
 
   const autoDetectGateway = useCallback(async () => {
     // Skip if coming from detection flow (already tried)
@@ -318,7 +319,10 @@ export function GatewaySetupStep({
         );
 
         // Auto-advance after a moment (if still mounted)
-        setTimeout(() => {
+        if (autoAdvanceTimerRef.current !== undefined) {
+          clearTimeout(autoAdvanceTimerRef.current);
+        }
+        autoAdvanceTimerRef.current = window.setTimeout(() => {
           if (isMountedRef.current && !isCancelledRef.current) {
             onSuccess();
           }
