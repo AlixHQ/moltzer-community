@@ -5,7 +5,6 @@ import { formatDistanceToNow } from "date-fns";
 import {
   User,
   Copy,
-  Check,
   Link as LinkIcon,
   Cpu,
   Pencil,
