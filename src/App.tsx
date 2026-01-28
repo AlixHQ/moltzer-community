@@ -373,7 +373,10 @@ export default function App() {
             connectingFlag = false;
             connectToGateway();
           } else {
-            setRetryCountdown(countdown);
+            // CRITICAL-4 FIX: Guard against state update on unmounted component
+            if (isMountedRef.current) {
+              setRetryCountdown(countdown);
+            }
           }
         }, 1000);
       }

@@ -102,6 +102,8 @@ export const MessageBubble = memo(function MessageBubble({
       onMouseLeave={() => setShowTimestamp(false)}
       role="article"
       aria-label={`Message from ${isUser ? "You" : "Moltz"} sent ${formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}`}
+      aria-live={message.isStreaming && !isUser ? "polite" : "off"}
+      aria-atomic="true"
     >
       {/* Avatar */}
       <div
@@ -111,6 +113,7 @@ export const MessageBubble = memo(function MessageBubble({
             ? "bg-gradient-to-br from-blue-500 to-blue-600"
             : "bg-gradient-to-br from-orange-500 to-red-500",
         )}
+        aria-hidden="true"
       >
         {isUser ? (
           <User className="w-5 h-5" strokeWidth={2} />
