@@ -452,6 +452,9 @@ pub async fn connect(
     url: String,
     token: String,
 ) -> Result<ConnectResult, String> {
+    // DEBUG: Log what URL we actually received from frontend
+    log_protocol_error("CONNECT CALLED - URL received", &url);
+    
     // Reset shutdown flag
     state.inner.shutdown.store(false, Ordering::SeqCst);
     state.inner.reconnect_attempt.store(0, Ordering::SeqCst);

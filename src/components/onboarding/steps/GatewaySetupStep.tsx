@@ -452,6 +452,7 @@ export function GatewaySetupStep({
       }
 
       // Race between connect and timeout
+      console.log("[DEBUG] Calling connect with URL:", trimmedUrl);
       const connectPromise = invoke<ConnectResult>("connect", {
         url: trimmedUrl,
         token: trimmedToken,
