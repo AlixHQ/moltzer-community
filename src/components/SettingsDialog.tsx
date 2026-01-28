@@ -456,8 +456,7 @@ export function SettingsDialog({
                   id="gateway-token-hint"
                   className="text-xs text-muted-foreground mt-1.5"
                 >
-                  🔒 Token is stored securely in your OS keychain (not in
-                  browser storage)
+                  🔒 Your token is stored securely in your OS keychain, not in the browser
                 </p>
               </div>
               <div className="flex items-center justify-between gap-3">
@@ -576,7 +575,7 @@ export function SettingsDialog({
                         id="model-hint"
                         className="text-xs text-muted-foreground mt-1.5"
                       >
-                        Connect to Gateway to see available models
+                        Connect to see all available models
                       </p>
                     )}
                   </>

@@ -108,15 +108,32 @@ export function WelcomeView() {
           </div>
         )}
 
-        {/* Model info */}
+        {/* Model info or warning */}
         {connected && (
-          <div className="mb-8 flex items-center justify-center gap-2 text-sm text-muted-foreground animate-in fade-in duration-300">
-            <Cpu className="w-4 h-4" strokeWidth={2} />
-            <span>Powered by</span>
-            <span className="px-2 py-0.5 bg-muted rounded-md font-medium text-foreground">
-              {currentModelName}
-            </span>
-          </div>
+          <>
+            {availableModels.length > 0 ? (
+              <div className="mb-8 flex items-center justify-center gap-2 text-sm text-muted-foreground animate-in fade-in duration-300">
+                <Cpu className="w-4 h-4" strokeWidth={2} />
+                <span>Powered by</span>
+                <span className="px-2 py-0.5 bg-muted rounded-md font-medium text-foreground">
+                  {currentModelName}
+                </span>
+              </div>
+            ) : (
+              <div className="mb-8 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="w-5 h-5" strokeWidth={2} />
+                  <span className="font-medium">No AI models available</span>
+                </div>
+                <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1 text-center">
+                  Connected to Gateway, but no AI models are configured.
+                </p>
+                <p className="text-xs text-amber-600/60 dark:text-amber-400/60 mt-2 text-center">
+                  Check your Gateway configuration or API keys in Settings (⌘,).
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Suggestions */}

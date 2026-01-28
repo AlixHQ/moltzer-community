@@ -208,16 +208,19 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             />
           </svg>
           <span>
-            <strong className="font-medium">Privacy note:</strong> Messages are
-            encrypted at rest, but search text is processed locally in plain
-            text. Sensitive searches remain private to your device.
+            <strong className="font-medium">Privacy:</strong> Your messages are encrypted, but we decrypt them temporarily on your device to search. Nothing leaves your computer.
           </span>
         </div>
 
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <svg
-            className="w-5 h-5 text-muted-foreground flex-shrink-0"
+            className={cn(
+              "w-5 h-5 flex-shrink-0 transition-colors",
+              isSearching
+                ? "text-primary animate-pulse"
+                : "text-muted-foreground",
+            )}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -242,10 +245,35 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             onKeyDown={handleKeyDown}
             placeholder="Search all messages..."
             aria-describedby="search-instructions"
-            className="flex-1 bg-transparent focus:outline-none text-lg"
+            className="flex-1 bg-transparent focus:outline-none text-lg placeholder:text-muted-foreground/50"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
           />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
           <kbd
-            className="hidden sm:inline-flex px-2 py-1 text-xs font-mono bg-muted rounded"
+            className="hidden sm:inline-flex px-2 py-1 text-xs font-mono bg-muted rounded text-muted-foreground"
             aria-hidden="true"
           >
             ESC
@@ -277,31 +305,34 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     onClose();
                   }}
                   className={cn(
-                    "w-full px-4 py-3 text-left transition-colors duration-75",
-                    index === selectedIndex ? "bg-muted" : "hover:bg-muted/50",
+                    "w-full px-4 py-3 text-left transition-all duration-75 animate-in fade-in slide-in-from-left-2",
+                    index === selectedIndex
+                      ? "bg-muted ring-2 ring-primary/20 ring-inset"
+                      : "hover:bg-muted/50",
                   )}
+                  style={{ animationDelay: `${index * 20}ms` }}
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <span
                       className={cn(
-                        "text-xs font-medium px-1.5 py-0.5 rounded",
+                        "text-xs font-semibold px-2 py-0.5 rounded-full",
                         result.role === "user"
-                          ? "bg-blue-500/10 text-blue-500"
-                          : "bg-orange-500/10 text-orange-500",
+                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                          : "bg-orange-500/15 text-orange-600 dark:text-orange-400",
                       )}
                     >
                       {result.role === "user" ? "You" : "Moltz"}
                     </span>
-                    <span className="text-sm font-medium truncate">
+                    <span className="text-sm font-semibold text-foreground truncate flex-1">
                       {result.conversationTitle}
                     </span>
-                    <span className="text-xs text-muted-foreground ml-auto">
+                    <span className="text-xs text-muted-foreground/70 whitespace-nowrap">
                       {formatDistanceToNow(new Date(result.timestamp), {
                         addSuffix: true,
                       })}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-muted-foreground/90 line-clamp-2 leading-relaxed">
                     <HighlightedText text={result.matchSnippet} query={query} />
                   </p>
                 </button>
@@ -312,8 +343,8 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
           ) : query ? (
             <EmptyState
               icon={<Frown className="w-8 h-8" strokeWidth={1.5} />}
-              title="No results found"
-              description={`No messages match "${query}". Try different keywords.`}
+              title="Nothing found"
+              description={`Try different keywords or check your spelling`}
             />
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -322,10 +353,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                 strokeWidth={1.5}
               />
               <p className="text-sm font-medium mb-1">
-                Search all conversations
+                Search your conversations
               </p>
               <p className="text-xs text-muted-foreground mb-4">
-                Find messages across encrypted history
+                Search across all your messages, even encrypted ones
               </p>
               <div id="search-instructions" className="flex gap-2 mt-2 text-xs">
                 <kbd

@@ -292,9 +292,18 @@ After:
 - [x] Create Screenshot Guide ✅
 - [x] Create this iteration log ✅
 
+### Tonight (Continued)
+
+- [x] Test clawdbot commands ✅
+- [x] Fixed incorrect commands throughout docs ✅
+  - `clawdbot start` → `clawdbot gateway start`
+  - `clawdbot status` → `clawdbot gateway status`
+  - `clawdbot token show` → Doesn't exist (removed references)
+  - Added `clawdbot config get gateway` for config inspection
+
 ### Tomorrow
 
-- [ ] Test all code examples (verify commands work)
+- [ ] Test more code examples (file paths, curl commands)
 - [ ] Review Configuration.md (probably too technical)
 - [ ] Review Architecture.md (make it approachable)
 - [ ] Add more real-world examples

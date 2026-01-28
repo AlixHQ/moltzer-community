@@ -315,7 +315,8 @@ describe("Store Race Conditions", () => {
         isStreaming: true,
       });
 
-      expect(store.currentStreamingMessageId).toBe(msg1.id);
+      let freshStore = useStore.getState();
+      expect(freshStore.currentStreamingMessageId).toBe(msg1.id);
 
       // Add another streaming message
       const msg2 = store.addMessage(conv.id, {
@@ -325,7 +326,8 @@ describe("Store Race Conditions", () => {
       });
 
       // Should update to new streaming message
-      expect(store.currentStreamingMessageId).toBe(msg2.id);
+      freshStore = useStore.getState();
+      expect(freshStore.currentStreamingMessageId).toBe(msg2.id);
     });
   });
 
@@ -360,7 +362,7 @@ describe("Store Race Conditions", () => {
       const freshStore = useStore.getState();
       const conversation = freshStore.conversations.find((c) => c.id === conv.id);
       expect(conversation?.title).toBe(
-        "This is a long message that should be t...",
+        "This is a long message that should be tr...",
       );
     });
 

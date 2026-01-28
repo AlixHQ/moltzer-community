@@ -331,9 +331,9 @@ export const useStore = create<Store>()((set, get) => ({
               ...c,
               messages: [...c.messages, message],
               updatedAt: new Date(),
-              // Auto-generate title from first user message
+              // Auto-generate title from first user message (only if still default "New Chat")
               title:
-                c.messages.length === 0 && messageData.role === "user"
+                c.messages.length === 0 && messageData.role === "user" && c.title === "New Chat"
                   ? messageData.content.slice(0, 40) +
                     (messageData.content.length > 40 ? "..." : "")
                   : c.title,

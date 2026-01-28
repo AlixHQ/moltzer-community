@@ -1,7 +1,7 @@
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { AlertTriangle } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 interface ConfirmDialogProps {
@@ -26,6 +26,20 @@ export function ConfirmDialog({
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, open);
 
+  // Keyboard shortcut: Escape to close
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
@@ -34,12 +48,7 @@ export function ConfirmDialog({
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") onClose();
-        }}
-        role="button"
-        tabIndex={-1}
-        aria-label="Close dialog"
+        aria-hidden="true"
       />
 
       {/* Dialog */}

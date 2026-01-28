@@ -688,6 +688,17 @@ fn log_protocol_error(context: &str, error: &str) {
 
 const IMAGE_MIMES: &[&str] = &["image/png", "image/jpeg", "image/gif", "image/webp"];
 
+/// Determine attachment type from MIME type
+fn get_attachment_type(mime_type: &str) -> &'static str {
+    if mime_type.starts_with("image/") {
+        "image"
+    } else if mime_type.starts_with("text/") {
+        "text"
+    } else {
+        "file"
+    }
+}
+
 fn build_input_items(message: &str, attachments: &[AttachmentData]) -> serde_json::Value {
     let mut items: Vec<serde_json::Value> = Vec::new();
 
@@ -1472,11 +1483,7 @@ pub async fn send_message(
             .iter()
             .map(|a| {
                 serde_json::json!({
-                    "type": match a.mime_type.as_str() {
-                        t if t.starts_with("image/") => "image",
-                        t if t.starts_with("text/") => "text",
-                        _ => "file"
-                    },
+                    "type": get_attachment_type(&a.mime_type),
                     "mimeType": a.mime_type,
                     "fileName": a.filename,
                     "content": a.data,  // Already base64

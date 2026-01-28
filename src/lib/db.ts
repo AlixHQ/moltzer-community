@@ -13,6 +13,11 @@ export interface DBMessage {
   timestamp: Date;
   modelUsed?: string;
   thinkingContent?: string;
+  usage?: {
+    input?: number;
+    output?: number;
+    totalTokens?: number;
+  };
   // Searchable text (content + any attachments text)
   searchText: string;
   // Searchable words for full-text search

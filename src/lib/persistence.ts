@@ -64,6 +64,7 @@ export async function loadPersistedData(): Promise<{
             thinkingContent: dbMsg.thinkingContent
               ? await decrypt(dbMsg.thinkingContent)
               : undefined,
+            usage: dbMsg.usage,
           });
         } catch (err) {
           console.error(`Failed to decrypt message ${dbMsg.id}:`, err);
@@ -163,6 +164,7 @@ export async function persistConversation(
         timestamp: msg.timestamp,
         modelUsed: msg.modelUsed,
         thinkingContent: encryptedThinking,
+        usage: msg.usage,
         searchText, // Plaintext for search (privacy tradeoff)
       });
     }
@@ -295,18 +297,29 @@ export async function searchPersistedMessages(
       return searchWords.every((word) => searchText.includes(word));
     });
 
-    // Decrypt and enrich with conversation info
+    // Decrypt and enrich with conversation info - optimized with caching
     const results: Array<
       Message & { conversationId: string; conversationTitle: string }
     > = [];
 
+    // Cache decrypted conversation titles to avoid repeated decryption
+    const conversationTitleCache = new Map<string, string>();
+
     for (const dbMsg of matchingMessages) {
       try {
         const decrypted = await decrypt(dbMsg.content);
-        const conversation = await db.conversations.get(dbMsg.conversationId);
-        const conversationTitle = conversation
-          ? await decrypt(conversation.title)
-          : "Unknown";
+
+        // Get or cache conversation title
+        let conversationTitle = conversationTitleCache.get(
+          dbMsg.conversationId,
+        );
+        if (!conversationTitle) {
+          const conversation = await db.conversations.get(dbMsg.conversationId);
+          conversationTitle = conversation
+            ? await decrypt(conversation.title)
+            : "Unknown";
+          conversationTitleCache.set(dbMsg.conversationId, conversationTitle);
+        }
 
         results.push({
           id: dbMsg.id,
