@@ -13,8 +13,10 @@ import {
   MessageSquare,
   StopCircle,
   RotateCcw,
+  WifiOff,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import { translateError } from "../lib/errors";
 
 export function ChatView() {
   const {
@@ -73,20 +75,22 @@ export function ChatView() {
   });
 
   // Auto-scroll to bottom on new messages (only if already near bottom)
+  // Use instant scroll during streaming to prevent jank, smooth otherwise
   useEffect(() => {
     if (isNearBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const behavior = currentStreamingMessageId ? "instant" : "smooth";
+      messagesEndRef.current?.scrollIntoView({ behavior });
     }
-  }, [currentConversation, isNearBottom]);
+  }, [currentConversation, isNearBottom, currentStreamingMessageId]);
 
   // Track scroll position
-  // PERF: Throttled scroll handler to prevent excessive re-renders
+  // PERF: Throttled scroll handler to prevent excessive re-renders (60 FPS)
   const lastScrollTime = useRef(0);
   const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
     
     const now = Date.now();
-    if (now - lastScrollTime.current < 100) return; // 10 FPS max
+    if (now - lastScrollTime.current < 16) return; // 60 FPS max
     lastScrollTime.current = now;
 
     const { scrollTop, scrollHeight, clientHeight } =
@@ -438,7 +442,7 @@ export function ChatView() {
             onClick={handleStopGenerating}
             variant="destructive"
             size="sm"
-            className="shadow-lg hover:shadow-xl hover:scale-105"
+            className="shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-150 active:scale-95"
             leftIcon={<StopCircle className="w-4 h-4" />}
             aria-label="Stop generating response"
           >
@@ -463,56 +467,64 @@ export function ChatView() {
         </div>
       )}
 
-      {/* Error banner (P0: improved visual hierarchy) */}
-      {error && (
-        <div
-          className="px-4 py-3 bg-destructive/10 border-t-2 border-destructive/40 animate-in slide-in-from-bottom duration-200"
-          role="alert"
-          aria-live="assertive"
-        >
-          <div className="max-w-3xl mx-auto flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center mt-0.5">
-                <AlertTriangle
-                  className="w-4 h-4 text-destructive"
-                  strokeWidth={2.5}
-                />
+      {/* Error banner - user-friendly error messages */}
+      {error && (() => {
+        const friendlyError = translateError(error);
+        return (
+          <div
+            className="px-4 py-3 bg-destructive/10 border-t-2 border-destructive/40 animate-in slide-in-from-bottom duration-200"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div className="max-w-3xl mx-auto flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center mt-0.5">
+                  <AlertTriangle
+                    className="w-4 h-4 text-destructive"
+                    strokeWidth={2.5}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-destructive mb-1">
+                    {friendlyError.title}
+                  </p>
+                  <p className="text-xs text-destructive/80 break-words leading-relaxed mb-1">
+                    {friendlyError.message}
+                  </p>
+                  {friendlyError.suggestion && (
+                    <p className="text-xs text-destructive/70 break-words leading-relaxed">
+                      💡 {friendlyError.suggestion}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-destructive mb-1">
-                  Message Send Failed
-                </p>
-                <p className="text-xs text-destructive/80 break-words leading-relaxed">
-                  {error}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {lastFailedMessage && (
-                <Button
-                  onClick={handleRetry}
-                  variant="destructive"
-                  size="sm"
-                  leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-                  aria-label="Retry sending message"
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {lastFailedMessage && (
+                  <Button
+                    onClick={handleRetry}
+                    variant="destructive"
+                    size="sm"
+                    leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+                    aria-label="Retry sending message"
+                  >
+                    Retry
+                  </Button>
+                )}
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setLastFailedMessage(null);
+                  }}
+                  className="flex-shrink-0 p-1.5 text-destructive hover:text-destructive/80 hover:bg-destructive/20 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                  aria-label="Dismiss error"
                 >
-                  Retry
-                </Button>
-              )}
-              <button
-                onClick={() => {
-                  setError(null);
-                  setLastFailedMessage(null);
-                }}
-                className="flex-shrink-0 p-1.5 text-destructive hover:text-destructive/80 hover:bg-destructive/20 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
-                aria-label="Dismiss error"
-              >
-                <X className="w-4 h-4" />
-              </button>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Connection warning */}
       {!connected && (

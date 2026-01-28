@@ -947,10 +947,10 @@ export default function App() {
                 <Spinner size="lg" />
                 <div className="text-center">
                   <p className="text-sm font-medium mb-1">
-                    Loading conversations
+                    Loading your conversations
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Decrypting data...
+                    This will just take a moment...
                   </p>
                 </div>
               </div>
@@ -962,10 +962,10 @@ export default function App() {
                 <Spinner size="lg" />
                 <div className="text-center max-w-md px-4">
                   <p className="text-sm font-medium mb-1">
-                    Connecting to Gateway
+                    Connecting to your Gateway
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
-                    Please wait...
+                    Establishing a secure connection...
                   </p>
                   {cancelConnection && (
                     <button
@@ -1004,24 +1004,24 @@ export default function App() {
                       </svg>
                     </div>
                     <div className="text-center max-w-md px-4">
-                      <p className="text-sm font-medium mb-2">
+                      <p className="text-sm font-semibold mb-2">
                         {friendlyError.title}
                       </p>
-                      <p className="text-xs text-muted-foreground mb-1">
+                      <p className="text-sm text-muted-foreground mb-1">
                         {friendlyError.message}
                       </p>
                       {friendlyError.suggestion && (
-                        <p className="text-xs text-muted-foreground/70 mb-4">
-                          {friendlyError.suggestion}
+                        <p className="text-xs text-muted-foreground mb-4">
+                          💡 {friendlyError.suggestion}
                         </p>
                       )}
                       <div className="flex gap-2 justify-center mt-4">
                         {retryNowFn && (
                           <button
                             onClick={retryNowFn}
-                            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md"
                           >
-                            Retry Now
+                            Try Again
                           </button>
                         )}
                         <button
@@ -1031,7 +1031,7 @@ export default function App() {
                           }}
                           className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
                         >
-                          Continue Offline
+                          Browse Offline
                         </button>
                       </div>
                     </div>

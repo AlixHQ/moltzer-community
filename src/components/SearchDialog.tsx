@@ -30,6 +30,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<(HTMLButtonElement | null)[]>([]);
   useFocusTrap(dialogRef, open);
 
   // Focus input when dialog opens (instant)
@@ -106,16 +107,36 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     return () => clearTimeout(timer);
   }, [query, performSearch]);
 
-  // Keyboard navigation
+  // Keyboard navigation with smooth scrolling
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
+        setSelectedIndex((i) => {
+          const newIndex = Math.min(i + 1, results.length - 1);
+          // Scroll to selected item
+          setTimeout(() => {
+            resultsRef.current[newIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }, 0);
+          return newIndex;
+        });
         break;
       case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, 0));
+        setSelectedIndex((i) => {
+          const newIndex = Math.max(i - 1, 0);
+          // Scroll to selected item
+          setTimeout(() => {
+            resultsRef.current[newIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }, 0);
+          return newIndex;
+        });
         break;
       case "Enter":
         e.preventDefault();
@@ -136,7 +157,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-100"
         onClick={onClose}
       />
 
@@ -146,7 +167,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="search-dialog-title"
-        className="relative bg-background rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200 border border-border/50"
+        className="relative bg-background rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-150 border border-border/50"
       >
         <h2 id="search-dialog-title" className="sr-only">
           Search messages
@@ -214,21 +235,25 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
 
         {/* Results */}
         <div className="max-h-[60vh] overflow-y-auto">
-          {isSearching ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+          {isSearching && query.length > 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
+              <span className="ml-3 text-sm text-muted-foreground">
+                Searching...
+              </span>
             </div>
           ) : results.length > 0 ? (
             <div className="py-2">
               {results.map((result, index) => (
                 <button
                   key={`${result.conversationId}-${result.messageId}`}
+                  ref={(el) => (resultsRef.current[index] = el)}
                   onClick={() => {
                     selectConversation(result.conversationId);
                     onClose();
                   }}
                   className={cn(
-                    "w-full px-4 py-3 text-left transition-colors",
+                    "w-full px-4 py-3 text-left transition-colors duration-75",
                     index === selectedIndex ? "bg-muted" : "hover:bg-muted/50",
                   )}
                 >
@@ -307,29 +332,31 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   );
 }
 
-// Highlight matching text in search results
-function HighlightedText({ text, query }: { text: string; query: string }) {
-  if (!query.trim()) return <>{text}</>;
+// Highlight matching text in search results - optimized
+const HighlightedText = React.memo(
+  ({ text, query }: { text: string; query: string }) => {
+    if (!query.trim()) return <>{text}</>;
 
-  const parts = text.split(new RegExp(`(${escapeRegex(query)})`, "gi"));
+    const parts = text.split(new RegExp(`(${escapeRegex(query)})`, "gi"));
 
-  return (
-    <>
-      {parts.map((part, i) =>
-        part.toLowerCase() === query.toLowerCase() ? (
-          <mark
-            key={i}
-            className="bg-yellow-200 dark:bg-yellow-500/30 text-foreground rounded px-0.5"
-          >
-            {part}
-          </mark>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <mark
+              key={i}
+              className="bg-yellow-300 dark:bg-yellow-500/40 text-foreground font-medium rounded px-0.5"
+            >
+              {part}
+            </mark>
+          ) : (
+            <React.Fragment key={i}>{part}</React.Fragment>
+          ),
+        )}
+      </>
+    );
+  },
+);
 
 function escapeRegex(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

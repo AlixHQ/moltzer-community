@@ -1257,9 +1257,11 @@ async fn start_reconnection_loop(app: AppHandle, state: Arc<GatewayStateInner>) 
             // Attempt reconnection
             let credentials = state.stored_credentials.lock().await.clone();
             if let Some(creds) = credentials {
+                log_protocol_error("Reconnect", &format!("Attempt {} to {}", attempt, creds.url));
                 match connect_internal(&app, state.clone(), &creds.url, &creds.token).await {
                     Ok(_) => {
                         // Success!
+                        log_protocol_error("Reconnect", &format!("SUCCESS on attempt {}", attempt));
                         state.reconnect_attempt.store(0, Ordering::SeqCst);
                         *state.connection_state.write().await =
                             ConnectionState::Connected { session_id: None };
@@ -1270,12 +1272,18 @@ async fn start_reconnection_loop(app: AppHandle, state: Arc<GatewayStateInner>) 
                         let _ = app.emit("gateway:reconnected", attempt);
 
                         // Drain message queue
+                        let queue_size = state.message_queue.lock().await.len();
+                        if queue_size > 0 {
+                            log_protocol_error("Reconnect", &format!("Draining {} queued messages", queue_size));
+                        }
                         drain_message_queue(&state).await;
                         break;
                     }
                     Err(e) => {
+                        log_protocol_error("Reconnect", &format!("Failed attempt {}: {}", attempt, e.user_message()));
                         if e.requires_reauth() {
                             // Auth error - stop reconnecting
+                            log_protocol_error("Reconnect", "Auth error detected, stopping reconnection attempts");
                             *state.connection_state.write().await = ConnectionState::Failed {
                                 reason: e.user_message(),
                                 can_retry: false,
@@ -1294,6 +1302,7 @@ async fn start_reconnection_loop(app: AppHandle, state: Arc<GatewayStateInner>) 
                 }
             } else {
                 // No credentials - can't reconnect
+                log_protocol_error("Reconnect", "No stored credentials, cannot reconnect");
                 break;
             }
         }

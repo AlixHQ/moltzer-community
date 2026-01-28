@@ -174,11 +174,12 @@ export const MessageBubble = memo(function MessageBubble({
             isUser &&
               !isEditing &&
               "bg-gradient-to-br from-primary/10 to-primary/[0.06] shadow-sm shadow-primary/10 rounded-2xl rounded-tr-sm px-4 py-3",
-            // Streaming state: subtle border pulse
+            // Streaming state: subtle border pulse with GPU acceleration
             message.isStreaming &&
               !isUser &&
-              "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse",
+              "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse will-change-[border-color]",
           )}
+          style={message.isStreaming && !isUser ? { contain: 'layout style paint' } : undefined}
         >
           {isEditing ? (
             <div className="w-full">
@@ -261,7 +262,7 @@ export const MessageBubble = memo(function MessageBubble({
 
           {/* Streaming cursor */}
           {message.isStreaming && message.content && (
-            <span className="inline-block w-2 h-4 bg-primary/50 animate-pulse ml-0.5" />
+            <span className="inline-block w-2 h-4 bg-primary animate-cursor-blink ml-0.5" />
           )}
         </div>
 
