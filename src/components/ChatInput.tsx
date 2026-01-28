@@ -3,7 +3,14 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { cn } from "../lib/utils";
 import { Spinner } from "./ui/spinner";
-import { Paperclip, Send, X, FileText, Image as ImageIcon, AlertCircle } from "lucide-react";
+import {
+  Paperclip,
+  Send,
+  X,
+  FileText,
+  Image as ImageIcon,
+  AlertCircle,
+} from "lucide-react";
 
 // Attachment with base64 data ready to send
 export interface PreparedAttachment {
@@ -110,9 +117,15 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       }
     };
 
-    window.addEventListener("quickinput:setmessage", handleQuickInputMessage as unknown as (e: Event) => void);
+    window.addEventListener(
+      "quickinput:setmessage",
+      handleQuickInputMessage as unknown as (e: Event) => void,
+    );
     return () => {
-      window.removeEventListener("quickinput:setmessage", handleQuickInputMessage as unknown as (e: Event) => void);
+      window.removeEventListener(
+        "quickinput:setmessage",
+        handleQuickInputMessage as unknown as (e: Event) => void,
+      );
     };
   }, [onSend]);
 
@@ -138,54 +151,77 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
   const handleAttach = async () => {
     if (disabled || isLoadingFiles) return;
     setFileError(null);
-    
+
     try {
       const selected = await open({
         multiple: true,
         filters: [
           { name: "Images", extensions: ["png", "jpg", "jpeg", "gif", "webp"] },
-          { name: "Documents", extensions: ["pdf", "txt", "md", "html", "csv", "json"] },
-          { name: "Code", extensions: ["js", "ts", "jsx", "tsx", "py", "rs", "go", "java", "c", "cpp", "h", "css", "yaml", "yml", "toml", "xml"] },
+          {
+            name: "Documents",
+            extensions: ["pdf", "txt", "md", "html", "csv", "json"],
+          },
+          {
+            name: "Code",
+            extensions: [
+              "js",
+              "ts",
+              "jsx",
+              "tsx",
+              "py",
+              "rs",
+              "go",
+              "java",
+              "c",
+              "cpp",
+              "h",
+              "css",
+              "yaml",
+              "yml",
+              "toml",
+              "xml",
+            ],
+          },
         ],
       });
 
       if (!selected) return;
-      
+
       const paths = Array.isArray(selected) ? selected : [selected];
       setIsLoadingFiles(true);
-      
+
       const newAttachments: PreparedAttachment[] = [];
       const errors: string[] = [];
-      
+
       for (const path of paths) {
         try {
           // Get filename from path
           const filename = path.split(/[/\\]/).pop() || path;
           const mimeType = getMimeType(filename);
-          
+
           if (!mimeType) {
             errors.push(`Unsupported file type: ${filename}`);
             continue;
           }
-          
+
           // Read file as binary
           const fileData = await readFile(path);
-          
+
           // Check file size
           if (fileData.byteLength > MAX_FILE_SIZE) {
             errors.push(`File too large (max 10MB): ${filename}`);
             continue;
           }
-          
+
           // Convert to base64
           const base64 = arrayBufferToBase64(fileData.buffer);
-          
+
           // Create preview URL for images
           let previewUrl: string | undefined;
           if (isImageMime(mimeType)) {
             previewUrl = `data:${mimeType};base64,${base64}`;
           }
-          
+
           newAttachments.push({
             id: crypto.randomUUID(),
             filename,
@@ -200,15 +236,15 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           errors.push(`Failed to read: ${filename}`);
         }
       }
-      
+
       if (errors.length > 0) {
         setFileError(errors.join("; "));
         // Auto-dismiss after 5 seconds
         setTimeout(() => setFileError(null), 5000);
       }
-      
+
       if (newAttachments.length > 0) {
-        setAttachments(prev => [...prev, ...newAttachments]);
+        setAttachments((prev) => [...prev, ...newAttachments]);
       }
     } catch (err) {
       console.error("Failed to open file dialog:", err);
@@ -222,13 +258,14 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const canSend = (message.trim() || attachments.length > 0) && !disabled && !isLoadingFiles;
+  const canSend =
+    (message.trim() || attachments.length > 0) && !disabled && !isLoadingFiles;
 
   return (
     <div className="p-4">
       {/* File error message */}
       {fileError && (
-        <div 
+        <div
           className="flex items-center gap-2 mb-3 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive animate-in fade-in slide-in-from-bottom-2 duration-200"
           role="alert"
           aria-live="polite"
@@ -255,8 +292,8 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
             >
               {/* Image preview or file icon */}
               {file.previewUrl ? (
-                <img 
-                  src={file.previewUrl} 
+                <img
+                  src={file.previewUrl}
                   alt={file.filename}
                   className="w-8 h-8 object-cover rounded"
                 />
@@ -285,7 +322,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           isFocused
             ? "border-primary/40 ring-2 ring-primary/15 shadow-md shadow-primary/5"
             : "border-border hover:border-border/70",
-          disabled && "opacity-50 cursor-not-allowed"
+          disabled && "opacity-50 cursor-not-allowed",
         )}
       >
         {/* Attach button */}
@@ -294,7 +331,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           disabled={disabled || isLoadingFiles}
           className={cn(
             "p-3 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0",
-            (disabled || isLoadingFiles) && "cursor-not-allowed"
+            (disabled || isLoadingFiles) && "cursor-not-allowed",
           )}
           title="Attach files (images, documents, code)"
           aria-label="Attach files"
@@ -320,11 +357,11 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
           placeholder={
-            isSending 
-              ? "Sending message..." 
-              : disabled 
-              ? "Connect to Gateway to send messages..." 
-              : "Message Moltzer..."
+            isSending
+              ? "Sending message..."
+              : disabled
+                ? "Connect to Gateway to send messages..."
+                : "Message Moltzer..."
           }
           rows={1}
           aria-label="Type your message"
@@ -333,7 +370,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
             "flex-1 py-3 bg-transparent resize-none",
             "focus:outline-none",
             "placeholder:text-muted-foreground",
-            disabled && "cursor-not-allowed"
+            disabled && "cursor-not-allowed",
           )}
           style={{
             minHeight: "24px",
@@ -354,18 +391,21 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
             "p-3 rounded-xl m-1 transition-all duration-200 flex-shrink-0",
             canSend
               ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md active:scale-95"
-              : "text-muted-foreground cursor-not-allowed"
+              : "text-muted-foreground cursor-not-allowed",
           )}
           title="Send message (Enter)"
           aria-label={isSending ? "Sending message..." : "Send message"}
         >
           {isSending ? (
-            <Spinner size="sm" className="border-primary-foreground border-t-transparent" />
+            <Spinner
+              size="sm"
+              className="border-primary-foreground border-t-transparent"
+            />
           ) : (
-            <Send 
+            <Send
               className={cn(
                 "w-5 h-5 transition-transform duration-200",
-                canSend && "translate-x-0.5"
+                canSend && "translate-x-0.5",
               )}
             />
           )}
@@ -375,9 +415,23 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       {/* Hint */}
       <div className="flex items-center justify-center gap-4 mt-2">
         <p id="chat-input-hint" className="text-xs text-muted-foreground">
-          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Enter key">Enter</kbd> to send
-          <span className="mx-1.5" aria-hidden="true">·</span>
-          <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Shift plus Enter">Shift+Enter</kbd> for new line
+          <kbd
+            className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]"
+            aria-label="Enter key"
+          >
+            Enter
+          </kbd>{" "}
+          to send
+          <span className="mx-1.5" aria-hidden="true">
+            ·
+          </span>
+          <kbd
+            className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]"
+            aria-label="Shift plus Enter"
+          >
+            Shift+Enter
+          </kbd>{" "}
+          for new line
         </p>
       </div>
     </div>

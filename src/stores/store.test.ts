@@ -17,7 +17,7 @@ describe("Store", () => {
       expect(conversation.id).toBeDefined();
       expect(conversation.title).toBe("New Chat");
       expect(conversation.messages).toHaveLength(0);
-      
+
       // Get fresh state after mutation
       const state = useStore.getState();
       expect(state.conversations).toHaveLength(1);
@@ -51,7 +51,9 @@ describe("Store", () => {
 
       store.updateConversation(conv.id, { title: "Updated Title" });
 
-      const updated = useStore.getState().conversations.find((c) => c.id === conv.id);
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conv.id);
       expect(updated?.title).toBe("Updated Title");
     });
 
@@ -82,7 +84,9 @@ describe("Store", () => {
       expect(message.content).toBe("Hello!");
       expect(message.role).toBe("user");
 
-      const updated = useStore.getState().conversations.find((c) => c.id === conv.id);
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conv.id);
       expect(updated?.messages).toHaveLength(1);
     });
 
@@ -96,7 +100,9 @@ describe("Store", () => {
         content: "What is the meaning of life?",
       });
 
-      const updated = useStore.getState().conversations.find((c) => c.id === conv.id);
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conv.id);
       expect(updated?.title).toBe("What is the meaning of life?");
     });
 
@@ -110,7 +116,9 @@ describe("Store", () => {
         content: longMessage,
       });
 
-      const updated = useStore.getState().conversations.find((c) => c.id === conv.id);
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conv.id);
       expect(updated?.title.length).toBeLessThanOrEqual(43); // 40 + "..."
     });
 
@@ -131,13 +139,18 @@ describe("Store", () => {
       store.appendToCurrentMessage("Hello");
       store.appendToCurrentMessage(" world");
 
-      const updated = useStore.getState().conversations.find((c) => c.id === conv.id);
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conv.id);
       expect(updated?.messages[0].content).toBe("Hello world");
 
       // Complete streaming
       store.completeCurrentMessage();
       expect(useStore.getState().currentStreamingMessageId).toBeNull();
-      expect(useStore.getState().conversations.find((c) => c.id === conv.id)?.messages[0].isStreaming).toBe(false);
+      expect(
+        useStore.getState().conversations.find((c) => c.id === conv.id)
+          ?.messages[0].isStreaming,
+      ).toBe(false);
     });
   });
 
@@ -170,7 +183,9 @@ describe("Store", () => {
         theme: "dark",
       });
 
-      expect(useStore.getState().settings.gatewayUrl).toBe("ws://example.com:8080");
+      expect(useStore.getState().settings.gatewayUrl).toBe(
+        "ws://example.com:8080",
+      );
       expect(useStore.getState().settings.theme).toBe("dark");
     });
   });

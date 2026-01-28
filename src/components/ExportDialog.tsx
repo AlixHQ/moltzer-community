@@ -1,6 +1,6 @@
 /**
  * Export Dialog Component
- * 
+ *
  * Allows users to export conversations in various formats
  * with customizable options.
  */
@@ -9,23 +9,23 @@ import React, { useState } from "react";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { Conversation } from "../stores/store";
-import { 
-  ExportFormat, 
-  exportConversation, 
-  generateFilename, 
-  getFileExtension 
+import {
+  ExportFormat,
+  exportConversation,
+  generateFilename,
+  getFileExtension,
 } from "../lib/export";
 import { Button } from "./ui/button";
-import { 
-  X, 
-  Download, 
-  FileText, 
-  FileJson, 
-  FileType, 
-  Globe, 
-  Copy, 
+import {
+  X,
+  Download,
+  FileText,
+  FileJson,
+  FileType,
+  Globe,
+  Copy,
   Check,
-  Loader2 
+  Loader2,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -69,8 +69,13 @@ const formatOptions: FormatOption[] = [
   },
 ];
 
-export function ExportDialog({ open, onClose, conversation }: ExportDialogProps) {
-  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>("markdown");
+export function ExportDialog({
+  open,
+  onClose,
+  conversation,
+}: ExportDialogProps) {
+  const [selectedFormat, setSelectedFormat] =
+    useState<ExportFormat>("markdown");
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [includeMetadata, setIncludeMetadata] = useState(true);
   const [includeThinking, setIncludeThinking] = useState(false);
@@ -80,7 +85,9 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
 
   if (!open) return null;
 
-  const hasThinkingContent = conversation.messages.some((m) => m.thinkingContent);
+  const hasThinkingContent = conversation.messages.some(
+    (m) => m.thinkingContent,
+  );
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -102,7 +109,9 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
         defaultPath: defaultFilename,
         filters: [
           {
-            name: formatOptions.find((f) => f.value === selectedFormat)?.label || "File",
+            name:
+              formatOptions.find((f) => f.value === selectedFormat)?.label ||
+              "File",
             extensions: [extension],
           },
         ],
@@ -114,7 +123,9 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
       }
     } catch (err: unknown) {
       console.error("Export failed:", err);
-      setError(err instanceof Error ? err.message : "Failed to export conversation");
+      setError(
+        err instanceof Error ? err.message : "Failed to export conversation",
+      );
     } finally {
       setIsExporting(false);
     }
@@ -134,7 +145,9 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
       setTimeout(() => setCopied(false), 2000);
     } catch (err: unknown) {
       console.error("Copy failed:", err);
-      setError(err instanceof Error ? err.message : "Failed to copy to clipboard");
+      setError(
+        err instanceof Error ? err.message : "Failed to copy to clipboard",
+      );
     }
   };
 
@@ -159,8 +172,13 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div>
-              <h2 id="export-dialog-title" className="text-lg font-semibold">Export Conversation</h2>
-              <p id="export-dialog-description" className="text-sm text-muted-foreground truncate max-w-[280px]">
+              <h2 id="export-dialog-title" className="text-lg font-semibold">
+                Export Conversation
+              </h2>
+              <p
+                id="export-dialog-description"
+                className="text-sm text-muted-foreground truncate max-w-[280px]"
+              >
                 {conversation.title}
               </p>
             </div>
@@ -178,7 +196,11 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
             {/* Format selection */}
             <fieldset>
               <legend className="text-sm font-medium mb-2 block">Format</legend>
-              <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Export format">
+              <div
+                className="grid grid-cols-2 gap-2"
+                role="radiogroup"
+                aria-label="Export format"
+              >
                 {formatOptions.map((format) => (
                   <button
                     key={format.value}
@@ -190,13 +212,18 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
                       "flex items-start gap-3 p-3 rounded-lg border text-left transition-all",
                       selectedFormat === format.value
                         ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                        : "border-border hover:border-primary/50 hover:bg-muted/50",
                     )}
                   >
-                    <div className={cn(
-                      "flex-shrink-0 mt-0.5",
-                      selectedFormat === format.value ? "text-primary" : "text-muted-foreground"
-                    )} aria-hidden="true">
+                    <div
+                      className={cn(
+                        "flex-shrink-0 mt-0.5",
+                        selectedFormat === format.value
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                      aria-hidden="true"
+                    >
                       {format.icon}
                     </div>
                     <div className="min-w-0">
@@ -213,7 +240,7 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
             {/* Options */}
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium block">Options</legend>
-              
+
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   id="include-metadata"
@@ -264,7 +291,13 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
               onClick={handleCopyToClipboard}
               variant="ghost"
               size="sm"
-              leftIcon={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              leftIcon={
+                copied ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )
+              }
               disabled={isExporting}
             >
               {copied ? "Copied!" : "Copy to clipboard"}
@@ -283,7 +316,13 @@ export function ExportDialog({ open, onClose, conversation }: ExportDialogProps)
                 onClick={handleExport}
                 variant="primary"
                 size="sm"
-                leftIcon={isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                leftIcon={
+                  isExporting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )
+                }
                 disabled={isExporting}
               >
                 {isExporting ? "Exporting..." : "Save File"}

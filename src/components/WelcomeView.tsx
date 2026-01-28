@@ -4,7 +4,13 @@ import { Plus, AlertTriangle, Cpu } from "lucide-react";
 import { Button } from "./ui/button";
 
 export function WelcomeView() {
-  const { createConversation, addMessage, connected, settings, availableModels } = useStore();
+  const {
+    createConversation,
+    addMessage,
+    connected,
+    settings,
+    availableModels,
+  } = useStore();
 
   // Moltzer-specific suggestions showcasing agentic capabilities
   const suggestions = [
@@ -18,13 +24,15 @@ export function WelcomeView() {
       icon: "📧",
       title: "Check my unread emails",
       description: "Summarize what needs your attention",
-      prompt: "Check my unread emails and summarize anything important or urgent.",
+      prompt:
+        "Check my unread emails and summarize anything important or urgent.",
     },
     {
       icon: "🎙️",
       title: "What was my last meeting about?",
       description: "Review transcripts and action items",
-      prompt: "What did we discuss in my most recent meeting? Any action items for me?",
+      prompt:
+        "What did we discuss in my most recent meeting? Any action items for me?",
     },
     {
       icon: "💬",
@@ -42,11 +50,12 @@ export function WelcomeView() {
       icon: "🏠",
       title: "Control my smart home",
       description: "Lights, thermostat, and more",
-      prompt: "What smart home devices can I control? Show me what's available.",
+      prompt:
+        "What smart home devices can I control? Show me what's available.",
     },
   ];
 
-  const handleSuggestionClick = async (suggestion: typeof suggestions[0]) => {
+  const handleSuggestionClick = async (suggestion: (typeof suggestions)[0]) => {
     const conv = createConversation();
     // Auto-send the suggestion prompt
     addMessage(conv.id, {
@@ -57,11 +66,13 @@ export function WelcomeView() {
 
   // Get display name for current model
   const currentModelName = (() => {
-    const model = availableModels.find(m => m.id === settings.defaultModel);
+    const model = availableModels.find((m) => m.id === settings.defaultModel);
     if (model) return model.name;
     // Fallback: extract name from ID
-    const parts = settings.defaultModel.split('/');
-    return parts[parts.length - 1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const parts = settings.defaultModel.split("/");
+    return parts[parts.length - 1]
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   })();
 
   return (
@@ -76,7 +87,8 @@ export function WelcomeView() {
             Moltzer
           </h1>
           <p className="text-lg text-muted-foreground">
-            Your AI that actually <span className="font-medium text-foreground">does things</span>
+            Your AI that actually{" "}
+            <span className="font-medium text-foreground">does things</span>
           </p>
         </div>
 
@@ -88,10 +100,12 @@ export function WelcomeView() {
               <span className="font-medium">Offline Mode</span>
             </div>
             <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1 text-center">
-              You can browse saved conversations, but sending messages requires a connection.
+              You can browse saved conversations, but sending messages requires
+              a connection.
             </p>
             <p className="text-xs text-amber-600/60 dark:text-amber-400/60 mt-2 text-center">
-              Check Settings (⌘,) to configure your Gateway or click Retry above.
+              Check Settings (⌘,) to configure your Gateway or click Retry
+              above.
             </p>
           </div>
         )}
@@ -109,7 +123,9 @@ export function WelcomeView() {
 
         {/* Suggestions */}
         <div className="mb-8">
-          <p className="text-sm text-muted-foreground mb-4">Try asking me to...</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Try asking me to...
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {suggestions.map((suggestion, i) => (
               <button
@@ -121,12 +137,14 @@ export function WelcomeView() {
                   "animate-in fade-in slide-in-from-bottom-2",
                   connected
                     ? "border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 cursor-pointer"
-                    : "border-border/50 opacity-50 cursor-not-allowed"
+                    : "border-border/50 opacity-50 cursor-not-allowed",
                 )}
                 style={{ animationDelay: `${i * 50 + 200}ms` }}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl flex-shrink-0">{suggestion.icon}</span>
+                  <span className="text-2xl flex-shrink-0">
+                    {suggestion.icon}
+                  </span>
                   <div className="min-w-0">
                     <p className="font-medium group-hover:text-primary transition-colors truncate">
                       {suggestion.title}
@@ -150,7 +168,8 @@ export function WelcomeView() {
           leftIcon={<Plus className="w-5 h-5" />}
           className={cn(
             "animate-in fade-in zoom-in-95 duration-500",
-            connected && "hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0"
+            connected &&
+              "hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0",
           )}
           style={{ animationDelay: "400ms" }}
         >
@@ -158,10 +177,20 @@ export function WelcomeView() {
         </Button>
 
         {/* Keyboard hint */}
-        <p className="mt-4 text-xs text-muted-foreground animate-in fade-in duration-500" style={{ animationDelay: "500ms" }}>
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono mx-0.5">⌘N</kbd> to start a new chat
+        <p
+          className="mt-4 text-xs text-muted-foreground animate-in fade-in duration-500"
+          style={{ animationDelay: "500ms" }}
+        >
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono mx-0.5">
+            ⌘N
+          </kbd>{" "}
+          to start a new chat
           <span className="mx-2">·</span>
-          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono mx-0.5">⌘K</kbd> to search
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono mx-0.5">
+            ⌘K
+          </kbd>{" "}
+          to search
         </p>
       </div>
     </div>

@@ -33,7 +33,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
             "transition-all duration-700 ease-out",
             isVisible
               ? "opacity-100 translate-y-0 scale-100"
-              : "opacity-0 translate-y-8 scale-95"
+              : "opacity-0 translate-y-8 scale-95",
           )}
         >
           <div className="inline-flex items-center justify-center w-32 h-32 rounded-3xl bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 shadow-2xl shadow-orange-500/30 mb-8 transform hover:scale-105 transition-transform">
@@ -47,9 +47,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
         <div
           className={cn(
             "transition-all duration-700 delay-200 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent mb-4">
@@ -57,7 +55,10 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
           </h1>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
             Your AI assistant that doesn't just chat—it actually{" "}
-            <span className="font-semibold text-foreground">gets things done</span>.
+            <span className="font-semibold text-foreground">
+              gets things done
+            </span>
+            .
           </p>
         </div>
 
@@ -65,9 +66,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
         <div
           className={cn(
             "grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto transition-all duration-700 delay-400 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
@@ -88,9 +87,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
         <div
           className={cn(
             "flex flex-col items-center gap-4 transition-all duration-700 delay-600 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button
@@ -127,10 +124,12 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
         <p
           className={cn(
             "text-xs text-muted-foreground transition-all duration-700 delay-800 ease-out",
-            isVisible ? "opacity-100" : "opacity-0"
+            isVisible ? "opacity-100" : "opacity-0",
           )}
         >
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd> to continue
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd>{" "}
+          to continue
         </p>
       </div>
 

@@ -592,7 +592,7 @@ async fn handle_validated_frame(
                                 min_protocol: PROTOCOL_VERSION,
                                 max_protocol: PROTOCOL_VERSION,
                                 client: ClientInfo {
-                                    id: "control-ui".to_string(),  // Must be a recognized client type
+                                    id: "control-ui".to_string(), // Must be a recognized client type
                                     version: env!("CARGO_PKG_VERSION").to_string(),
                                     platform: get_platform(),
                                     mode: "operator".to_string(),

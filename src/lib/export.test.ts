@@ -26,12 +26,23 @@ const createTestMessage = (overrides: Partial<Message> = {}): Message => ({
   ...overrides,
 });
 
-const createTestConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
+const createTestConversation = (
+  overrides: Partial<Conversation> = {},
+): Conversation => ({
   id: "conv-1",
   title: "Test Conversation",
   messages: [
-    createTestMessage({ id: "msg-1", role: "user", content: "Hello, how are you?" }),
-    createTestMessage({ id: "msg-2", role: "assistant", content: "I'm doing well, thank you!", modelUsed: "claude-sonnet-4" }),
+    createTestMessage({
+      id: "msg-1",
+      role: "user",
+      content: "Hello, how are you?",
+    }),
+    createTestMessage({
+      id: "msg-2",
+      role: "assistant",
+      content: "I'm doing well, thank you!",
+      modelUsed: "claude-sonnet-4",
+    }),
   ],
   createdAt: new Date("2024-01-15T10:00:00Z"),
   updatedAt: new Date("2024-01-15T10:35:00Z"),
@@ -82,7 +93,9 @@ describe("generateFilename", () => {
   });
 
   it("should handle special characters in title", () => {
-    const conversation = createTestConversation({ title: "My <Test> Conversation?" });
+    const conversation = createTestConversation({
+      title: "My <Test> Conversation?",
+    });
     const filename = generateFilename(conversation, "json");
     expect(filename).not.toContain("<");
     expect(filename).not.toContain(">");
@@ -137,10 +150,10 @@ describe("toMarkdown", () => {
   it("should include thinking content when enabled", () => {
     const conversation = createTestConversation({
       messages: [
-        createTestMessage({ 
-          role: "assistant", 
+        createTestMessage({
+          role: "assistant",
           content: "Here is my answer",
-          thinkingContent: "Let me think about this..."
+          thinkingContent: "Let me think about this...",
         }),
       ],
     });
@@ -218,13 +231,17 @@ describe("toHTML", () => {
   it("should include title in head and body", () => {
     const conversation = createTestConversation();
     const result = toHTML(conversation);
-    expect(result).toContain("<title>Test Conversation - Moltzer Export</title>");
+    expect(result).toContain(
+      "<title>Test Conversation - Moltzer Export</title>",
+    );
     expect(result).toContain("<h1>Test Conversation</h1>");
   });
 
   it("should escape HTML in content", () => {
     const conversation = createTestConversation({
-      messages: [createTestMessage({ content: "<script>alert('xss')</script>" })],
+      messages: [
+        createTestMessage({ content: "<script>alert('xss')</script>" }),
+      ],
     });
     const result = toHTML(conversation);
     expect(result).not.toContain("<script>alert");
@@ -250,16 +267,16 @@ describe("toHTML", () => {
 describe("exportConversation", () => {
   it("should export in correct format based on option", () => {
     const conversation = createTestConversation();
-    
+
     const md = exportConversation(conversation, { format: "markdown" });
     expect(md).toContain("# Test Conversation");
-    
+
     const json = exportConversation(conversation, { format: "json" });
     expect(() => JSON.parse(json)).not.toThrow();
-    
+
     const txt = exportConversation(conversation, { format: "text" });
     expect(txt).toContain("[User]");
-    
+
     const html = exportConversation(conversation, { format: "html" });
     expect(html).toContain("<!DOCTYPE html>");
   });
@@ -272,7 +289,7 @@ describe("exportAllConversations", () => {
       createTestConversation({ id: "conv-2", title: "Second" }),
     ];
     const result = JSON.parse(exportAllConversations(conversations));
-    
+
     expect(result.count).toBe(2);
     expect(result.conversations).toHaveLength(2);
     expect(result.conversations[0].title).toBe("First");
@@ -282,7 +299,7 @@ describe("exportAllConversations", () => {
   it("should include export metadata", () => {
     const conversations = [createTestConversation()];
     const result = JSON.parse(exportAllConversations(conversations));
-    
+
     expect(result).toHaveProperty("exportedAt");
     expect(result).toHaveProperty("exportVersion", "1.0");
   });

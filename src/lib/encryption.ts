@@ -1,10 +1,10 @@
 /**
  * Encryption utilities for Moltzer Client
- * 
+ *
  * Provides transparent encryption/decryption of sensitive data using:
  * - Web Crypto API (AES-GCM 256-bit encryption)
  * - OS Keychain integration via Tauri (secure key storage)
- * 
+ *
  * Architecture:
  * 1. Master key stored in OS keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service)
  * 2. Each message encrypted with unique IV (nonce)
@@ -41,7 +41,7 @@ async function getMasterKey(): Promise<CryptoKey> {
         keyData,
         { name: ALGORITHM, length: KEY_LENGTH },
         false,
-        ["encrypt", "decrypt"]
+        ["encrypt", "decrypt"],
       );
       return cachedKey;
     }
@@ -53,7 +53,7 @@ async function getMasterKey(): Promise<CryptoKey> {
   const key = await crypto.subtle.generateKey(
     { name: ALGORITHM, length: KEY_LENGTH },
     true,
-    ["encrypt", "decrypt"]
+    ["encrypt", "decrypt"],
   );
 
   // Export and store in keychain
@@ -93,7 +93,7 @@ export async function encrypt(plaintext: string): Promise<string> {
   const ciphertext = await crypto.subtle.encrypt(
     { name: ALGORITHM, iv },
     key,
-    data
+    data,
   );
 
   // Combine IV + ciphertext
@@ -122,7 +122,7 @@ export async function decrypt(ciphertext: string): Promise<string> {
   const decrypted = await crypto.subtle.decrypt(
     { name: ALGORITHM, iv },
     key,
-    data
+    data,
   );
 
   const decoder = new TextDecoder();
@@ -133,7 +133,9 @@ export async function decrypt(ciphertext: string): Promise<string> {
  * Encrypt a message object
  * Encrypts the content field
  */
-export async function encryptMessage<T extends { content: string }>(message: T): Promise<T> {
+export async function encryptMessage<T extends { content: string }>(
+  message: T,
+): Promise<T> {
   return {
     ...message,
     content: await encrypt(message.content),
@@ -144,7 +146,9 @@ export async function encryptMessage<T extends { content: string }>(message: T):
  * Decrypt a message object
  * Decrypts the content field
  */
-export async function decryptMessage<T extends { content: string }>(message: T): Promise<T> {
+export async function decryptMessage<T extends { content: string }>(
+  message: T,
+): Promise<T> {
   return {
     ...message,
     content: await decrypt(message.content),

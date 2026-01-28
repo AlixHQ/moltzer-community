@@ -1,25 +1,25 @@
 /**
  * Persistence layer for Moltzer Client
- * 
+ *
  * Integrates:
  * - IndexedDB storage via Dexie (lazy-loaded for fast startup)
  * - End-to-end encryption via Web Crypto API
  * - Automatic sync between Zustand store and database
- * 
+ *
  * All conversation data is encrypted at rest with zero user friction.
  */
 
-import { type DBMessage, type DBConversation } from './db';
-import { encrypt, decrypt } from './encryption';
-import type { Conversation, Message } from '../stores/store';
+import { type DBMessage, type DBConversation } from "./db";
+import { encrypt, decrypt } from "./encryption";
+import type { Conversation, Message } from "../stores/store";
 
 // Lazy-load the Dexie database (~95 kB) on first access.
 // All persistence functions are async anyway, so this adds zero latency
 // after the first call while freeing the main thread during initial render.
-let _db: typeof import('./db').db;
+let _db: typeof import("./db").db;
 async function getDb() {
   if (!_db) {
-    const { db } = await import('./db');
+    const { db } = await import("./db");
     _db = db;
   }
   return _db;
@@ -37,18 +37,18 @@ export async function loadPersistedData(): Promise<{
 
     // Load conversations
     const dbConversations = await db.conversations
-      .orderBy('updatedAt')
+      .orderBy("updatedAt")
       .reverse()
       .toArray();
 
     // Load and decrypt messages for each conversation
     const conversations: Conversation[] = [];
-    
+
     for (const dbConv of dbConversations) {
       const dbMessages = await db.messages
-        .where('conversationId')
+        .where("conversationId")
         .equals(dbConv.id)
-        .sortBy('timestamp');
+        .sortBy("timestamp");
 
       // Decrypt messages
       const messages: Message[] = [];
@@ -61,7 +61,7 @@ export async function loadPersistedData(): Promise<{
             content: decrypted,
             timestamp: dbMsg.timestamp,
             modelUsed: dbMsg.modelUsed,
-            thinkingContent: dbMsg.thinkingContent 
+            thinkingContent: dbMsg.thinkingContent
               ? await decrypt(dbMsg.thinkingContent)
               : undefined,
           });
@@ -77,7 +77,9 @@ export async function loadPersistedData(): Promise<{
         title = await decrypt(dbConv.title);
       } catch {
         // If decryption fails, it might be unencrypted (migration case)
-        console.warn(`Could not decrypt conversation title ${dbConv.id}, using as-is`);
+        console.warn(
+          `Could not decrypt conversation title ${dbConv.id}, using as-is`,
+        );
       }
 
       conversations.push({
@@ -94,7 +96,7 @@ export async function loadPersistedData(): Promise<{
 
     return { conversations };
   } catch (err) {
-    console.error('Failed to load persisted data:', err);
+    console.error("Failed to load persisted data:", err);
     // Return empty state on error
     return { conversations: [] };
   }
@@ -104,7 +106,9 @@ export async function loadPersistedData(): Promise<{
  * Persist a conversation to IndexedDB
  * Automatically encrypts all sensitive data
  */
-export async function persistConversation(conversation: Conversation): Promise<void> {
+export async function persistConversation(
+  conversation: Conversation,
+): Promise<void> {
   try {
     const db = await getDb();
 
@@ -126,7 +130,7 @@ export async function persistConversation(conversation: Conversation): Promise<v
     const dbMessages: DBMessage[] = [];
     for (const msg of conversation.messages) {
       const encryptedContent = await encrypt(msg.content);
-      const encryptedThinking = msg.thinkingContent 
+      const encryptedThinking = msg.thinkingContent
         ? await encrypt(msg.thinkingContent)
         : undefined;
 
@@ -148,15 +152,18 @@ export async function persistConversation(conversation: Conversation): Promise<v
     }
 
     // Save to database in transaction
-    await db.transaction('rw', db.conversations, db.messages, async () => {
+    await db.transaction("rw", db.conversations, db.messages, async () => {
       await db.conversations.put(dbConv);
-      
+
       // Delete old messages for this conversation, then insert new ones
-      await db.messages.where('conversationId').equals(conversation.id).delete();
+      await db.messages
+        .where("conversationId")
+        .equals(conversation.id)
+        .delete();
       await db.messages.bulkAdd(dbMessages);
     });
   } catch (err) {
-    console.error('Failed to persist conversation:', err);
+    console.error("Failed to persist conversation:", err);
     throw err;
   }
 }
@@ -164,16 +171,18 @@ export async function persistConversation(conversation: Conversation): Promise<v
 /**
  * Delete a conversation from IndexedDB
  */
-export async function deletePersistedConversation(conversationId: string): Promise<void> {
+export async function deletePersistedConversation(
+  conversationId: string,
+): Promise<void> {
   try {
     const db = await getDb();
 
-    await db.transaction('rw', db.conversations, db.messages, async () => {
+    await db.transaction("rw", db.conversations, db.messages, async () => {
       await db.conversations.delete(conversationId);
-      await db.messages.where('conversationId').equals(conversationId).delete();
+      await db.messages.where("conversationId").equals(conversationId).delete();
     });
   } catch (err) {
-    console.error('Failed to delete conversation:', err);
+    console.error("Failed to delete conversation:", err);
     throw err;
   }
 }
@@ -184,7 +193,7 @@ export async function deletePersistedConversation(conversationId: string): Promi
  */
 export async function persistMessage(
   conversationId: string,
-  message: Message
+  message: Message,
 ): Promise<void> {
   try {
     const db = await getDb();
@@ -209,7 +218,7 @@ export async function persistMessage(
 
     await db.messages.put(dbMessage);
   } catch (err) {
-    console.error('Failed to persist message:', err);
+    console.error("Failed to persist message:", err);
     throw err;
   }
 }
@@ -219,7 +228,7 @@ export async function persistMessage(
  * Does NOT update messages - use persistMessage for that
  */
 export async function updatePersistedConversation(
-  conversation: Conversation
+  conversation: Conversation,
 ): Promise<void> {
   try {
     const db = await getDb();
@@ -238,7 +247,7 @@ export async function updatePersistedConversation(
 
     await db.conversations.put(dbConv);
   } catch (err) {
-    console.error('Failed to update conversation:', err);
+    console.error("Failed to update conversation:", err);
     throw err;
   }
 }
@@ -249,35 +258,39 @@ export async function updatePersistedConversation(
  */
 export async function searchPersistedMessages(
   query: string,
-  conversationId?: string
-): Promise<Array<Message & { conversationId: string; conversationTitle: string }>> {
+  conversationId?: string,
+): Promise<
+  Array<Message & { conversationId: string; conversationTitle: string }>
+> {
   try {
     const db = await getDb();
     const searchWords = query.toLowerCase().split(/\s+/);
-    
+
     let collection = db.messages.toCollection();
     if (conversationId) {
-      collection = db.messages.where('conversationId').equals(conversationId);
+      collection = db.messages.where("conversationId").equals(conversationId);
     }
 
     const allMessages = await collection.toArray();
-    
+
     // Filter by search terms
-    const matchingMessages = allMessages.filter(msg => {
-      const searchText = msg.searchText || '';
-      return searchWords.every(word => searchText.includes(word));
+    const matchingMessages = allMessages.filter((msg) => {
+      const searchText = msg.searchText || "";
+      return searchWords.every((word) => searchText.includes(word));
     });
 
     // Decrypt and enrich with conversation info
-    const results: Array<Message & { conversationId: string; conversationTitle: string }> = [];
-    
+    const results: Array<
+      Message & { conversationId: string; conversationTitle: string }
+    > = [];
+
     for (const dbMsg of matchingMessages) {
       try {
         const decrypted = await decrypt(dbMsg.content);
         const conversation = await db.conversations.get(dbMsg.conversationId);
-        const conversationTitle = conversation 
+        const conversationTitle = conversation
           ? await decrypt(conversation.title)
-          : 'Unknown';
+          : "Unknown";
 
         results.push({
           id: dbMsg.id,
@@ -298,7 +311,7 @@ export async function searchPersistedMessages(
 
     return results;
   } catch (err) {
-    console.error('Failed to search messages:', err);
+    console.error("Failed to search messages:", err);
     return [];
   }
 }
@@ -311,7 +324,7 @@ export async function deletePersistedMessage(messageId: string): Promise<void> {
     const db = await getDb();
     await db.messages.delete(messageId);
   } catch (err) {
-    console.error('Failed to delete message:', err);
+    console.error("Failed to delete message:", err);
     throw err;
   }
 }
@@ -319,12 +332,14 @@ export async function deletePersistedMessage(messageId: string): Promise<void> {
 /**
  * Delete multiple messages from IndexedDB
  */
-export async function deletePersistedMessages(messageIds: string[]): Promise<void> {
+export async function deletePersistedMessages(
+  messageIds: string[],
+): Promise<void> {
   try {
     const db = await getDb();
     await db.messages.bulkDelete(messageIds);
   } catch (err) {
-    console.error('Failed to delete messages:', err);
+    console.error("Failed to delete messages:", err);
     throw err;
   }
 }
@@ -337,12 +352,12 @@ export async function clearAllData(): Promise<void> {
   try {
     const db = await getDb();
 
-    await db.transaction('rw', db.conversations, db.messages, async () => {
+    await db.transaction("rw", db.conversations, db.messages, async () => {
       await db.conversations.clear();
       await db.messages.clear();
     });
   } catch (err) {
-    console.error('Failed to clear data:', err);
+    console.error("Failed to clear data:", err);
     throw err;
   }
 }
@@ -359,9 +374,9 @@ export async function getStorageStats(): Promise<{
     const db = await getDb();
     const conversationCount = await db.conversations.count();
     const messageCount = await db.messages.count();
-    
+
     // Estimate storage (rough calculation)
-    const estimatedSize = ((messageCount * 500) / 1024).toFixed(2) + ' KB';
+    const estimatedSize = ((messageCount * 500) / 1024).toFixed(2) + " KB";
 
     return {
       conversationCount,
@@ -369,11 +384,11 @@ export async function getStorageStats(): Promise<{
       estimatedSize,
     };
   } catch (err) {
-    console.error('Failed to get storage stats:', err);
+    console.error("Failed to get storage stats:", err);
     return {
       conversationCount: 0,
       messageCount: 0,
-      estimatedSize: '0 KB',
+      estimatedSize: "0 KB",
     };
   }
 }

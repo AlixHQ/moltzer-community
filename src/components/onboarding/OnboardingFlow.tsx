@@ -9,9 +9,11 @@ import { FeatureTourStep } from "./steps/FeatureTourStep";
 import { cn } from "../../lib/utils";
 
 // Check if running on macOS
-const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
+const isMacOS =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toLowerCase().includes("mac");
 
-export type OnboardingStep = 
+export type OnboardingStep =
   | "welcome"
   | "detection"
   | "no-gateway"
@@ -36,13 +38,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
   const [isAnimating, setIsAnimating] = useState(false);
   const [gatewayUrl, setGatewayUrl] = useState(
-    import.meta.env.VITE_DEFAULT_GATEWAY_URL || "ws://localhost:18789"
+    import.meta.env.VITE_DEFAULT_GATEWAY_URL || "ws://localhost:18789",
   );
   const [gatewayToken, setGatewayToken] = useState("");
 
   // Restore progress on mount - but NEVER skip welcome screen
   useEffect(() => {
-    const savedProgress = localStorage.getItem('moltzer-onboarding-progress');
+    const savedProgress = localStorage.getItem("moltzer-onboarding-progress");
     if (savedProgress) {
       try {
         const progress: OnboardingProgress = JSON.parse(savedProgress);
@@ -54,7 +56,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           // NOTE: We no longer auto-advance to detection - always start at welcome
         }
       } catch (err) {
-        console.error('[OnboardingFlow] Failed to restore onboarding progress:', err);
+        console.error(
+          "[OnboardingFlow] Failed to restore onboarding progress:",
+          err,
+        );
       }
     }
   }, []);
@@ -82,18 +87,24 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     onComplete();
   }, [onComplete]);
 
-  const handleGatewayFound = useCallback((url: string) => {
-    setGatewayUrl(url);
-    // Skip directly to success when auto-detected
-    transitionTo("success");
-  }, [transitionTo]);
+  const handleGatewayFound = useCallback(
+    (url: string) => {
+      setGatewayUrl(url);
+      // Skip directly to success when auto-detected
+      transitionTo("success");
+    },
+    [transitionTo],
+  );
 
   const handleNoGateway = useCallback(() => {
     // Save progress
-    localStorage.setItem('moltzer-onboarding-progress', JSON.stringify({
-      step: 'detection-failed',
-      timestamp: Date.now()
-    }));
+    localStorage.setItem(
+      "moltzer-onboarding-progress",
+      JSON.stringify({
+        step: "detection-failed",
+        timestamp: Date.now(),
+      }),
+    );
     transitionTo("no-gateway");
   }, [transitionTo]);
 
@@ -108,11 +119,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const handleManualSetup = useCallback(() => {
     // Save progress (token NOT stored in localStorage - security)
-    localStorage.setItem('moltzer-onboarding-progress', JSON.stringify({
-      step: 'setup-started',
-      gatewayUrl,
-      timestamp: Date.now()
-    }));
+    localStorage.setItem(
+      "moltzer-onboarding-progress",
+      JSON.stringify({
+        step: "setup-started",
+        gatewayUrl,
+        timestamp: Date.now(),
+      }),
+    );
     transitionTo("setup");
   }, [transitionTo, gatewayUrl]);
 
@@ -152,12 +166,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }, [currentStep, handleSkip]);
 
   const steps: Record<OnboardingStep, JSX.Element> = {
-    welcome: (
-      <WelcomeStep
-        onNext={handleWelcomeNext}
-        onSkip={handleSkip}
-      />
-    ),
+    welcome: <WelcomeStep onNext={handleWelcomeNext} onSkip={handleSkip} />,
     detection: (
       <DetectionStep
         onGatewayFound={handleGatewayFound}
@@ -192,23 +201,21 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         skipAutoDetect={true} // Already tried in DetectionStep
       />
     ),
-    success: (
-      <SuccessStep
-        onNext={handleSuccessNext}
-        onSkip={handleComplete}
-      />
-    ),
+    success: <SuccessStep onNext={handleSuccessNext} onSkip={handleComplete} />,
     tour: (
-      <FeatureTourStep
-        onComplete={handleComplete}
-        onSkip={handleComplete}
-      />
+      <FeatureTourStep onComplete={handleComplete} onSkip={handleComplete} />
     ),
     complete: <></>, // Should never render
   };
 
   // Progress indicator (only count main steps, not detection/no-gateway)
-  const stepOrder: OnboardingStep[] = ["welcome", "detection", "setup", "success", "tour"];
+  const stepOrder: OnboardingStep[] = [
+    "welcome",
+    "detection",
+    "setup",
+    "success",
+    "tour",
+  ];
   let currentStepIndex = stepOrder.indexOf(currentStep);
   // Treat no-gateway as same progress as detection
   if (currentStep === "no-gateway") {
@@ -220,12 +227,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
       {/* Drag region for window movement (macOS titlebar overlay) */}
       {isMacOS && (
-        <div 
+        <div
           className="absolute inset-x-0 top-0 h-8 z-10"
           data-tauri-drag-region
         />
       )}
-      
+
       {/* Progress bar */}
       <div className={cn("h-1 bg-muted", isMacOS && "mt-7")}>
         <div
@@ -238,19 +245,25 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <div
         className={cn(
           "flex-1 transition-opacity duration-150",
-          isAnimating ? "opacity-0" : "opacity-100"
+          isAnimating ? "opacity-0" : "opacity-100",
         )}
       >
         {steps[currentStep]}
       </div>
 
       {/* Skip hint (only on first few steps) */}
-      {["welcome", "detection", "no-gateway", "explainer", "setup"].includes(currentStep) && (
-        <div className={cn(
-          "absolute right-4 text-xs text-muted-foreground animate-in fade-in duration-500 delay-1000",
-          isMacOS ? "top-2" : "top-4"
-        )}>
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Esc</kbd> to skip
+      {["welcome", "detection", "no-gateway", "explainer", "setup"].includes(
+        currentStep,
+      ) && (
+        <div
+          className={cn(
+            "absolute right-4 text-xs text-muted-foreground animate-in fade-in duration-500 delay-1000",
+            isMacOS ? "top-2" : "top-4",
+          )}
+        >
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Esc</kbd> to
+          skip
         </div>
       )}
     </div>

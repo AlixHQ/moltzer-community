@@ -23,7 +23,12 @@ interface MessageBubbleProps {
   isLastAssistantMessage?: boolean;
 }
 
-export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRegenerate, isLastAssistantMessage }: MessageBubbleProps) {
+export const MessageBubble = memo(function MessageBubble({
+  message,
+  onEdit,
+  onRegenerate,
+  isLastAssistantMessage,
+}: MessageBubbleProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showTimestamp, setShowTimestamp] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +41,7 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
       textareaRef.current.focus();
       textareaRef.current.setSelectionRange(
         textareaRef.current.value.length,
-        textareaRef.current.value.length
+        textareaRef.current.value.length,
       );
     }
   }, [isEditing]);
@@ -91,7 +96,7 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
   const isUser = message.role === "user";
 
   return (
-    <div 
+    <div
       className={cn("group flex gap-3", isUser && "flex-row-reverse")}
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
@@ -102,9 +107,9 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
       <div
         className={cn(
           "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-medium shadow-sm",
-          isUser 
-            ? "bg-gradient-to-br from-blue-500 to-blue-600" 
-            : "bg-gradient-to-br from-orange-500 to-red-500"
+          isUser
+            ? "bg-gradient-to-br from-blue-500 to-blue-600"
+            : "bg-gradient-to-br from-orange-500 to-red-500",
         )}
       >
         {isUser ? (
@@ -115,7 +120,9 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
       </div>
 
       {/* Content */}
-      <div className={cn("flex-1 min-w-0", isUser && "flex flex-col items-end")}>
+      <div
+        className={cn("flex-1 min-w-0", isUser && "flex flex-col items-end")}
+      >
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm font-medium">
@@ -127,13 +134,16 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
               Sending...
             </span>
           )}
-          <span 
+          <span
             className={cn(
               "text-xs text-muted-foreground transition-opacity duration-200",
-              showTimestamp || message.isPending ? "opacity-100" : "opacity-0"
+              showTimestamp || message.isPending ? "opacity-100" : "opacity-0",
             )}
           >
-            {!message.isPending && formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+            {!message.isPending &&
+              formatDistanceToNow(new Date(message.timestamp), {
+                addSuffix: true,
+              })}
             {/* Token usage for assistant messages */}
             {!isUser && message.usage?.totalTokens && (
               <span className="ml-2 text-muted-foreground/70">
@@ -148,9 +158,13 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
           className={cn(
             "relative",
             isUser ? "text-right" : "",
-            isUser && !isEditing && "bg-gradient-to-br from-primary/10 to-primary/[0.06] shadow-sm shadow-primary/10 rounded-2xl rounded-tr-sm px-4 py-3",
+            isUser &&
+              !isEditing &&
+              "bg-gradient-to-br from-primary/10 to-primary/[0.06] shadow-sm shadow-primary/10 rounded-2xl rounded-tr-sm px-4 py-3",
             // Streaming state: subtle border pulse
-            message.isStreaming && !isUser && "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse"
+            message.isStreaming &&
+              !isUser &&
+              "border border-primary/30 rounded-2xl px-4 py-3 animate-streaming-pulse",
           )}
         >
           {isEditing ? (
@@ -169,7 +183,7 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
                 className={cn(
                   "w-full min-h-[100px] p-3 text-sm rounded-lg border border-primary/50",
                   "bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/30",
-                  "text-left"
+                  "text-left",
                 )}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
@@ -192,17 +206,34 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
                     "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
                     editContent.trim()
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-muted text-muted-foreground cursor-not-allowed",
                   )}
                 >
                   <Send className="w-4 h-4" />
                   Save & Send
                 </button>
               </div>
-              <p id={`edit-hint-${message.id}`} className="text-xs text-muted-foreground mt-1 text-right">
-                <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Enter key">Enter</kbd> to save
-                <span className="mx-1.5" aria-hidden="true">·</span>
-                <kbd className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]" aria-label="Escape key">Esc</kbd> to cancel
+              <p
+                id={`edit-hint-${message.id}`}
+                className="text-xs text-muted-foreground mt-1 text-right"
+              >
+                <kbd
+                  className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]"
+                  aria-label="Enter key"
+                >
+                  Enter
+                </kbd>{" "}
+                to save
+                <span className="mx-1.5" aria-hidden="true">
+                  ·
+                </span>
+                <kbd
+                  className="px-1 py-0.5 bg-muted rounded font-mono text-[10px]"
+                  aria-label="Escape key"
+                >
+                  Esc
+                </kbd>{" "}
+                to cancel
               </p>
             </div>
           ) : message.isStreaming && !message.content ? (
@@ -228,11 +259,13 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
 
         {/* Actions (visible on hover) */}
         {!message.isStreaming && !isEditing && (
-          <div className={cn(
-            "flex items-center gap-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-            isUser && "justify-end",
-            "bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg p-0.5 w-fit shadow-sm"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+              isUser && "justify-end",
+              "bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg p-0.5 w-fit shadow-sm",
+            )}
+          >
             <button
               onClick={copyMessage}
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -293,7 +326,7 @@ export const MessageBubble = memo(function MessageBubble({ message, onEdit, onRe
         {message.modelUsed && (
           <span className="mt-2 text-xs text-muted-foreground inline-flex items-center gap-1">
             <Cpu className="w-3 h-3" strokeWidth={2} />
-            {message.modelUsed.split('/').pop()}
+            {message.modelUsed.split("/").pop()}
           </span>
         )}
       </div>
@@ -308,9 +341,9 @@ function TypingIndicator() {
         <span
           key={i}
           className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
-          style={{ 
+          style={{
             animationDelay: `${i * 0.15}s`,
-            animationDuration: "0.6s"
+            animationDuration: "0.6s",
           }}
           aria-hidden="true"
         />
@@ -324,26 +357,30 @@ interface AttachmentsDisplayProps {
   attachments: Attachment[];
 }
 
-const AttachmentsDisplay = memo(function AttachmentsDisplay({ attachments }: AttachmentsDisplayProps) {
+const AttachmentsDisplay = memo(function AttachmentsDisplay({
+  attachments,
+}: AttachmentsDisplayProps) {
   // Separate images from other files
-  const images = attachments.filter(a => a.mimeType?.startsWith('image/'));
-  const files = attachments.filter(a => !a.mimeType?.startsWith('image/'));
+  const images = attachments.filter((a) => a.mimeType?.startsWith("image/"));
+  const files = attachments.filter((a) => !a.mimeType?.startsWith("image/"));
 
   return (
     <div className="mt-3 space-y-3">
       {/* Image grid */}
       {images.length > 0 && (
-        <div className={cn(
-          "flex flex-wrap gap-2",
-          images.length === 1 ? "" : "grid grid-cols-2 sm:grid-cols-3"
-        )}>
+        <div
+          className={cn(
+            "flex flex-wrap gap-2",
+            images.length === 1 ? "" : "grid grid-cols-2 sm:grid-cols-3",
+          )}
+        >
           {images.map((attachment) => {
-            const src = attachment.data 
+            const src = attachment.data
               ? `data:${attachment.mimeType};base64,${attachment.data}`
               : attachment.url;
-            
+
             if (!src) return null;
-            
+
             return (
               <ImageRenderer
                 key={attachment.id}
@@ -366,8 +403,11 @@ const AttachmentsDisplay = memo(function AttachmentsDisplay({ attachments }: Att
               className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg text-sm border border-border"
             >
               <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <span className="truncate max-w-[200px]" title={attachment.filename}>
-                {attachment.filename || 'Unnamed file'}
+              <span
+                className="truncate max-w-[200px]"
+                title={attachment.filename}
+              >
+                {attachment.filename || "Unnamed file"}
               </span>
             </div>
           ))}

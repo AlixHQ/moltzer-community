@@ -1,4 +1,11 @@
-﻿import React, { useState, useEffect, lazy, Suspense, useRef, useMemo } from "react";
+﻿import React, {
+  useState,
+  useEffect,
+  lazy,
+  Suspense,
+  useRef,
+  useMemo,
+} from "react";
 import { useStore, Conversation } from "../stores/store";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { EmptyState } from "./ui/empty-state";
@@ -8,9 +15,15 @@ import { cn } from "../lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 // Lazy load heavy dialogs for better initial load performance
-const SettingsDialog = lazy(() => import("./SettingsDialog").then(m => ({ default: m.SettingsDialog })));
-const SearchDialog = lazy(() => import("./SearchDialog").then(m => ({ default: m.SearchDialog })));
-const ExportDialog = lazy(() => import("./ExportDialog").then(m => ({ default: m.ExportDialog })));
+const SettingsDialog = lazy(() =>
+  import("./SettingsDialog").then((m) => ({ default: m.SettingsDialog })),
+);
+const SearchDialog = lazy(() =>
+  import("./SearchDialog").then((m) => ({ default: m.SearchDialog })),
+);
+const ExportDialog = lazy(() =>
+  import("./ExportDialog").then((m) => ({ default: m.ExportDialog })),
+);
 import { formatDistanceToNow } from "date-fns";
 import {
   Plus,
@@ -25,7 +38,9 @@ import {
 import { Button } from "./ui/button";
 
 // Check if running on macOS (for traffic light padding)
-const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
+const isMacOS =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toLowerCase().includes("mac");
 
 interface SidebarProps {
   onToggle: () => void;
@@ -47,7 +62,8 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [conversationToExport, setConversationToExport] = useState<Conversation | null>(null);
+  const [conversationToExport, setConversationToExport] =
+    useState<Conversation | null>(null);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -77,25 +93,23 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
   const filteredConversations = useMemo(() => {
     const query = searchQuery.toLowerCase();
     if (!query) return conversations;
-    
+
     return conversations.filter((c) => {
       // Check title
       if (c.title.toLowerCase().includes(query)) return true;
-      
+
       // Check message content
-      return c.messages.some((m) => 
-        m.content.toLowerCase().includes(query)
-      );
+      return c.messages.some((m) => m.content.toLowerCase().includes(query));
     });
   }, [conversations, searchQuery]);
 
   const pinnedConversations = useMemo(
     () => filteredConversations.filter((c) => c.isPinned),
-    [filteredConversations]
+    [filteredConversations],
   );
   const recentConversations = useMemo(
     () => filteredConversations.filter((c) => !c.isPinned),
-    [filteredConversations]
+    [filteredConversations],
   );
 
   const handleNewChat = () => {
@@ -110,19 +124,29 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
   return (
     <div className="flex flex-col h-full bg-muted/30">
       {/* Header with connection status - draggable for macOS title bar */}
-      <div 
-        className={cn("p-3 pb-0", isMacOS && "pt-2")}
-        data-tauri-drag-region
-      >
-        <div 
-          className={cn("flex items-center gap-2 mb-3 px-1", isMacOS && "pl-[70px]")}
+      <div className={cn("p-3 pb-0", isMacOS && "pt-2")} data-tauri-drag-region>
+        <div
+          className={cn(
+            "flex items-center gap-2 mb-3 px-1",
+            isMacOS && "pl-[70px]",
+          )}
           data-tauri-drag-region
         >
           <div className="flex items-center gap-2" data-tauri-drag-region>
-            <span className="text-2xl select-none" role="img" aria-label="Moltzer logo">🦞</span>
+            <span
+              className="text-2xl select-none"
+              role="img"
+              aria-label="Moltzer logo"
+            >
+              🦞
+            </span>
             <span className="font-semibold text-lg select-none">Moltzer</span>
           </div>
-          <div className="flex items-center gap-1.5 ml-auto" role="status" aria-live="polite">
+          <div
+            className="flex items-center gap-1.5 ml-auto"
+            role="status"
+            aria-live="polite"
+          >
             <span className="relative flex w-2 h-2">
               {connected && (
                 <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
@@ -130,7 +154,7 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
               <span
                 className={cn(
                   "relative inline-flex w-2 h-2 rounded-full transition-colors",
-                  connected ? "bg-green-500" : "bg-red-500"
+                  connected ? "bg-green-500" : "bg-red-500",
                 )}
               />
             </span>
@@ -223,8 +247,9 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
           </>
         )}
 
-        {!conversationsLoading && filteredConversations.length === 0 && (
-          searchQuery ? (
+        {!conversationsLoading &&
+          filteredConversations.length === 0 &&
+          (searchQuery ? (
             <EmptyState
               icon={<Search className="w-8 h-8" strokeWidth={1.5} />}
               title="No matches"
@@ -247,8 +272,7 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
                 </Button>
               }
             />
-          )
-        )}
+          ))}
       </ScrollShadow>
 
       {/* Footer */}
@@ -268,14 +292,17 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup }: SidebarProps) {
 
       {/* Dialogs - lazy loaded for better performance */}
       <Suspense fallback={null}>
-        <SettingsDialog 
-          open={settingsOpen} 
+        <SettingsDialog
+          open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
           onRerunSetup={onRerunSetup}
         />
       </Suspense>
       <Suspense fallback={null}>
-        <SearchDialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} />
+        <SearchDialog
+          open={searchDialogOpen}
+          onClose={() => setSearchDialogOpen(false)}
+        />
       </Suspense>
       {conversationToExport && (
         <Suspense fallback={null}>
@@ -315,10 +342,10 @@ function ConversationSection({
   onExport,
 }: ConversationSectionProps) {
   const parentRef = useRef<HTMLDivElement>(null);
-  
+
   // Use virtualization for long lists (>30 items) to improve performance
   const shouldVirtualize = conversations.length > 30;
-  
+
   const virtualizer = useVirtualizer({
     count: conversations.length,
     getScrollElement: () => parentRef.current,
@@ -337,8 +364,8 @@ function ConversationSection({
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
+              width: "100%",
+              position: "relative",
             }}
           >
             {virtualizer.getVirtualItems().map((virtualItem) => {
@@ -347,10 +374,10 @@ function ConversationSection({
                 <div
                   key={conversation.id}
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: 0,
                     left: 0,
-                    width: '100%',
+                    width: "100%",
                     height: `${virtualItem.size}px`,
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
@@ -436,9 +463,9 @@ function ConversationItem({
         "group relative flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors w-full text-left",
         "animate-in fade-in slide-in-from-left-2 duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-        isSelected 
-          ? "bg-primary/8 border-l-2 border-primary shadow-sm" 
-          : "border-l-2 border-transparent hover:bg-muted/60"
+        isSelected
+          ? "bg-primary/8 border-l-2 border-primary shadow-sm"
+          : "border-l-2 border-transparent hover:bg-muted/60",
       )}
       style={style}
       onClick={onSelect}
@@ -460,30 +487,47 @@ function ConversationItem({
       aria-current={isSelected ? "page" : undefined}
     >
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm truncate", isSelected ? "font-semibold" : "font-medium")}>{conversation.title}</p>
+        <p
+          className={cn(
+            "text-sm truncate",
+            isSelected ? "font-semibold" : "font-medium",
+          )}
+        >
+          {conversation.title}
+        </p>
         <p className="text-xs text-muted-foreground/60">
-          {formatDistanceToNow(new Date(conversation.updatedAt), { addSuffix: true })}
+          {formatDistanceToNow(new Date(conversation.updatedAt), {
+            addSuffix: true,
+          })}
         </p>
       </div>
 
       {/* Actions (visible on hover) */}
-      <div className={cn(
-        "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
-        showMenu && "opacity-100"
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
+          showMenu && "opacity-100",
+        )}
+      >
         <button
           onClick={(e) => {
             e.stopPropagation();
             onPin();
           }}
           className="p-1 hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-          title={conversation.isPinned ? "Unpin conversation" : "Pin conversation"}
-          aria-label={conversation.isPinned ? "Unpin conversation" : "Pin conversation"}
+          title={
+            conversation.isPinned ? "Unpin conversation" : "Pin conversation"
+          }
+          aria-label={
+            conversation.isPinned ? "Unpin conversation" : "Pin conversation"
+          }
         >
-          <Pin 
+          <Pin
             className={cn(
               "w-3.5 h-3.5",
-              conversation.isPinned ? "text-orange-500 fill-current" : "text-muted-foreground"
+              conversation.isPinned
+                ? "text-orange-500 fill-current"
+                : "text-muted-foreground",
             )}
           />
         </button>
@@ -504,7 +548,10 @@ function ConversationItem({
       {/* Context menu */}
       {showMenu && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowMenu(false)}
+          />
           <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[140px] animate-in fade-in zoom-in-95 duration-100">
             <button
               className="w-full px-3 py-2 text-sm text-left hover:bg-muted flex items-center gap-2 transition-colors"

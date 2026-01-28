@@ -1,6 +1,6 @@
 ﻿/**
  * Conversation Export Utilities
- * 
+ *
  * Converts conversations to various export formats:
  * - Markdown (.md) - Clean, readable format
  * - JSON (.json) - Complete data with all metadata
@@ -42,10 +42,14 @@ export function sanitizeFilename(name: string): string {
  */
 export function getFileExtension(format: ExportFormat): string {
   switch (format) {
-    case "markdown": return "md";
-    case "json": return "json";
-    case "text": return "txt";
-    case "html": return "html";
+    case "markdown":
+      return "md";
+    case "json":
+      return "json";
+    case "text":
+      return "txt";
+    case "html":
+      return "html";
   }
 }
 
@@ -54,17 +58,24 @@ export function getFileExtension(format: ExportFormat): string {
  */
 export function getMimeType(format: ExportFormat): string {
   switch (format) {
-    case "markdown": return "text/markdown";
-    case "json": return "application/json";
-    case "text": return "text/plain";
-    case "html": return "text/html";
+    case "markdown":
+      return "text/markdown";
+    case "json":
+      return "application/json";
+    case "text":
+      return "text/plain";
+    case "html":
+      return "text/html";
   }
 }
 
 /**
  * Generate suggested filename for export
  */
-export function generateFilename(conversation: Conversation, format: ExportFormat): string {
+export function generateFilename(
+  conversation: Conversation,
+  format: ExportFormat,
+): string {
   const safeTitle = sanitizeFilename(conversation.title);
   const datePart = new Date(conversation.createdAt).toISOString().split("T")[0];
   const ext = getFileExtension(format);
@@ -74,8 +85,15 @@ export function generateFilename(conversation: Conversation, format: ExportForma
 /**
  * Convert conversation to Markdown format
  */
-export function toMarkdown(conversation: Conversation, options: Partial<ExportOptions> = {}): string {
-  const { includeMetadata = true, includeTimestamps = true, includeThinking = false } = options;
+export function toMarkdown(
+  conversation: Conversation,
+  options: Partial<ExportOptions> = {},
+): string {
+  const {
+    includeMetadata = true,
+    includeTimestamps = true,
+    includeThinking = false,
+  } = options;
   const lines: string[] = [];
 
   // Header
@@ -87,7 +105,9 @@ export function toMarkdown(conversation: Conversation, options: Partial<ExportOp
     lines.push("## Metadata");
     lines.push("");
     lines.push(`- **Created:** ${formatTimestamp(conversation.createdAt)}`);
-    lines.push(`- **Last Updated:** ${formatTimestamp(conversation.updatedAt)}`);
+    lines.push(
+      `- **Last Updated:** ${formatTimestamp(conversation.updatedAt)}`,
+    );
     if (conversation.model) {
       lines.push(`- **Model:** ${conversation.model}`);
     }
@@ -102,14 +122,24 @@ export function toMarkdown(conversation: Conversation, options: Partial<ExportOp
   lines.push("");
 
   for (const message of conversation.messages) {
-    const role = message.role === "user" ? "**User**" : message.role === "assistant" ? "**Assistant**" : "**System**";
-    const timestamp = includeTimestamps ? ` _(${formatTimestamp(message.timestamp)})_` : "";
-    const model = message.modelUsed && message.role === "assistant" ? ` [${message.modelUsed}]` : "";
-    
+    const role =
+      message.role === "user"
+        ? "**User**"
+        : message.role === "assistant"
+          ? "**Assistant**"
+          : "**System**";
+    const timestamp = includeTimestamps
+      ? ` _(${formatTimestamp(message.timestamp)})_`
+      : "";
+    const model =
+      message.modelUsed && message.role === "assistant"
+        ? ` [${message.modelUsed}]`
+        : "";
+
     lines.push(`### ${role}${model}${timestamp}`);
     lines.push("");
     lines.push(message.content);
-    
+
     // Include thinking content if requested
     if (includeThinking && message.thinkingContent) {
       lines.push("");
@@ -120,7 +150,7 @@ export function toMarkdown(conversation: Conversation, options: Partial<ExportOp
       lines.push("");
       lines.push("</details>");
     }
-    
+
     lines.push("");
   }
 
@@ -161,7 +191,10 @@ export function toJSON(conversation: Conversation): string {
 /**
  * Convert conversation to plain text format
  */
-export function toPlainText(conversation: Conversation, options: Partial<ExportOptions> = {}): string {
+export function toPlainText(
+  conversation: Conversation,
+  options: Partial<ExportOptions> = {},
+): string {
   const { includeMetadata = true, includeTimestamps = true } = options;
   const lines: string[] = [];
 
@@ -186,8 +219,10 @@ export function toPlainText(conversation: Conversation, options: Partial<ExportO
   // Messages
   for (const message of conversation.messages) {
     const role = message.role.charAt(0).toUpperCase() + message.role.slice(1);
-    const timestamp = includeTimestamps ? ` (${formatTimestamp(message.timestamp)})` : "";
-    
+    const timestamp = includeTimestamps
+      ? ` (${formatTimestamp(message.timestamp)})`
+      : "";
+
     lines.push(`[${role}]${timestamp}`);
     lines.push(message.content);
     lines.push("");
@@ -199,9 +234,16 @@ export function toPlainText(conversation: Conversation, options: Partial<ExportO
 /**
  * Convert conversation to HTML format (styled, shareable)
  */
-export function toHTML(conversation: Conversation, options: Partial<ExportOptions> = {}): string {
-  const { includeMetadata = true, includeTimestamps = true, includeThinking = false } = options;
-  
+export function toHTML(
+  conversation: Conversation,
+  options: Partial<ExportOptions> = {},
+): string {
+  const {
+    includeMetadata = true,
+    includeTimestamps = true,
+    includeThinking = false,
+  } = options;
+
   const escapeHtml = (text: string): string => {
     return text
       .replace(/&/g, "&amp;")
@@ -216,36 +258,47 @@ export function toHTML(conversation: Conversation, options: Partial<ExportOption
     // Basic markdown-like formatting
     let html = escapeHtml(content);
     // Code blocks
-    html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    html = html.replace(
+      /```(\w+)?\n([\s\S]*?)```/g,
+      "<pre><code>$2</code></pre>",
+    );
     // Inline code
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
     // Bold
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     // Italic
-    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
     return html;
   };
 
-  const messagesHtml = conversation.messages.map((message) => {
-    const roleClass = message.role === "user" ? "user" : message.role === "assistant" ? "assistant" : "system";
-    const roleName = message.role.charAt(0).toUpperCase() + message.role.slice(1);
-    const timestamp = includeTimestamps 
-      ? `<span class="timestamp">${formatTimestamp(message.timestamp)}</span>` 
-      : "";
-    const model = message.modelUsed && message.role === "assistant" 
-      ? `<span class="model">${escapeHtml(message.modelUsed)}</span>` 
-      : "";
-    
-    let thinkingHtml = "";
-    if (includeThinking && message.thinkingContent) {
-      thinkingHtml = `
+  const messagesHtml = conversation.messages
+    .map((message) => {
+      const roleClass =
+        message.role === "user"
+          ? "user"
+          : message.role === "assistant"
+            ? "assistant"
+            : "system";
+      const roleName =
+        message.role.charAt(0).toUpperCase() + message.role.slice(1);
+      const timestamp = includeTimestamps
+        ? `<span class="timestamp">${formatTimestamp(message.timestamp)}</span>`
+        : "";
+      const model =
+        message.modelUsed && message.role === "assistant"
+          ? `<span class="model">${escapeHtml(message.modelUsed)}</span>`
+          : "";
+
+      let thinkingHtml = "";
+      if (includeThinking && message.thinkingContent) {
+        thinkingHtml = `
         <details class="thinking">
           <summary>Thinking</summary>
           <div class="thinking-content">${formatContent(message.thinkingContent)}</div>
         </details>`;
-    }
+      }
 
-    return `
+      return `
       <div class="message ${roleClass}">
         <div class="message-header">
           <span class="role">${roleName}</span>
@@ -255,16 +308,19 @@ export function toHTML(conversation: Conversation, options: Partial<ExportOption
         <div class="message-content">${formatContent(message.content)}</div>
         ${thinkingHtml}
       </div>`;
-  }).join("\n");
+    })
+    .join("\n");
 
-  const metadataHtml = includeMetadata ? `
+  const metadataHtml = includeMetadata
+    ? `
     <div class="metadata">
       <p><strong>Created:</strong> ${formatTimestamp(conversation.createdAt)}</p>
       <p><strong>Last Updated:</strong> ${formatTimestamp(conversation.updatedAt)}</p>
       ${conversation.model ? `<p><strong>Model:</strong> ${escapeHtml(conversation.model)}</p>` : ""}
       <p><strong>Messages:</strong> ${conversation.messages.length}</p>
     </div>
-    <hr>` : "";
+    <hr>`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -344,7 +400,10 @@ export function toHTML(conversation: Conversation, options: Partial<ExportOption
 /**
  * Convert conversation to specified format
  */
-export function exportConversation(conversation: Conversation, options: ExportOptions): string {
+export function exportConversation(
+  conversation: Conversation,
+  options: ExportOptions,
+): string {
   switch (options.format) {
     case "markdown":
       return toMarkdown(conversation, options);

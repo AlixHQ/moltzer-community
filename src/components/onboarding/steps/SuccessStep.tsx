@@ -8,7 +8,9 @@ interface SuccessStepProps {
 
 export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [confetti, setConfetti] = useState<Array<{ id: number; x: number; delay: number; duration: number }>>([]);
+  const [confetti, setConfetti] = useState<
+    Array<{ id: number; x: number; delay: number; duration: number }>
+  >([]);
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
@@ -44,9 +46,13 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
             {
               left: `${particle.x}%`,
               top: "-10px",
-              backgroundColor: ["#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6"][
-                Math.floor(Math.random() * 5)
-              ],
+              backgroundColor: [
+                "#f97316",
+                "#ef4444",
+                "#ec4899",
+                "#a855f7",
+                "#3b82f6",
+              ][Math.floor(Math.random() * 5)],
               animationDelay: `${particle.delay}s`,
               animationDuration: `${particle.duration}s`,
               "--fall-rotation": `${Math.random() * 360}deg`,
@@ -62,7 +68,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
             "transition-all duration-700 ease-out",
             isVisible
               ? "opacity-100 scale-100 translate-y-0"
-              : "opacity-0 scale-90 translate-y-8"
+              : "opacity-0 scale-90 translate-y-8",
           )}
         >
           <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 shadow-2xl shadow-green-500/40 mb-8 animate-[bounce_1s_ease-in-out_3]">
@@ -80,9 +86,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
         <div
           className={cn(
             "grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto transition-all duration-700 delay-300 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="p-5 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 text-left">
@@ -106,9 +110,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
         <div
           className={cn(
             "flex flex-col items-center gap-4 transition-all duration-700 delay-500 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button
@@ -145,10 +147,12 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
         <p
           className={cn(
             "text-xs text-muted-foreground transition-all duration-700 delay-700 ease-out",
-            isVisible ? "opacity-100" : "opacity-0"
+            isVisible ? "opacity-100" : "opacity-0",
           )}
         >
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd> to continue
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd>{" "}
+          to continue
         </p>
       </div>
 

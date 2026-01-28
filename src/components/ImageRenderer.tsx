@@ -18,29 +18,29 @@ const SAFE_URL_PATTERNS = [
 
 // Check if URL is safe to load
 function isSafeUrl(url: string): boolean {
-  return SAFE_URL_PATTERNS.some(pattern => pattern.test(url));
+  return SAFE_URL_PATTERNS.some((pattern) => pattern.test(url));
 }
 
 // Sanitize URL - only allow safe protocols
 function sanitizeUrl(url: string): string | null {
   const trimmed = url.trim();
-  
+
   if (isSafeUrl(trimmed)) {
     return trimmed;
   }
-  
+
   // HTTP URLs - warn but allow (some APIs don't support HTTPS)
   if (/^http:\/\//i.test(trimmed)) {
-    console.warn('Loading image over insecure HTTP:', trimmed);
+    console.warn("Loading image over insecure HTTP:", trimmed);
     return trimmed;
   }
-  
+
   return null;
 }
 
-export function ImageRenderer({ 
-  src, 
-  alt = "Image", 
+export function ImageRenderer({
+  src,
+  alt = "Image",
   className,
   maxWidth = 400,
   maxHeight = 400,
@@ -48,7 +48,10 @@ export function ImageRenderer({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [dimensions, setDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   const sanitizedSrc = sanitizeUrl(src);
 
@@ -64,20 +67,25 @@ export function ImageRenderer({
     setHasError(true);
   }, []);
 
-  const openInNewTab = useCallback((e: MouseEvent) => {
-    e.stopPropagation();
-    if (sanitizedSrc) {
-      window.open(sanitizedSrc, '_blank', 'noopener,noreferrer');
-    }
-  }, [sanitizedSrc]);
+  const openInNewTab = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation();
+      if (sanitizedSrc) {
+        window.open(sanitizedSrc, "_blank", "noopener,noreferrer");
+      }
+    },
+    [sanitizedSrc],
+  );
 
   // Don't render if URL is not safe
   if (!sanitizedSrc) {
     return (
-      <div className={cn(
-        "inline-flex items-center gap-2 px-3 py-2 bg-destructive/10 text-destructive rounded-lg text-sm",
-        className
-      )}>
+      <div
+        className={cn(
+          "inline-flex items-center gap-2 px-3 py-2 bg-destructive/10 text-destructive rounded-lg text-sm",
+          className,
+        )}
+      >
         <ImageOff className="w-4 h-4" />
         <span>Blocked: unsafe image source</span>
       </div>
@@ -87,11 +95,11 @@ export function ImageRenderer({
   // Calculate constrained dimensions
   const getConstrainedStyle = () => {
     if (!dimensions) return { maxWidth, maxHeight };
-    
+
     const aspectRatio = dimensions.width / dimensions.height;
     let width = dimensions.width;
     let height = dimensions.height;
-    
+
     if (width > maxWidth) {
       width = maxWidth;
       height = width / aspectRatio;
@@ -100,23 +108,20 @@ export function ImageRenderer({
       height = maxHeight;
       width = height * aspectRatio;
     }
-    
+
     return { width, height };
   };
 
   return (
     <>
       {/* Image container */}
-      <div 
-        className={cn(
-          "relative inline-block group cursor-pointer",
-          className
-        )}
+      <div
+        className={cn("relative inline-block group cursor-pointer", className)}
         onClick={() => setIsExpanded(true)}
       >
         {/* Loading state */}
         {isLoading && !hasError && (
-          <div 
+          <div
             className="flex items-center justify-center bg-muted rounded-lg animate-pulse"
             style={{ width: 200, height: 150 }}
           >
@@ -126,12 +131,14 @@ export function ImageRenderer({
 
         {/* Error state */}
         {hasError && (
-          <div 
+          <div
             className="flex flex-col items-center justify-center gap-2 bg-muted rounded-lg p-4"
             style={{ width: 200, height: 100 }}
           >
             <ImageOff className="w-6 h-6 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Failed to load image</span>
+            <span className="text-xs text-muted-foreground">
+              Failed to load image
+            </span>
           </div>
         )}
 
@@ -146,7 +153,7 @@ export function ImageRenderer({
             "rounded-lg transition-all duration-200",
             isLoading && "opacity-0 absolute",
             hasError && "hidden",
-            "hover:shadow-lg"
+            "hover:shadow-lg",
           )}
           style={getConstrainedStyle()}
         />
@@ -161,7 +168,7 @@ export function ImageRenderer({
 
       {/* Lightbox modal */}
       {isExpanded && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 animate-in fade-in duration-200"
           onClick={() => setIsExpanded(false)}
         >
@@ -208,67 +215,70 @@ export function ImageRenderer({
  * Returns an array of text/image segments for rendering
  */
 export interface ContentSegment {
-  type: 'text' | 'image';
+  type: "text" | "image";
   content: string;
   alt?: string;
 }
 
 // Regex to match image URLs and base64 data URIs
-const IMAGE_URL_REGEX = /!\[([^\]]*)\]\(((?:https?:\/\/[^\s)]+|data:image\/[^;]+;base64,[^\s)]+))\)/g;
-const STANDALONE_IMAGE_URL_REGEX = /(?<![([])(https?:\/\/[^\s<>)]+\.(?:png|jpg|jpeg|gif|webp|svg))(?![)\]])/gi;
-const BASE64_IMAGE_REGEX = /(data:image\/(?:png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/]+=*)/g;
+const IMAGE_URL_REGEX =
+  /!\[([^\]]*)\]\(((?:https?:\/\/[^\s)]+|data:image\/[^;]+;base64,[^\s)]+))\)/g;
+const STANDALONE_IMAGE_URL_REGEX =
+  /(?<![([])(https?:\/\/[^\s<>)]+\.(?:png|jpg|jpeg|gif|webp|svg))(?![)\]])/gi;
+const BASE64_IMAGE_REGEX =
+  /(data:image\/(?:png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/]+=*)/g;
 
 export function parseImageContent(content: string): ContentSegment[] {
   const segments: ContentSegment[] = [];
   let lastIndex = 0;
-  
+
   // Combined regex for all image patterns
   const combinedRegex = new RegExp(
     `${IMAGE_URL_REGEX.source}|${STANDALONE_IMAGE_URL_REGEX.source}|${BASE64_IMAGE_REGEX.source}`,
-    'gi'
+    "gi",
   );
-  
+
   let match;
   while ((match = combinedRegex.exec(content)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
       const textBefore = content.slice(lastIndex, match.index);
       if (textBefore.trim()) {
-        segments.push({ type: 'text', content: textBefore });
+        segments.push({ type: "text", content: textBefore });
       }
     }
-    
+
     // Determine what type of match this is
-    if (match[0].startsWith('![')) {
+    if (match[0].startsWith("![")) {
       // Markdown image: ![alt](url)
-      segments.push({ 
-        type: 'image', 
+      segments.push({
+        type: "image",
         content: match[2], // URL
-        alt: match[1] || 'Image'
+        alt: match[1] || "Image",
       });
-    } else if (match[0].startsWith('data:')) {
+    } else if (match[0].startsWith("data:")) {
       // Base64 data URI
-      segments.push({ type: 'image', content: match[0], alt: 'Image' });
+      segments.push({ type: "image", content: match[0], alt: "Image" });
     } else {
       // Standalone URL
-      segments.push({ type: 'image', content: match[0], alt: 'Image' });
+      segments.push({ type: "image", content: match[0], alt: "Image" });
     }
-    
+
     lastIndex = match.index + match[0].length;
   }
-  
+
   // Add remaining text
   if (lastIndex < content.length) {
     const remaining = content.slice(lastIndex);
     if (remaining.trim()) {
-      segments.push({ type: 'text', content: remaining });
+      segments.push({ type: "text", content: remaining });
     }
   }
-  
+
   // If no images found, return original content as text
   if (segments.length === 0) {
-    return [{ type: 'text', content }];
+    return [{ type: "text", content }];
   }
-  
+
   return segments;
 }

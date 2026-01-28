@@ -14,14 +14,21 @@ const INSTALL_COMMANDS = {
   linux: "npm install -g moltbot",
 };
 
-export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip }: NoGatewayStepProps) {
+export function NoGatewayStep({
+  onRetryDetection,
+  onManualSetup,
+  onBack,
+  onSkip,
+}: NoGatewayStepProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [platform, setPlatform] = useState<"windows" | "macos" | "linux">("windows");
+  const [platform, setPlatform] = useState<"windows" | "macos" | "linux">(
+    "windows",
+  );
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
-    
+
     // Detect platform
     const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes("mac")) {
@@ -50,7 +57,7 @@ export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip 
         <div
           className={cn(
             "text-center transition-all duration-700 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 shadow-xl shadow-orange-500/20 mb-6">
@@ -66,28 +73,39 @@ export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip 
         <div
           className={cn(
             "p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 transition-all duration-700 delay-200 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <h3 className="font-semibold text-lg mb-3 text-blue-600 dark:text-blue-400">
             What is Moltbot?
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Moltbot is the <strong>local server</strong> that powers Moltzer. Think of it like your personal AI assistant's brain — 
-            it runs on your computer, keeps your data private, and connects Moltzer to your calendar, email, files, and more.
+            Moltbot is the <strong>local server</strong> that powers Moltzer.
+            Think of it like your personal AI assistant's brain — it runs on
+            your computer, keeps your data private, and connects Moltzer to your
+            calendar, email, files, and more.
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <span className="text-green-500 mt-0.5">✓</span>
-              <span><strong>100% local</strong> — your data never leaves your machine</span>
+              <span>
+                <strong>100% local</strong> — your data never leaves your
+                machine
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-500 mt-0.5">✓</span>
-              <span><strong>Open source</strong> — full transparency, no hidden behavior</span>
+              <span>
+                <strong>Open source</strong> — full transparency, no hidden
+                behavior
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-500 mt-0.5">✓</span>
-              <span><strong>Easy to install</strong> — one command, runs in the background</span>
+              <span>
+                <strong>Easy to install</strong> — one command, runs in the
+                background
+              </span>
             </li>
           </ul>
         </div>
@@ -96,11 +114,11 @@ export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip 
         <div
           className={cn(
             "space-y-4 transition-all duration-700 delay-400 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <h3 className="font-semibold text-lg">Quick Install</h3>
-          
+
           {/* Step 1: Install */}
           <div className="p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-start gap-3 mb-2">
@@ -144,7 +162,9 @@ export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip 
                 3
               </div>
               <div className="flex-1">
-                <p className="font-medium mb-2">Come back here and click "I've installed it"</p>
+                <p className="font-medium mb-2">
+                  Come back here and click "I've installed it"
+                </p>
               </div>
             </div>
           </div>
@@ -170,7 +190,7 @@ export function NoGatewayStep({ onRetryDetection, onManualSetup, onBack, onSkip 
         <div
           className={cn(
             "flex flex-col gap-3 transition-all duration-700 delay-600 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button

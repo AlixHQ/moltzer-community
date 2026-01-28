@@ -11,7 +11,7 @@ describe("SearchDialog", () => {
     // Reset store
     const store = useStore.getState();
     store.conversations.forEach((c) => store.deleteConversation(c.id));
-    
+
     // Add test conversations with messages
     const conv1 = store.createConversation();
     store.updateConversation(conv1.id, { title: "Test Conversation 1" });
@@ -34,24 +34,28 @@ describe("SearchDialog", () => {
       role: "assistant",
       content: "TypeScript is a typed superset of JavaScript",
     });
-    
+
     // Wait for persistence to complete (messages are persisted to IndexedDB)
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
   });
 
   it("renders when open", () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    expect(screen.getByPlaceholderText("Search all messages...")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Search all messages..."),
+    ).toBeInTheDocument();
   });
 
   it("does not render when closed", () => {
     render(<SearchDialog open={false} onClose={onClose} />);
-    expect(screen.queryByPlaceholderText("Search all messages...")).not.toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText("Search all messages..."),
+    ).not.toBeInTheDocument();
   });
 
   it("searches and shows results", async () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     const input = screen.getByPlaceholderText("Search all messages...");
     fireEvent.change(input, { target: { value: "quantum" } });
 
@@ -63,7 +67,7 @@ describe("SearchDialog", () => {
 
   it("shows no results message when nothing matches", async () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     const input = screen.getByPlaceholderText("Search all messages...");
     fireEvent.change(input, { target: { value: "xyzabc123nonexistent" } });
 
@@ -74,7 +78,7 @@ describe("SearchDialog", () => {
 
   it("closes on Escape key", () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     const input = screen.getByPlaceholderText("Search all messages...");
     fireEvent.keyDown(input, { key: "Escape" });
 
@@ -83,7 +87,7 @@ describe("SearchDialog", () => {
 
   it("closes when clicking backdrop", () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     // Click the backdrop (first element with backdrop-blur-sm class)
     const backdrop = document.querySelector(".backdrop-blur-sm");
     if (backdrop) {
@@ -95,15 +99,18 @@ describe("SearchDialog", () => {
 
   it("selects conversation on Enter", async () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     const input = screen.getByPlaceholderText("Search all messages...");
     fireEvent.change(input, { target: { value: "TypeScript" } });
 
     // Wait for search results to appear (highlighted text)
-    await waitFor(() => {
-      const results = document.querySelectorAll("button.w-full.px-4.py-3");
-      expect(results.length).toBeGreaterThan(0);
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        const results = document.querySelectorAll("button.w-full.px-4.py-3");
+        expect(results.length).toBeGreaterThan(0);
+      },
+      { timeout: 2000 },
+    );
 
     // Press Enter to select the first result
     fireEvent.keyDown(input, { key: "Enter" });
@@ -116,7 +123,7 @@ describe("SearchDialog", () => {
 
   it("navigates results with arrow keys", async () => {
     render(<SearchDialog open={true} onClose={onClose} />);
-    
+
     const input = screen.getByPlaceholderText("Search all messages...");
     // Search for something that matches multiple messages
     fireEvent.change(input, { target: { value: "is" } });
@@ -130,7 +137,7 @@ describe("SearchDialog", () => {
     // Navigate down
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "ArrowDown" });
-    
+
     // Navigate up
     fireEvent.keyDown(input, { key: "ArrowUp" });
   });

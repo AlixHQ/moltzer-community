@@ -7,10 +7,7 @@ interface SkeletonProps {
 export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
-      className={cn(
-        "animate-pulse rounded-md bg-muted/50",
-        className
-      )}
+      className={cn("animate-pulse rounded-md bg-muted/50", className)}
       aria-hidden="true"
     />
   );
@@ -30,13 +27,21 @@ export function ConversationSkeleton() {
 export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
   return (
     <div
-      className={cn("flex gap-3 animate-in fade-in duration-300", isUser && "flex-row-reverse")}
+      className={cn(
+        "flex gap-3 animate-in fade-in duration-300",
+        isUser && "flex-row-reverse",
+      )}
     >
       {/* Avatar */}
       <Skeleton className="flex-shrink-0 w-9 h-9 rounded-xl" />
 
       {/* Content */}
-      <div className={cn("flex-1 min-w-0 space-y-2", isUser && "flex flex-col items-end")}>
+      <div
+        className={cn(
+          "flex-1 min-w-0 space-y-2",
+          isUser && "flex flex-col items-end",
+        )}
+      >
         <Skeleton className="h-4 w-16" />
         <div className="space-y-2 max-w-2xl">
           <Skeleton className="h-4 w-full" />

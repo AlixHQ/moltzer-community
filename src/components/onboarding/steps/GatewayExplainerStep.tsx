@@ -7,7 +7,11 @@ interface GatewayExplainerStepProps {
   onSkip: () => void;
 }
 
-export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplainerStepProps) {
+export function GatewayExplainerStep({
+  onNext,
+  onBack,
+  onSkip,
+}: GatewayExplainerStepProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -30,9 +34,7 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
         <div
           className={cn(
             "text-center transition-all duration-700 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-xl shadow-blue-500/20 mb-6">
@@ -60,9 +62,7 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
         <div
           className={cn(
             "space-y-4 transition-all duration-700 delay-200 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
@@ -75,8 +75,9 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
                   Your Private Bridge
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Gateway runs on <strong>your machine</strong>, so your data never leaves your control. 
-                  It's like having a personal assistant who works in your office, not in the cloud.
+                  Gateway runs on <strong>your machine</strong>, so your data
+                  never leaves your control. It's like having a personal
+                  assistant who works in your office, not in the cloud.
                 </p>
               </div>
             </div>
@@ -92,8 +93,9 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
                   Connects Everything
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Gateway lets Moltzer talk to your calendar, email, files, and more—all while keeping 
-                  your credentials secure on your computer.
+                  Gateway lets Moltzer talk to your calendar, email, files, and
+                  more—all while keeping your credentials secure on your
+                  computer.
                 </p>
               </div>
             </div>
@@ -109,8 +111,11 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
                   Fast & Local
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Most Gateways run at <code className="px-1 py-0.5 bg-muted rounded text-xs">localhost:18789</code>. 
-                  If you have one running already, we'll auto-detect it!
+                  Most Gateways run at{" "}
+                  <code className="px-1 py-0.5 bg-muted rounded text-xs">
+                    localhost:18789
+                  </code>
+                  . If you have one running already, we'll auto-detect it!
                 </p>
               </div>
             </div>
@@ -121,9 +126,7 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
         <div
           className={cn(
             "flex items-center justify-between pt-4 transition-all duration-700 delay-400 ease-out",
-            isVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button
@@ -151,7 +154,9 @@ export function GatewayExplainerStep({ onNext, onBack, onSkip }: GatewayExplaine
 
         {/* Keyboard hint */}
         <p className="text-center text-xs text-muted-foreground">
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd> to continue
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd>{" "}
+          to continue
         </p>
       </div>
     </div>

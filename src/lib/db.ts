@@ -3,12 +3,12 @@
  * Uses Dexie for easy IndexedDB interaction and full-text search
  */
 
-import Dexie, { type Table } from 'dexie';
+import Dexie, { type Table } from "dexie";
 
 export interface DBMessage {
   id: string;
   conversationId: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
   modelUsed?: string;
@@ -40,27 +40,33 @@ export class MoltzerDB extends Dexie {
   settings!: Table<DBSettings>;
 
   constructor() {
-    super('MoltzerDB');
-    
+    super("MoltzerDB");
+
     this.version(1).stores({
-      messages: 'id, conversationId, timestamp, *searchWords',
-      conversations: 'id, updatedAt, isPinned',
-      settings: 'key'
+      messages: "id, conversationId, timestamp, *searchWords",
+      conversations: "id, updatedAt, isPinned",
+      settings: "key",
     });
 
     // Add computed property for full-text search
-    this.messages.hook('creating', function (_primKey, obj) {
+    this.messages.hook("creating", function (_primKey, obj) {
       // Create searchable words from content
       if (obj.content) {
         obj.searchWords = extractSearchWords(obj.content);
       }
     });
 
-    this.messages.hook('updating', function (modifications: Partial<DBMessage>, _primKey, _obj) {
-      if (modifications.content) {
-        return { ...modifications, searchWords: extractSearchWords(modifications.content) };
-      }
-    });
+    this.messages.hook(
+      "updating",
+      function (modifications: Partial<DBMessage>, _primKey, _obj) {
+        if (modifications.content) {
+          return {
+            ...modifications,
+            searchWords: extractSearchWords(modifications.content),
+          };
+        }
+      },
+    );
   }
 }
 
@@ -71,10 +77,10 @@ export class MoltzerDB extends Dexie {
 function extractSearchWords(text: string): string[] {
   return text
     .toLowerCase()
-    .replace(/[^\w\s]/g, ' ')  // Remove punctuation
-    .split(/\s+/)               // Split on whitespace
-    .filter(word => word.length >= 2)  // Filter short words
-    .filter((word, index, arr) => arr.indexOf(word) === index);  // Unique words
+    .replace(/[^\w\s]/g, " ") // Remove punctuation
+    .split(/\s+/) // Split on whitespace
+    .filter((word) => word.length >= 2) // Filter short words
+    .filter((word, index, arr) => arr.indexOf(word) === index); // Unique words
 }
 
 export const db = new MoltzerDB();
@@ -84,17 +90,17 @@ export const db = new MoltzerDB();
  */
 export async function searchMessages(
   query: string,
-  conversationId?: string
+  conversationId?: string,
 ): Promise<DBMessage[]> {
   const words = extractSearchWords(query);
   if (words.length === 0) return [];
 
-  let collection = db.messages.orderBy('timestamp').reverse();
-  
+  let collection = db.messages.orderBy("timestamp").reverse();
+
   // Filter by conversation if specified
   if (conversationId) {
     collection = db.messages
-      .where('conversationId')
+      .where("conversationId")
       .equals(conversationId)
       .reverse();
   }
@@ -102,12 +108,12 @@ export async function searchMessages(
   // Get all messages and filter client-side for full-text search
   // (Dexie's multiEntry indexes work best for exact word matches)
   const allMessages = await collection.toArray();
-  
-  return allMessages.filter(msg => {
+
+  return allMessages.filter((msg) => {
     const msgWords = msg.searchWords || [];
     // All query words must be present in message
-    return words.every(word => 
-      msgWords.some(msgWord => msgWord.includes(word))
+    return words.every((word) =>
+      msgWords.some((msgWord) => msgWord.includes(word)),
     );
   });
 }
@@ -115,8 +121,11 @@ export async function searchMessages(
 /**
  * Sync Zustand store to IndexedDB
  */
-export async function syncConversationToDB(conversation: DBConversation, messages: DBMessage[]) {
-  await db.transaction('rw', db.conversations, db.messages, async () => {
+export async function syncConversationToDB(
+  conversation: DBConversation,
+  messages: DBMessage[],
+) {
+  await db.transaction("rw", db.conversations, db.messages, async () => {
     await db.conversations.put(conversation);
     await db.messages.bulkPut(messages);
   });
@@ -126,9 +135,9 @@ export async function syncConversationToDB(conversation: DBConversation, message
  * Delete conversation and its messages
  */
 export async function deleteConversationFromDB(conversationId: string) {
-  await db.transaction('rw', db.conversations, db.messages, async () => {
+  await db.transaction("rw", db.conversations, db.messages, async () => {
     await db.conversations.delete(conversationId);
-    await db.messages.where('conversationId').equals(conversationId).delete();
+    await db.messages.where("conversationId").equals(conversationId).delete();
   });
 }
 
@@ -140,17 +149,17 @@ export async function loadConversationsFromDB(): Promise<{
   messagesByConversation: Map<string, DBMessage[]>;
 }> {
   const conversations = await db.conversations
-    .orderBy('updatedAt')
+    .orderBy("updatedAt")
     .reverse()
     .toArray();
 
   const messagesByConversation = new Map<string, DBMessage[]>();
-  
+
   for (const conv of conversations) {
     const messages = await db.messages
-      .where('conversationId')
+      .where("conversationId")
       .equals(conv.id)
-      .sortBy('timestamp');
+      .sortBy("timestamp");
     messagesByConversation.set(conv.id, messages);
   }
 

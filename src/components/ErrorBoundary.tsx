@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
     });
-    
+
     // Attempt to recover by reloading the page
     window.location.reload();
   };
@@ -56,11 +56,15 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full text-center">
             <div className="mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">
-                <AlertTriangle className="w-8 h-8 text-destructive" strokeWidth={2} />
+                <AlertTriangle
+                  className="w-8 h-8 text-destructive"
+                  strokeWidth={2}
+                />
               </div>
               <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
               <p className="text-muted-foreground">
-                The application encountered an unexpected error and needs to reload.
+                The application encountered an unexpected error and needs to
+                reload.
               </p>
             </div>
 
@@ -70,7 +74,9 @@ export class ErrorBoundary extends Component<Props, State> {
                   Error Details
                 </summary>
                 <div className="bg-muted rounded-lg p-4 text-xs font-mono overflow-auto max-h-48">
-                  <p className="text-destructive mb-2 font-bold">{this.state.error.toString()}</p>
+                  <p className="text-destructive mb-2 font-bold">
+                    {this.state.error.toString()}
+                  </p>
                   {this.state.errorInfo && (
                     <pre className="text-muted-foreground whitespace-pre-wrap">
                       {this.state.errorInfo.componentStack}

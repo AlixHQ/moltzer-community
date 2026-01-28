@@ -14,8 +14,6 @@ const isQuickInput = path === "/quickinput" || path.includes("quickinput");
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      {isQuickInput ? <QuickInput /> : <App />}
-    </ErrorBoundary>
-  </React.StrictMode>
+    <ErrorBoundary>{isQuickInput ? <QuickInput /> : <App />}</ErrorBoundary>
+  </React.StrictMode>,
 );

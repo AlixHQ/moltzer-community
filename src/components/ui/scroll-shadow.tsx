@@ -7,16 +7,20 @@ interface ScrollShadowProps {
   shadowClassName?: string;
 }
 
-export function ScrollShadow({ children, className, shadowClassName }: ScrollShadowProps) {
+export function ScrollShadow({
+  children,
+  className,
+  shadowClassName,
+}: ScrollShadowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
-    
+
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    
+
     setShowTopShadow(scrollTop > 10);
     setShowBottomShadow(scrollTop + clientHeight < scrollHeight - 10);
   };
@@ -30,7 +34,7 @@ export function ScrollShadow({ children, className, shadowClassName }: ScrollSha
 
     // Add scroll listener
     scrollEl.addEventListener("scroll", handleScroll);
-    
+
     // Add resize observer to handle content changes
     const resizeObserver = new ResizeObserver(handleScroll);
     resizeObserver.observe(scrollEl);
@@ -49,7 +53,7 @@ export function ScrollShadow({ children, className, shadowClassName }: ScrollSha
           "absolute top-0 left-0 right-0 h-4 pointer-events-none z-10 transition-opacity duration-200",
           "bg-gradient-to-b from-background to-transparent",
           showTopShadow ? "opacity-100" : "opacity-0",
-          shadowClassName
+          shadowClassName,
         )}
         aria-hidden="true"
       />
@@ -65,7 +69,7 @@ export function ScrollShadow({ children, className, shadowClassName }: ScrollSha
           "absolute bottom-0 left-0 right-0 h-4 pointer-events-none z-10 transition-opacity duration-200",
           "bg-gradient-to-t from-background to-transparent",
           showBottomShadow ? "opacity-100" : "opacity-0",
-          shadowClassName
+          shadowClassName,
         )}
         aria-hidden="true"
       />

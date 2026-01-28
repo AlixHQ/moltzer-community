@@ -14,7 +14,7 @@ const Switch = React.forwardRef<
       "data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-muted",
       "hover:data-[state=checked]:bg-green-700 hover:data-[state=unchecked]:bg-muted/80",
       "active:scale-95 transition-transform",
-      className
+      className,
     )}
     {...props}
     ref={ref}
@@ -24,7 +24,7 @@ const Switch = React.forwardRef<
         "pointer-events-none block h-4 w-4 rounded-full bg-white shadow-md ring-0",
         "transition-all duration-200 ease-in-out",
         "data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0.5",
-        "data-[state=checked]:shadow-green-900/20"
+        "data-[state=checked]:shadow-green-900/20",
       )}
     />
   </SwitchPrimitives.Root>

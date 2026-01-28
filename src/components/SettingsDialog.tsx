@@ -27,20 +27,51 @@ interface ConnectResult {
 
 // Fallback models when Gateway doesn't provide a list
 const FALLBACK_MODELS: ModelInfo[] = [
-  { id: "anthropic/claude-sonnet-4-5", name: "Claude Sonnet 4.5", provider: "anthropic" },
-  { id: "anthropic/claude-opus-4-5", name: "Claude Opus 4.5", provider: "anthropic" },
-  { id: "anthropic/claude-haiku-4", name: "Claude Haiku 4", provider: "anthropic" },
+  {
+    id: "anthropic/claude-sonnet-4-5",
+    name: "Claude Sonnet 4.5",
+    provider: "anthropic",
+  },
+  {
+    id: "anthropic/claude-opus-4-5",
+    name: "Claude Opus 4.5",
+    provider: "anthropic",
+  },
+  {
+    id: "anthropic/claude-haiku-4",
+    name: "Claude Haiku 4",
+    provider: "anthropic",
+  },
   { id: "openai/gpt-4o", name: "GPT-4o", provider: "openai" },
   { id: "openai/gpt-4o-mini", name: "GPT-4o mini", provider: "openai" },
   { id: "google/gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
-  { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
+  {
+    id: "google/gemini-2.5-flash",
+    name: "Gemini 2.5 Flash",
+    provider: "google",
+  },
 ];
 
-export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogProps) {
-  const { settings, updateSettings, connected, setConnected, availableModels, setAvailableModels, modelsLoading, setModelsLoading } = useStore();
+export function SettingsDialog({
+  open,
+  onClose,
+  onRerunSetup,
+}: SettingsDialogProps) {
+  const {
+    settings,
+    updateSettings,
+    connected,
+    setConnected,
+    availableModels,
+    setAvailableModels,
+    modelsLoading,
+    setModelsLoading,
+  } = useStore();
   const { showSuccess, showError: showToastError } = useToast();
   const [formData, setFormData] = useState(settings);
-  const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "error">("idle");
+  const [connectionStatus, setConnectionStatus] = useState<
+    "idle" | "connecting" | "error"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
   const [protocolNotice, setProtocolNotice] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
@@ -56,19 +87,19 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       setError(null);
       setProtocolNotice(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // Keyboard shortcut: Escape to close
   useEffect(() => {
     if (!open) return;
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
-    
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
@@ -100,21 +131,24 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
     if (!url.trim()) {
       return "Gateway URL is required";
     }
-    
+
     try {
       // Check if it's a valid WebSocket URL
       if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
         return "URL must start with ws:// or wss://";
       }
-      
+
       // Parse URL to check validity
       const urlObj = new URL(url);
-      
+
       // Suggest wss:// for non-localhost URLs (security best practice)
-      if (url.startsWith("ws://") && !urlObj.hostname.match(/^(localhost|127\.0\.0\.1|::1|\[::1\])$/)) {
+      if (
+        url.startsWith("ws://") &&
+        !urlObj.hostname.match(/^(localhost|127\.0\.0\.1|::1|\[::1\])$/)
+      ) {
         return "⚠️ Consider using wss:// (secure WebSocket) for remote connections";
       }
-      
+
       return null;
     } catch {
       return "Invalid URL format";
@@ -141,10 +175,12 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       showToastError("Please fix the errors before saving");
       return;
     }
-    
+
     // Try to reconnect with new settings
-    const needsReconnect = formData.gatewayUrl !== settings.gatewayUrl || formData.gatewayToken !== settings.gatewayToken;
-    
+    const needsReconnect =
+      formData.gatewayUrl !== settings.gatewayUrl ||
+      formData.gatewayToken !== settings.gatewayToken;
+
     if (needsReconnect) {
       setConnectionStatus("connecting");
       setError(null);
@@ -156,14 +192,14 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
           token: formData.gatewayToken,
         });
         setConnectionStatus("idle");
-        
+
         // If protocol was switched, save the working URL
         if (result.protocol_switched) {
           await updateSettings({ ...formData, gatewayUrl: result.used_url });
         } else {
           await updateSettings(formData);
         }
-        
+
         showSuccess("Settings saved successfully");
       } catch (err: unknown) {
         setConnectionStatus("error");
@@ -178,7 +214,7 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       await updateSettings(formData);
       showSuccess("Settings saved successfully");
     }
-    
+
     onClose();
   };
 
@@ -193,13 +229,15 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
         token: formData.gatewayToken,
       });
       setConnectionStatus("idle");
-      
+
       // If protocol was switched, update the URL and show notice
       if (result.protocol_switched) {
         setFormData({ ...formData, gatewayUrl: result.used_url });
-        setProtocolNotice(`Connected using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`);
+        setProtocolNotice(
+          `Connected using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`,
+        );
       }
-      
+
       // Try to fetch models after successful connection
       fetchModels();
     } catch (err: unknown) {
@@ -210,14 +248,17 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
 
   // Use available models from Gateway, or fall back to defaults
   const models = availableModels.length > 0 ? availableModels : FALLBACK_MODELS;
-  
+
   // Group models by provider
-  const modelsByProvider = models.reduce((acc, model) => {
-    const provider = model.provider || "other";
-    if (!acc[provider]) acc[provider] = [];
-    acc[provider].push(model);
-    return acc;
-  }, {} as Record<string, ModelInfo[]>);
+  const modelsByProvider = models.reduce(
+    (acc, model) => {
+      const provider = model.provider || "other";
+      if (!acc[provider]) acc[provider] = [];
+      acc[provider].push(model);
+      return acc;
+    },
+    {} as Record<string, ModelInfo[]>,
+  );
 
   const providerNames: Record<string, string> = {
     anthropic: "Anthropic",
@@ -237,7 +278,7 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       />
 
       {/* Dialog */}
-      <div 
+      <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-dialog-title"
@@ -245,14 +286,27 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 id="settings-dialog-title" className="text-xl font-semibold">Settings</h2>
+          <h2 id="settings-dialog-title" className="text-xl font-semibold">
+            Settings
+          </h2>
           <button
             onClick={onClose}
             aria-label="Close settings"
             className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -266,7 +320,12 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
             </h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="gateway-url" className="block text-sm font-medium mb-1.5">Gateway URL</label>
+                <label
+                  htmlFor="gateway-url"
+                  className="block text-sm font-medium mb-1.5"
+                >
+                  Gateway URL
+                </label>
                 <input
                   id="gateway-url"
                   type="text"
@@ -277,19 +336,30 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                   aria-invalid={urlError ? "true" : undefined}
                   className={cn(
                     "w-full px-3 py-2 rounded-xl border bg-muted/30 focus:outline-none focus:ring-2 transition-colors",
-                    urlError 
-                      ? "border-destructive focus:ring-destructive/50" 
-                      : "border-border focus:ring-primary/50"
+                    urlError
+                      ? "border-destructive focus:ring-destructive/50"
+                      : "border-border focus:ring-primary/50",
                   )}
                 />
                 {urlError && (
-                  <p id="gateway-url-error" className="text-sm text-destructive mt-1.5" role="alert">{urlError}</p>
+                  <p
+                    id="gateway-url-error"
+                    className="text-sm text-destructive mt-1.5"
+                    role="alert"
+                  >
+                    {urlError}
+                  </p>
                 )}
               </div>
               <div>
-                <label htmlFor="gateway-token" className="block text-sm font-medium mb-1.5">
+                <label
+                  htmlFor="gateway-token"
+                  className="block text-sm font-medium mb-1.5"
+                >
                   Authentication Token{" "}
-                  <span className="text-muted-foreground font-normal">(optional)</span>
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -304,7 +374,8 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                       <TooltipContent side="top" className="max-w-xs">
                         <p className="font-medium mb-1">When do I need this?</p>
                         <p className="text-muted-foreground mb-2">
-                          Required if your Gateway has authentication enabled (most setups do).
+                          Required if your Gateway has authentication enabled
+                          (most setups do).
                         </p>
                         <p className="font-medium mb-1">Where do I find it?</p>
                         <p className="text-muted-foreground">
@@ -323,7 +394,9 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     id="gateway-token"
                     type={showToken ? "text" : "password"}
                     value={formData.gatewayToken}
-                    onChange={(e) => setFormData({ ...formData, gatewayToken: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gatewayToken: e.target.value })
+                    }
                     placeholder="Stored securely in OS keychain"
                     aria-describedby="gateway-token-hint"
                     className="w-full px-3 py-2 pr-10 rounded-xl border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
@@ -336,19 +409,50 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     title={showToken ? "Hide token" : "Show token"}
                   >
                     {showToken ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
                       </svg>
                     )}
                   </button>
                 </div>
-                <p id="gateway-token-hint" className="text-xs text-muted-foreground mt-1.5">
-                  🔒 Token is stored securely in your OS keychain (not in browser storage)
+                <p
+                  id="gateway-token-hint"
+                  className="text-xs text-muted-foreground mt-1.5"
+                >
+                  🔒 Token is stored securely in your OS keychain (not in
+                  browser storage)
                 </p>
               </div>
               <div className="flex items-center justify-between gap-3">
@@ -359,16 +463,19 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     className={cn(
                       "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                       "border border-border hover:bg-muted",
-                      connectionStatus === "connecting" && "opacity-50 cursor-not-allowed"
+                      connectionStatus === "connecting" &&
+                        "opacity-50 cursor-not-allowed",
                     )}
                   >
-                    {connectionStatus === "connecting" ? "Connecting..." : "Test Connection"}
+                    {connectionStatus === "connecting"
+                      ? "Connecting..."
+                      : "Test Connection"}
                   </button>
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full transition-colors",
-                        connected ? "bg-green-500" : "bg-red-500"
+                        connected ? "bg-green-500" : "bg-red-500",
                       )}
                     />
                     <span className="text-sm text-muted-foreground">
@@ -389,11 +496,11 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                   </button>
                 )}
               </div>
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               {protocolNotice && (
-                <p className="text-sm text-green-600 dark:text-green-400">{protocolNotice}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  {protocolNotice}
+                </p>
               )}
             </div>
           </section>
@@ -406,17 +513,27 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="default-model" className="block text-sm font-medium">Default Model</label>
+                  <label
+                    htmlFor="default-model"
+                    className="block text-sm font-medium"
+                  >
+                    Default Model
+                  </label>
                   {modelsLoading && (
-                    <span className="text-xs text-muted-foreground animate-pulse" aria-live="polite">
+                    <span
+                      className="text-xs text-muted-foreground animate-pulse"
+                      aria-live="polite"
+                    >
                       Loading models...
                     </span>
                   )}
-                  {!modelsLoading && availableModels.length === 0 && connected && (
-                    <span className="text-xs text-muted-foreground">
-                      Using common models
-                    </span>
-                  )}
+                  {!modelsLoading &&
+                    availableModels.length === 0 &&
+                    connected && (
+                      <span className="text-xs text-muted-foreground">
+                        Using common models
+                      </span>
+                    )}
                 </div>
                 {modelsLoading ? (
                   <Skeleton className="h-10 w-full" />
@@ -425,22 +542,35 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     <select
                       id="default-model"
                       value={formData.defaultModel}
-                      onChange={(e) => setFormData({ ...formData, defaultModel: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          defaultModel: e.target.value,
+                        })
+                      }
                       aria-describedby={!connected ? "model-hint" : undefined}
                       className="w-full px-3 py-2 rounded-xl border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
                     >
-                      {Object.entries(modelsByProvider).map(([provider, providerModels]) => (
-                        <optgroup key={provider} label={providerNames[provider] || provider}>
-                          {providerModels.map((model) => (
-                            <option key={model.id} value={model.id}>
-                              {model.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
+                      {Object.entries(modelsByProvider).map(
+                        ([provider, providerModels]) => (
+                          <optgroup
+                            key={provider}
+                            label={providerNames[provider] || provider}
+                          >
+                            {providerModels.map((model) => (
+                              <option key={model.id} value={model.id}>
+                                {model.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ),
+                      )}
                     </select>
                     {!connected && (
-                      <p id="model-hint" className="text-xs text-muted-foreground mt-1.5">
+                      <p
+                        id="model-hint"
+                        className="text-xs text-muted-foreground mt-1.5"
+                      >
                         Connect to Gateway to see available models
                       </p>
                     )}
@@ -449,29 +579,52 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label htmlFor="thinking-default" className="text-sm font-medium">Enable Thinking by Default</label>
-                  <p id="thinking-hint" className="text-xs text-muted-foreground">Extended reasoning for complex tasks</p>
+                  <label
+                    htmlFor="thinking-default"
+                    className="text-sm font-medium"
+                  >
+                    Enable Thinking by Default
+                  </label>
+                  <p
+                    id="thinking-hint"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Extended reasoning for complex tasks
+                  </p>
                 </div>
                 <Switch
                   id="thinking-default"
                   checked={formData.thinkingDefault}
-                  onCheckedChange={(checked) => setFormData({ ...formData, thinkingDefault: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, thinkingDefault: checked })
+                  }
                   aria-describedby="thinking-hint"
                 />
               </div>
 
               {/* System Prompt */}
               <div>
-                <label htmlFor="system-prompt" className="block text-sm font-medium mb-1.5">
+                <label
+                  htmlFor="system-prompt"
+                  className="block text-sm font-medium mb-1.5"
+                >
                   Default System Prompt
                 </label>
-                <p id="system-prompt-hint" className="text-xs text-muted-foreground mb-2">
+                <p
+                  id="system-prompt-hint"
+                  className="text-xs text-muted-foreground mb-2"
+                >
                   Custom instructions for the AI (applied to new conversations)
                 </p>
                 <textarea
                   id="system-prompt"
                   value={formData.defaultSystemPrompt || ""}
-                  onChange={(e) => setFormData({ ...formData, defaultSystemPrompt: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      defaultSystemPrompt: e.target.value,
+                    })
+                  }
                   placeholder="e.g., You are a helpful assistant that responds concisely..."
                   aria-describedby="system-prompt-hint"
                   className="w-full h-24 px-3 py-2 rounded-xl text-sm border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent resize-none transition-colors"
@@ -486,8 +639,14 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
               Appearance
             </h3>
             <fieldset>
-              <legend className="block text-sm font-medium mb-1.5">Theme</legend>
-              <div className="flex gap-2" role="radiogroup" aria-label="Select theme">
+              <legend className="block text-sm font-medium mb-1.5">
+                Theme
+              </legend>
+              <div
+                className="flex gap-2"
+                role="radiogroup"
+                aria-label="Select theme"
+              >
                 {(["light", "dark", "system"] as const).map((theme) => (
                   <button
                     key={theme}
@@ -497,7 +656,12 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                     onClick={() => {
                       setFormData({ ...formData, theme });
                       // Apply theme immediately
-                      if (theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                      if (
+                        theme === "dark" ||
+                        (theme === "system" &&
+                          window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches)
+                      ) {
                         document.documentElement.classList.add("dark");
                       } else if (theme === "light") {
                         document.documentElement.classList.remove("dark");
@@ -507,7 +671,7 @@ export function SettingsDialog({ open, onClose, onRerunSetup }: SettingsDialogPr
                       "flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                       formData.theme === theme
                         ? "bg-primary text-primary-foreground"
-                        : "border border-border hover:bg-muted"
+                        : "border border-border hover:bg-muted",
                     )}
                   >
                     {theme.charAt(0).toUpperCase() + theme.slice(1)}

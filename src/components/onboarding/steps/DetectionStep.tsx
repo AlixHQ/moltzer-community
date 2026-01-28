@@ -15,13 +15,17 @@ interface ConnectResult {
   protocol_switched: boolean;
 }
 
-export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: DetectionStepProps) {
+export function DetectionStep({
+  onGatewayFound,
+  onNoGateway,
+  onSkip,
+}: DetectionStepProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [foundUrl, setFoundUrl] = useState<string | null>(null); // NEW: Hold found URL for confirmation
-  
+
   // Track mounted state to prevent updates after unmount
   const isMountedRef = useRef(true);
   // Track if detection was cancelled
@@ -35,9 +39,9 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
       return;
     }
     hasRunRef.current = true;
-    
+
     setError(null);
-    
+
     const commonUrls = [
       "ws://localhost:18789",
       "ws://127.0.0.1:18789",
@@ -60,27 +64,30 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
           clearTimeout(globalTimeout);
           return;
         }
-        
+
         const url = commonUrls[i];
         setCurrentUrl(url);
         setProgress(((i + 1) / commonUrls.length) * 100);
-        
+
         try {
-          const result = await invoke<ConnectResult>("connect", { url, token: "" });
-          
+          const result = await invoke<ConnectResult>("connect", {
+            url,
+            token: "",
+          });
+
           // Check again after async operation
           if (isCancelledRef.current || !isMountedRef.current) {
             clearTimeout(globalTimeout);
             return;
           }
-          
+
           // Success! Gateway found - but don't auto-proceed, let user confirm
           clearTimeout(globalTimeout);
-          
+
           if (isCancelledRef.current || !isMountedRef.current) {
             return;
           }
-          
+
           // Show confirmation UI instead of auto-proceeding
           setFoundUrl(result.used_url);
           return;
@@ -91,29 +98,29 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
             return;
           }
           // Try next URL with a short delay
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise((resolve) => setTimeout(resolve, 300));
           continue;
         }
       }
 
       clearTimeout(globalTimeout);
-      
+
       // Check before calling onNoGateway
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
 
       // No Gateway found after checking all URLs
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
-      
+
       onNoGateway();
     } catch (err) {
       clearTimeout(globalTimeout);
-      console.error('[DetectionStep] Unexpected error:', err);
+      console.error("[DetectionStep] Unexpected error:", err);
       if (!isCancelledRef.current && isMountedRef.current) {
         setError(String(err));
         onNoGateway();
@@ -126,18 +133,18 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
     isMountedRef.current = true;
     isCancelledRef.current = false;
     // Don't reset hasRunRef here - it prevents double execution
-    
+
     setTimeout(() => {
       if (isMountedRef.current) {
         setIsVisible(true);
       }
     }, 100);
-    
+
     // Only run if not already run
     if (!hasRunRef.current) {
       autoDetectGateway();
     }
-    
+
     // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
@@ -202,7 +209,7 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
             <p className="text-muted-foreground mb-6">
               Is this the Gateway you want to connect to?
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 onClick={handleConfirmUrl}
@@ -231,7 +238,7 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
         <div
           className={cn(
             "text-center transition-all duration-700 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-xl shadow-blue-500/20 mb-6 animate-pulse">
@@ -249,7 +256,9 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
               />
             </svg>
           </div>
-          <h2 className="text-4xl font-bold mb-3">Looking for Moltbot Gateway...</h2>
+          <h2 className="text-4xl font-bold mb-3">
+            Looking for Moltbot Gateway...
+          </h2>
           <p className="text-lg text-muted-foreground">
             Checking common ports for a Moltbot Gateway
           </p>
@@ -259,7 +268,7 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
         <div
           className={cn(
             "p-6 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-4 transition-all duration-700 delay-200 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="flex items-center gap-3">
@@ -294,7 +303,7 @@ export function DetectionStep({ onGatewayFound, onNoGateway, onSkip }: Detection
         <div
           className={cn(
             "text-center space-y-2 transition-all duration-700 delay-400 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <p className="text-sm text-muted-foreground">

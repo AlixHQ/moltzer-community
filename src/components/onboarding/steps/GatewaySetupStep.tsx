@@ -30,7 +30,13 @@ interface ConnectResult {
   protocol_switched: boolean;
 }
 
-type ConnectionState = "idle" | "detecting" | "testing" | "success" | "error" | "cancelled";
+type ConnectionState =
+  | "idle"
+  | "detecting"
+  | "testing"
+  | "success"
+  | "error"
+  | "cancelled";
 
 // Detect URL type for context-specific troubleshooting
 function detectUrlType(url: string): "tailscale" | "local" | "lan" | "remote" {
@@ -38,7 +44,11 @@ function detectUrlType(url: string): "tailscale" | "local" | "lan" | "remote" {
   if (lower.includes(".ts.net") || lower.includes("tailscale")) {
     return "tailscale";
   }
-  if (lower.includes("localhost") || lower.includes("127.0.0.1") || lower.includes("::1")) {
+  if (
+    lower.includes("localhost") ||
+    lower.includes("127.0.0.1") ||
+    lower.includes("::1")
+  ) {
     return "local";
   }
   if (lower.match(/192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\./)) {
@@ -59,22 +69,22 @@ function getTailscaleTips(): TroubleshootingTip[] {
     {
       title: "Check Tailscale is running",
       description: "Make sure Tailscale is connected on both devices",
-      command: "tailscale status"
+      command: "tailscale status",
     },
     {
       title: "Verify Gateway binds to Tailscale",
-      description: "Gateway config should have bind: \"tailnet\" or bind: \"lan\"",
-      command: "clawdbot config get gateway.bind"
+      description: 'Gateway config should have bind: "tailnet" or bind: "lan"',
+      command: "clawdbot config get gateway.bind",
     },
     {
       title: "Check firewall rules",
-      description: "Port 18789 must be accessible on the Gateway machine"
+      description: "Port 18789 must be accessible on the Gateway machine",
     },
     {
       title: "Ping the Gateway host",
       description: "Test basic connectivity to the Tailscale hostname",
-      command: "ping your-host.ts.net"
-    }
+      command: "ping your-host.ts.net",
+    },
   ];
 }
 
@@ -83,31 +93,34 @@ function getLanTips(): TroubleshootingTip[] {
     {
       title: "Check Gateway is running",
       description: "Gateway must be running and accessible on the network",
-      command: "clawdbot gateway status"
+      command: "clawdbot gateway status",
     },
     {
       title: "Verify Gateway binds to LAN",
-      description: "Gateway config should have bind: \"lan\" (not \"loopback\")",
-      command: "clawdbot config get gateway.bind"
+      description: 'Gateway config should have bind: "lan" (not "loopback")',
+      command: "clawdbot config get gateway.bind",
     },
     {
       title: "Check firewall",
-      description: "Port 18789 must be open for incoming connections"
-    }
+      description: "Port 18789 must be open for incoming connections",
+    },
   ];
 }
 
 // Derive a helpful hint and actionable fix based on error content
-function getErrorHint(errorStr: string, url: string): { 
-  hint: string; 
-  action?: string; 
+function getErrorHint(
+  errorStr: string,
+  url: string,
+): {
+  hint: string;
+  action?: string;
   command?: string;
   tips?: TroubleshootingTip[];
   urlType?: "tailscale" | "local" | "lan" | "remote";
 } {
   const lower = errorStr.toLowerCase();
   const urlType = detectUrlType(url);
-  
+
   // Add context-specific tips based on URL type
   let tips: TroubleshootingTip[] | undefined;
   if (urlType === "tailscale") {
@@ -115,14 +128,19 @@ function getErrorHint(errorStr: string, url: string): {
   } else if (urlType === "lan") {
     tips = getLanTips();
   }
-  
-  if (lower.includes("401") || lower.includes("403") || lower.includes("unauthorized") || lower.includes("forbidden")) {
+
+  if (
+    lower.includes("401") ||
+    lower.includes("403") ||
+    lower.includes("unauthorized") ||
+    lower.includes("forbidden")
+  ) {
     return {
       hint: "The authentication token is wrong or missing.",
       action: "Where to find your token",
       command: "clawdbot gateway status",
       tips,
-      urlType
+      urlType,
     };
   }
   if (lower.includes("400") || lower.includes("bad request")) {
@@ -130,7 +148,7 @@ function getErrorHint(errorStr: string, url: string): {
       hint: "The URL format looks incorrect.",
       action: "Should start with ws:// or wss://",
       tips,
-      urlType
+      urlType,
     };
   }
   if (lower.includes("404") || lower.includes("not found")) {
@@ -138,54 +156,64 @@ function getErrorHint(errorStr: string, url: string): {
       hint: "The Gateway endpoint was not found.",
       action: "Try the default: ws://localhost:18789",
       tips,
-      urlType
+      urlType,
     };
   }
   if (lower.includes("connection refused") || lower.includes("econnrefused")) {
-    const baseHint = urlType === "tailscale" 
-      ? "Can't connect to Tailscale Gateway. It may not be running or not bound to Tailscale."
-      : urlType === "lan"
-      ? "Can't connect to LAN Gateway. It may not be running or bound to loopback only."
-      : "Gateway is not running or not reachable.";
+    const baseHint =
+      urlType === "tailscale"
+        ? "Can't connect to Tailscale Gateway. It may not be running or not bound to Tailscale."
+        : urlType === "lan"
+          ? "Can't connect to LAN Gateway. It may not be running or bound to loopback only."
+          : "Gateway is not running or not reachable.";
     return {
       hint: baseHint,
       action: "Start Gateway with",
       command: "clawdbot gateway start",
       tips,
-      urlType
+      urlType,
     };
   }
   if (lower.includes("timeout") || lower.includes("timed out")) {
-    const baseHint = urlType === "tailscale"
-      ? "Connection timed out. Check that Tailscale is connected on both devices."
-      : "Connection timed out — Gateway may be down.";
+    const baseHint =
+      urlType === "tailscale"
+        ? "Connection timed out. Check that Tailscale is connected on both devices."
+        : "Connection timed out — Gateway may be down.";
     return {
       hint: baseHint,
       action: "Check Gateway status",
       command: "clawdbot gateway status",
       tips,
-      urlType
+      urlType,
     };
   }
-  if (lower.includes("network") || lower.includes("dns") || lower.includes("resolve")) {
-    const baseHint = urlType === "tailscale"
-      ? "Can't resolve Tailscale hostname. Make sure Tailscale is running."
-      : "Can't reach the Gateway server.";
+  if (
+    lower.includes("network") ||
+    lower.includes("dns") ||
+    lower.includes("resolve")
+  ) {
+    const baseHint =
+      urlType === "tailscale"
+        ? "Can't resolve Tailscale hostname. Make sure Tailscale is running."
+        : "Can't reach the Gateway server.";
     return {
       hint: baseHint,
-      action: urlType === "tailscale" ? "Check Tailscale status" : "Check your network connection",
+      action:
+        urlType === "tailscale"
+          ? "Check Tailscale status"
+          : "Check your network connection",
       command: urlType === "tailscale" ? "tailscale status" : undefined,
       tips,
-      urlType
+      urlType,
     };
   }
-  
+
   return {
     hint: "Gateway connection failed.",
     action: "Make sure Gateway is running",
     command: "clawdbot gateway start",
     tips,
-    urlType
+    urlType,
   };
 }
 
@@ -207,11 +235,12 @@ export function GatewaySetupStep({
   skipAutoDetect = false,
 }: GatewaySetupStepProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
+  const [connectionState, setConnectionState] =
+    useState<ConnectionState>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [errorHint, setErrorHint] = useState<{ 
-    hint: string; 
-    action?: string; 
+  const [errorHint, setErrorHint] = useState<{
+    hint: string;
+    action?: string;
     command?: string;
     tips?: TroubleshootingTip[];
     urlType?: "tailscale" | "local" | "lan" | "remote";
@@ -221,7 +250,7 @@ export function GatewaySetupStep({
   const [protocolNotice, setProtocolNotice] = useState<string>("");
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const { updateSettings } = useStore();
-  
+
   // Track mounted state and cancellation
   const isMountedRef = useRef(true);
   const isCancelledRef = useRef(false);
@@ -232,13 +261,13 @@ export function GatewaySetupStep({
       setConnectionState("idle");
       return;
     }
-    
+
     setConnectionState("detecting");
     setErrorMessage("");
     setErrorHint(null);
     setProtocolNotice("");
     setSuggestedPort(null);
-    
+
     const commonUrls = [
       "ws://localhost:18789",
       "ws://127.0.0.1:18789",
@@ -250,36 +279,44 @@ export function GatewaySetupStep({
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
-      
+
       try {
-        const result = await invoke<ConnectResult>("connect", { url, token: "" });
-        
+        const result = await invoke<ConnectResult>("connect", {
+          url,
+          token: "",
+        });
+
         // Check again after async operation
         if (isCancelledRef.current || !isMountedRef.current) {
           return;
         }
-        
+
         // Success! Gateway found
         const actualUrl = result.used_url;
         onGatewayUrlChange(actualUrl);
         setAutoDetected(true);
         setConnectionState("success");
-        
+
         // Show protocol notice if it switched
         if (result.protocol_switched) {
-          setProtocolNotice(`Using ${actualUrl.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`);
+          setProtocolNotice(
+            `Using ${actualUrl.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`,
+          );
         }
-        
+
         // Auto-save settings with the working URL
         updateSettings({ gatewayUrl: actualUrl, gatewayToken: "" });
-        
+
         // Save progress
-        localStorage.setItem('moltzer-onboarding-progress', JSON.stringify({
-          step: 'setup-complete',
-          gatewayUrl: actualUrl,
-          timestamp: Date.now()
-        }));
-        
+        localStorage.setItem(
+          "moltzer-onboarding-progress",
+          JSON.stringify({
+            step: "setup-complete",
+            gatewayUrl: actualUrl,
+            timestamp: Date.now(),
+          }),
+        );
+
         // Auto-advance after a moment (if still mounted)
         setTimeout(() => {
           if (isMountedRef.current && !isCancelledRef.current) {
@@ -303,16 +340,16 @@ export function GatewaySetupStep({
     // Reset refs on mount
     isMountedRef.current = true;
     isCancelledRef.current = false;
-    
+
     setTimeout(() => {
       if (isMountedRef.current) {
         setIsVisible(true);
       }
     }, 100);
-    
+
     // Auto-detect local Gateway
     autoDetectGateway();
-    
+
     // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
@@ -322,37 +359,43 @@ export function GatewaySetupStep({
   // Listen for gateway errors during testing
   useEffect(() => {
     if (connectionState !== "testing") return;
-    
+
     let unlistenState: UnlistenFn | undefined;
     let unlistenError: UnlistenFn | undefined;
-    
+
     const setupListeners = async () => {
       // Listen for state changes (e.g., Failed state)
-      unlistenState = await listen<{ reason?: string; can_retry?: boolean }>("gateway:state", (event) => {
-        const payload = event.payload as { reason?: string } | string;
-        if (typeof payload === "object" && payload.reason) {
-          // Failed state
-          if (isMountedRef.current && connectionState === "testing") {
-            setConnectionState("error");
-            setErrorMessage(payload.reason);
-            setErrorHint(getErrorHint(payload.reason, gatewayUrl));
+      unlistenState = await listen<{ reason?: string; can_retry?: boolean }>(
+        "gateway:state",
+        (event) => {
+          const payload = event.payload as { reason?: string } | string;
+          if (typeof payload === "object" && payload.reason) {
+            // Failed state
+            if (isMountedRef.current && connectionState === "testing") {
+              setConnectionState("error");
+              setErrorMessage(payload.reason);
+              setErrorHint(getErrorHint(payload.reason, gatewayUrl));
+            }
           }
-        }
-      });
-      
+        },
+      );
+
       // Listen for explicit errors
       unlistenError = await listen<string>("gateway:error", (event) => {
         if (isMountedRef.current && connectionState === "testing") {
           setConnectionState("error");
-          const errMsg = typeof event.payload === "string" ? event.payload : "Connection error";
+          const errMsg =
+            typeof event.payload === "string"
+              ? event.payload
+              : "Connection error";
           setErrorMessage(errMsg);
           setErrorHint(getErrorHint(errMsg, gatewayUrl));
         }
       });
     };
-    
+
     setupListeners();
-    
+
     return () => {
       unlistenState?.();
       unlistenError?.();
@@ -362,11 +405,11 @@ export function GatewaySetupStep({
   const handleTestConnection = async () => {
     // Reset cancelled state for new test
     isCancelledRef.current = false;
-    
+
     // Auto-fix: Trim whitespace and normalize URL
     let trimmedUrl = gatewayUrl.trim();
     const trimmedToken = gatewayToken.trim();
-    
+
     if (!trimmedUrl) {
       setErrorMessage("Please enter a Gateway URL");
       return;
@@ -399,55 +442,68 @@ export function GatewaySetupStep({
 
     // Frontend timeout failsafe (8 seconds max)
     const CONNECT_TIMEOUT_MS = 8000;
-    
+
     try {
       await invoke("disconnect");
-      
+
       // Check if cancelled
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
-      
+
       // Race between connect and timeout
-      const connectPromise = invoke<ConnectResult>("connect", { url: trimmedUrl, token: trimmedToken });
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error("Connection timed out after 8 seconds")), CONNECT_TIMEOUT_MS);
+      const connectPromise = invoke<ConnectResult>("connect", {
+        url: trimmedUrl,
+        token: trimmedToken,
       });
-      
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Connection timed out after 8 seconds")),
+          CONNECT_TIMEOUT_MS,
+        );
+      });
+
       const result = await Promise.race([connectPromise, timeoutPromise]);
-      
+
       // Check if cancelled after async operation
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
-      
+
       // Success!
       setConnectionState("success");
-      
+
       // If protocol was switched, update the URL and show notice
       const actualUrl = result.used_url;
       if (result.protocol_switched) {
         onGatewayUrlChange(actualUrl);
-        setProtocolNotice(`Connected using ${actualUrl.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`);
+        setProtocolNotice(
+          `Connected using ${actualUrl.startsWith("wss://") ? "wss://" : "ws://"} (auto-detected)`,
+        );
       }
-      
+
       updateSettings({ gatewayUrl: actualUrl, gatewayToken: trimmedToken });
 
       // Save progress (token NOT stored here - goes to keychain via updateSettings)
-      localStorage.setItem('moltzer-onboarding-progress', JSON.stringify({
-        step: 'setup-complete',
-        gatewayUrl: actualUrl,
-        timestamp: Date.now()
-      }));
+      localStorage.setItem(
+        "moltzer-onboarding-progress",
+        JSON.stringify({
+          step: "setup-complete",
+          gatewayUrl: actualUrl,
+          timestamp: Date.now(),
+        }),
+      );
 
       // Fetch models (but don't block on it)
-      invoke<ModelInfo[]>("get_models").then(models => {
-        if (models && models.length > 0 && isMountedRef.current) {
-          useStore.getState().setAvailableModels(models);
-        }
-      }).catch(err => {
-        console.error("Failed to fetch models:", err);
-      });
+      invoke<ModelInfo[]>("get_models")
+        .then((models) => {
+          if (models && models.length > 0 && isMountedRef.current) {
+            useStore.getState().setAvailableModels(models);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch models:", err);
+        });
 
       // Auto-advance (if still mounted and not cancelled)
       setTimeout(() => {
@@ -460,16 +516,19 @@ export function GatewaySetupStep({
       if (isCancelledRef.current || !isMountedRef.current) {
         return;
       }
-      
+
       setConnectionState("error");
-      
+
       // Show the actual error message with a contextual hint
       const formattedError = formatErrorMessage(err);
       setErrorMessage(formattedError);
       setErrorHint(getErrorHint(formattedError, trimmedUrl));
-      
+
       // Auto-suggest port fix if port looks wrong
-      if (trimmedUrl.includes("localhost") || trimmedUrl.includes("127.0.0.1")) {
+      if (
+        trimmedUrl.includes("localhost") ||
+        trimmedUrl.includes("127.0.0.1")
+      ) {
         const currentPort = trimmedUrl.match(/:(\d+)/)?.[1];
         if (currentPort && currentPort !== "18789" && currentPort !== "8789") {
           setSuggestedPort("18789");
@@ -492,7 +551,7 @@ export function GatewaySetupStep({
         <div
           className={cn(
             "text-center transition-all duration-700 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <h2 className="text-4xl font-bold mb-3">Connect to Gateway</h2>
@@ -507,7 +566,7 @@ export function GatewaySetupStep({
         {connectionState === "detecting" && (
           <div
             className={cn(
-              "p-6 rounded-xl bg-blue-500/10 border border-blue-500/20 animate-in fade-in slide-in-from-top-2 duration-300"
+              "p-6 rounded-xl bg-blue-500/10 border border-blue-500/20 animate-in fade-in slide-in-from-top-2 duration-300",
             )}
           >
             <div className="flex items-center gap-3">
@@ -528,7 +587,7 @@ export function GatewaySetupStep({
         {connectionState === "success" && (
           <div
             className={cn(
-              "p-6 rounded-xl bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in-95 duration-300"
+              "p-6 rounded-xl bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in-95 duration-300",
             )}
           >
             <div className="flex items-center gap-3">
@@ -552,7 +611,8 @@ export function GatewaySetupStep({
                   Connected successfully!
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {autoDetected ? "Auto-detected at" : "Connected to"} {gatewayUrl}
+                  {autoDetected ? "Auto-detected at" : "Connected to"}{" "}
+                  {gatewayUrl}
                 </p>
                 {protocolNotice && (
                   <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1">
@@ -569,7 +629,9 @@ export function GatewaySetupStep({
           <div
             className={cn(
               "space-y-4 transition-all duration-700 delay-200 ease-out",
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8",
             )}
           >
             <div>
@@ -587,7 +649,7 @@ export function GatewaySetupStep({
                   "w-full px-4 py-3 rounded-lg border bg-muted/30 focus:outline-none focus:ring-2 transition-all",
                   connectionState === "error"
                     ? "border-red-500/50 focus:ring-red-500/50"
-                    : "border-border focus:ring-primary/50"
+                    : "border-border focus:ring-primary/50",
                 )}
               />
             </div>
@@ -595,7 +657,9 @@ export function GatewaySetupStep({
             <div>
               <label className="block text-sm font-medium mb-2">
                 Authentication Token{" "}
-                <span className="text-muted-foreground font-normal">(optional)</span>
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -608,14 +672,28 @@ export function GatewaySetupStep({
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-sm p-4">
-                      <p className="font-semibold mb-2">🔑 Authentication Token</p>
+                      <p className="font-semibold mb-2">
+                        🔑 Authentication Token
+                      </p>
                       <p className="text-muted-foreground mb-3">
-                        Most Moltbot Gateways require a token to connect. If you get a 401/403 error, you need this.
+                        Most Moltbot Gateways require a token to connect. If you
+                        get a 401/403 error, you need this.
                       </p>
                       <p className="font-medium mb-1">Where to find it:</p>
                       <ul className="text-sm text-muted-foreground space-y-1 mb-3">
-                        <li>• Run <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">clawdbot gateway status</code></li>
-                        <li>• Check your <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">clawdbot.json</code> config</li>
+                        <li>
+                          • Run{" "}
+                          <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                            clawdbot gateway status
+                          </code>
+                        </li>
+                        <li>
+                          • Check your{" "}
+                          <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                            clawdbot.json
+                          </code>{" "}
+                          config
+                        </li>
                         <li>• Ask your Gateway admin</li>
                       </ul>
                       <p className="text-xs text-muted-foreground/70">
@@ -677,7 +755,9 @@ export function GatewaySetupStep({
                           onClick={async () => {
                             try {
                               if (errorHint.command) {
-                                await navigator.clipboard.writeText(errorHint.command);
+                                await navigator.clipboard.writeText(
+                                  errorHint.command,
+                                );
                               }
                             } catch (err) {
                               console.error("Failed to copy:", err);
@@ -697,7 +777,10 @@ export function GatewaySetupStep({
                   <div className="pl-8">
                     <button
                       onClick={() => {
-                        const newUrl = gatewayUrl.replace(/:\d+/, `:${suggestedPort}`);
+                        const newUrl = gatewayUrl.replace(
+                          /:\d+/,
+                          `:${suggestedPort}`,
+                        );
                         onGatewayUrlChange(newUrl);
                         setSuggestedPort(null);
                       }}
@@ -712,23 +795,44 @@ export function GatewaySetupStep({
                 {errorHint?.tips && errorHint.tips.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-red-500/20">
                     <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                        />
                       </svg>
-                      {errorHint.urlType === "tailscale" ? "Tailscale Troubleshooting" : "Troubleshooting Tips"}
+                      {errorHint.urlType === "tailscale"
+                        ? "Tailscale Troubleshooting"
+                        : "Troubleshooting Tips"}
                     </p>
                     <div className="space-y-3">
                       {errorHint.tips.map((tip, i) => (
-                        <div key={i} className="pl-2 border-l-2 border-red-500/30">
-                          <p className="text-sm font-medium text-foreground">{tip.title}</p>
-                          <p className="text-xs text-muted-foreground">{tip.description}</p>
+                        <div
+                          key={i}
+                          className="pl-2 border-l-2 border-red-500/30"
+                        >
+                          <p className="text-sm font-medium text-foreground">
+                            {tip.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {tip.description}
+                          </p>
                           {tip.command && (
                             <div className="flex items-center gap-2 mt-1.5 bg-black/80 dark:bg-black/60 rounded p-1.5 font-mono text-[11px] text-green-400">
                               <code className="flex-1">{tip.command}</code>
                               <button
                                 onClick={async () => {
                                   try {
-                                    await navigator.clipboard.writeText(tip.command || "");
+                                    await navigator.clipboard.writeText(
+                                      tip.command || "",
+                                    );
                                   } catch (e) {
                                     console.error("Failed to copy:", e);
                                   }
@@ -766,14 +870,24 @@ export function GatewaySetupStep({
                   ? isButtonHovered
                     ? "bg-red-500 text-white cursor-pointer hover:bg-red-600"
                     : "bg-muted text-muted-foreground cursor-pointer"
-                  : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0"
+                  : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0",
               )}
             >
               {connectionState === "testing" ? (
                 isButtonHovered ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                     Cancel
                   </span>
@@ -790,7 +904,11 @@ export function GatewaySetupStep({
 
             {/* Keyboard hint */}
             <p className="text-center text-xs text-muted-foreground">
-              Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd> to test
+              Press{" "}
+              <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">
+                Enter
+              </kbd>{" "}
+              to test
             </p>
           </div>
         )}
@@ -799,7 +917,7 @@ export function GatewaySetupStep({
         <div
           className={cn(
             "flex items-center justify-between pt-4 transition-all duration-700 delay-400 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button
@@ -807,7 +925,7 @@ export function GatewaySetupStep({
             disabled={connectionState === "testing"}
             className={cn(
               "px-6 py-3 rounded-lg text-sm font-medium border border-border hover:bg-muted transition-colors",
-              connectionState === "testing" && "opacity-50 cursor-not-allowed"
+              connectionState === "testing" && "opacity-50 cursor-not-allowed",
             )}
           >
             ← Back
@@ -818,7 +936,7 @@ export function GatewaySetupStep({
             disabled={connectionState === "testing"}
             className={cn(
               "text-sm text-muted-foreground hover:text-foreground transition-colors",
-              connectionState === "testing" && "opacity-50 cursor-not-allowed"
+              connectionState === "testing" && "opacity-50 cursor-not-allowed",
             )}
           >
             I'll do this later

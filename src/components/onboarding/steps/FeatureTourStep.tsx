@@ -14,7 +14,9 @@ interface Feature {
 }
 
 // Detect platform for keyboard shortcuts
-const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
+const isMacOS =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toLowerCase().includes("mac");
 const modKey = isMacOS ? "⌘" : "Ctrl+";
 
 const getFeatures = (): Feature[] => [
@@ -78,7 +80,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
         <div
           className={cn(
             "text-center transition-all duration-700 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 shadow-xl shadow-purple-500/20 mb-6">
@@ -94,7 +96,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
         <div
           className={cn(
             "relative h-48 transition-all duration-700 delay-200 ease-out",
-            isVisible ? "opacity-100" : "opacity-0"
+            isVisible ? "opacity-100" : "opacity-0",
           )}
         >
           {features.map((feature, i) => (
@@ -105,8 +107,8 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
                 i === currentFeatureIndex
                   ? "opacity-100 scale-100 translate-y-0"
                   : i < currentFeatureIndex
-                  ? "opacity-0 scale-95 -translate-y-4"
-                  : "opacity-0 scale-95 translate-y-4"
+                    ? "opacity-0 scale-95 -translate-y-4"
+                    : "opacity-0 scale-95 translate-y-4",
               )}
             >
               <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/30 flex items-center justify-center mb-4">
@@ -130,7 +132,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
                 "w-2 h-2 rounded-full transition-all duration-300",
                 i === currentFeatureIndex
                   ? "w-8 bg-purple-500"
-                  : "bg-muted hover:bg-muted-foreground/50"
+                  : "bg-muted hover:bg-muted-foreground/50",
               )}
               aria-label={`Go to feature ${i + 1}`}
             />
@@ -141,7 +143,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
         <div
           className={cn(
             "grid grid-cols-2 gap-3 transition-all duration-700 delay-400 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           {features.map((feature, i) => (
@@ -152,7 +154,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
                 "p-4 rounded-xl border text-left transition-all duration-200",
                 i === currentFeatureIndex
                   ? "bg-purple-500/10 border-purple-500/30"
-                  : "border-border hover:border-purple-500/20 hover:bg-muted/50"
+                  : "border-border hover:border-purple-500/20 hover:bg-muted/50",
               )}
             >
               <div className="flex items-center gap-3 mb-2">
@@ -172,7 +174,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
         <div
           className={cn(
             "flex flex-col items-center gap-4 transition-all duration-700 delay-600 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
           <button
@@ -209,10 +211,12 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
         <p
           className={cn(
             "text-center text-xs text-muted-foreground transition-all duration-700 delay-800 ease-out",
-            isVisible ? "opacity-100" : "opacity-0"
+            isVisible ? "opacity-100" : "opacity-0",
           )}
         >
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd> to finish
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded font-mono">Enter</kbd>{" "}
+          to finish
         </p>
       </div>
     </div>

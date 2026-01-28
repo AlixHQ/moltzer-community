@@ -15,7 +15,9 @@ import { loadPersistedData } from "./lib/persistence";
 import { translateError, getErrorTitle } from "./lib/errors";
 
 // Check if running on macOS (for traffic light padding)
-const isMacOS = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
+const isMacOS =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toLowerCase().includes("mac");
 
 // Exponential backoff delays: 5s → 10s → 30s → 60s (capped)
 const BACKOFF_DELAYS = [5, 10, 30, 60];
@@ -36,17 +38,19 @@ export default function App() {
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
   const [retryNowFn, setRetryNowFn] = useState<(() => void) | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [cancelConnection, setCancelConnection] = useState<(() => void) | null>(null);
+  const [cancelConnection, setCancelConnection] = useState<(() => void) | null>(
+    null,
+  );
   const { toasts, dismissToast, showError, showSuccess } = useToast();
-  const { 
+  const {
     currentConversation,
     connected,
     setConnected,
     appendToCurrentMessage,
     completeCurrentMessage,
-    settings 
+    settings,
   } = useStore();
-  
+
   // Refs for tracking state across async operations
   const isMountedRef = useRef(true);
   const connectionCancelledRef = useRef(false);
@@ -56,26 +60,26 @@ export default function App() {
   // Check if this is first launch (onboarding needed)
   useEffect(() => {
     const APP_VERSION = "1.0.0"; // Should match package.json version
-    const storedVersion = localStorage.getItem('moltzer-app-version');
-    
+    const storedVersion = localStorage.getItem("moltzer-app-version");
+
     // Version upgrade: Clear stale onboarding flags
     if (storedVersion && storedVersion !== APP_VERSION) {
-      localStorage.removeItem('moltzer-onboarding-completed');
-      localStorage.removeItem('moltzer-onboarding-skipped');
-      localStorage.removeItem('moltzer-onboarding-progress');
+      localStorage.removeItem("moltzer-onboarding-completed");
+      localStorage.removeItem("moltzer-onboarding-skipped");
+      localStorage.removeItem("moltzer-onboarding-progress");
     }
-    
+
     // Store current version
-    localStorage.setItem('moltzer-app-version', APP_VERSION);
-    
+    localStorage.setItem("moltzer-app-version", APP_VERSION);
+
     const loadData = async () => {
       try {
         // Load settings from localStorage + keychain
         await useStore.getState().loadSettings();
-        
+
         // Set loading state for conversations
         useStore.getState().setConversationsLoading(true);
-        
+
         // Load conversations from IndexedDB
         const { conversations } = await loadPersistedData();
 
@@ -84,8 +88,8 @@ export default function App() {
           useStore.setState({ conversations });
         }
       } catch (err) {
-        console.error('Failed to load persisted data:', err);
-        showError('Failed to load saved conversations');
+        console.error("Failed to load persisted data:", err);
+        showError("Failed to load saved conversations");
       } finally {
         useStore.getState().setConversationsLoading(false);
         setIsLoadingData(false);
@@ -95,21 +99,27 @@ export default function App() {
     // Check if onboarding is needed AFTER loading settings
     const checkOnboarding = async () => {
       await loadData();
-      
-      const onboardingCompleted = localStorage.getItem('moltzer-onboarding-completed');
-      const onboardingSkipped = localStorage.getItem('moltzer-onboarding-skipped');
+
+      const onboardingCompleted = localStorage.getItem(
+        "moltzer-onboarding-completed",
+      );
+      const onboardingSkipped = localStorage.getItem(
+        "moltzer-onboarding-skipped",
+      );
       const currentSettings = useStore.getState().settings;
-      
+
       // Check if Gateway URL is actually configured (not empty, not just whitespace, valid format)
-      const hasValidGatewayUrl = 
-        currentSettings.gatewayUrl && 
+      const hasValidGatewayUrl =
+        currentSettings.gatewayUrl &&
         currentSettings.gatewayUrl.trim() !== "" &&
-        (currentSettings.gatewayUrl.startsWith("ws://") || currentSettings.gatewayUrl.startsWith("wss://"));
-      
+        (currentSettings.gatewayUrl.startsWith("ws://") ||
+          currentSettings.gatewayUrl.startsWith("wss://"));
+
       // ALWAYS show onboarding if Gateway URL is not configured
       // Otherwise, respect the onboarding completed/skipped flags
-      const needsOnboarding = !hasValidGatewayUrl || (!onboardingCompleted && !onboardingSkipped);
-      
+      const needsOnboarding =
+        !hasValidGatewayUrl || (!onboardingCompleted && !onboardingSkipped);
+
       if (needsOnboarding) {
         setShowOnboarding(true);
         setIsConnecting(false);
@@ -122,10 +132,11 @@ export default function App() {
   // Apply theme on mount and when settings change
   useEffect(() => {
     const applyTheme = () => {
-      const isDark = 
-        settings.theme === "dark" || 
-        (settings.theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      
+      const isDark =
+        settings.theme === "dark" ||
+        (settings.theme === "system" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
@@ -166,25 +177,27 @@ export default function App() {
   useEffect(() => {
     // Reset mounted ref
     isMountedRef.current = true;
-    
+
     // Don't attempt connection during onboarding
     if (showOnboarding) {
       setIsConnecting(false);
       return;
     }
-    
+
     // Don't attempt connection if no Gateway URL is configured
     // BUT don't re-trigger onboarding if it was just completed (check localStorage)
-    if (!settings.gatewayUrl || settings.gatewayUrl.trim() === '') {
-      const justCompleted = localStorage.getItem('moltzer-onboarding-completed');
-      const justSkipped = localStorage.getItem('moltzer-onboarding-skipped');
+    if (!settings.gatewayUrl || settings.gatewayUrl.trim() === "") {
+      const justCompleted = localStorage.getItem(
+        "moltzer-onboarding-completed",
+      );
+      const justSkipped = localStorage.getItem("moltzer-onboarding-skipped");
       if (!justCompleted && !justSkipped) {
         setIsConnecting(false);
         setShowOnboarding(true); // Force onboarding if no URL and not just completed
       }
       return;
     }
-    
+
     // Prevent re-triggering if we just updated the URL due to protocol switch
     // This avoids an infinite loop when protocol_switched updates the URL
     if (lastAttemptedUrlRef.current === settings.gatewayUrl) {
@@ -207,14 +220,19 @@ export default function App() {
     };
 
     const connectToGateway = async () => {
-      if (connectingFlag || connectionCancelledRef.current || !isMountedRef.current) return;
+      if (
+        connectingFlag ||
+        connectionCancelledRef.current ||
+        !isMountedRef.current
+      )
+        return;
       connectingFlag = true;
       connectionCancelledRef.current = false;
       clearTimers();
-      
+
       // Track which URL we're attempting
       lastAttemptedUrlRef.current = settings.gatewayUrl;
-      
+
       if (isMountedRef.current) {
         setIsConnecting(true);
         setConnectionError(null);
@@ -239,40 +257,44 @@ export default function App() {
       }
 
       try {
-        const result = await invoke<ConnectResult>("connect", { 
-          url: settings.gatewayUrl, 
-          token: settings.gatewayToken 
+        const result = await invoke<ConnectResult>("connect", {
+          url: settings.gatewayUrl,
+          token: settings.gatewayToken,
         });
-        
+
         // Check if cancelled or unmounted during connection
         if (connectionCancelledRef.current || !isMountedRef.current) {
           return;
         }
-        
+
         // If protocol was switched, update settings with the working URL
         // But mark it as the "last attempted" URL to prevent re-trigger
         if (result.protocol_switched) {
           lastAttemptedUrlRef.current = result.used_url;
           useStore.getState().updateSettings({ gatewayUrl: result.used_url });
         }
-        
+
         // Fetch available models after connection (non-blocking)
-        invoke<ModelInfo[]>("get_models").then(models => {
-          if (models && models.length > 0 && isMountedRef.current) {
-            useStore.getState().setAvailableModels(models);
-          }
-        }).catch(err => {
-          console.error("Failed to fetch models:", err);
-        });
-        
+        invoke<ModelInfo[]>("get_models")
+          .then((models) => {
+            if (models && models.length > 0 && isMountedRef.current) {
+              useStore.getState().setAvailableModels(models);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to fetch models:", err);
+          });
+
         if (isMountedRef.current) {
           setIsConnecting(false);
           setConnectionError(null);
           setCancelConnection(null);
-          
+
           // Show success on reconnection (not initial)
           if (attempts > 1) {
-            const protocolMsg = result.protocol_switched ? ` (using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"})` : "";
+            const protocolMsg = result.protocol_switched
+              ? ` (using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"})`
+              : "";
             showSuccess(`Reconnected to Gateway${protocolMsg}`);
             attempts = 0;
             setReconnectAttempts(0);
@@ -280,28 +302,29 @@ export default function App() {
         }
       } catch (err) {
         console.error("Failed to connect:", err);
-        
+
         // Check if cancelled or unmounted
         if (connectionCancelledRef.current || !isMountedRef.current) {
           return;
         }
-        
-        const errorMessage = typeof err === 'string' ? err : 'Connection failed';
+
+        const errorMessage =
+          typeof err === "string" ? err : "Connection failed";
         setConnectionError(errorMessage);
         setIsConnecting(false);
         setCancelConnection(null);
         connectingFlag = false;
-        
+
         // Calculate delay using exponential backoff: 5s → 10s → 30s → 60s (capped)
         const backoffIndex = Math.min(attempts - 1, BACKOFF_DELAYS.length - 1);
         const delaySeconds = BACKOFF_DELAYS[backoffIndex];
-        
+
         // Start countdown
         let countdown = delaySeconds;
         if (isMountedRef.current) {
           setRetryCountdown(countdown);
         }
-        
+
         // Create retry now function
         const retryNow = () => {
           clearTimers();
@@ -315,7 +338,7 @@ export default function App() {
         if (isMountedRef.current) {
           setRetryNowFn(() => retryNow);
         }
-        
+
         // Update countdown every second
         countdownInterval = window.setInterval(() => {
           if (!isMountedRef.current || connectionCancelledRef.current) {
@@ -364,75 +387,88 @@ export default function App() {
         setRetryNowFn(null);
         disconnectAttempts = 0;
         // Fetch models on connection (non-blocking)
-        invoke<ModelInfo[]>("get_models").then(models => {
-          if (models && models.length > 0 && eventListenerMounted) {
-            useStore.getState().setAvailableModels(models);
-          }
-        }).catch(err => {
-          console.error("Failed to fetch models:", err);
-        });
+        invoke<ModelInfo[]>("get_models")
+          .then((models) => {
+            if (models && models.length > 0 && eventListenerMounted) {
+              useStore.getState().setAvailableModels(models);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to fetch models:", err);
+          });
       }),
       listen("gateway:disconnected", () => {
         if (!eventListenerMounted) return;
         setConnected(false);
         setConnectionError("Connection to Gateway lost");
         clearTimers();
-        
+
         // No toast spam - the header bar shows the status
         // Start reconnect with exponential backoff
         disconnectAttempts++;
         setReconnectAttempts(disconnectAttempts);
-        
-        const backoffIndex = Math.min(disconnectAttempts - 1, BACKOFF_DELAYS.length - 1);
+
+        const backoffIndex = Math.min(
+          disconnectAttempts - 1,
+          BACKOFF_DELAYS.length - 1,
+        );
         const delaySeconds = BACKOFF_DELAYS[backoffIndex];
-        
+
         let countdown = delaySeconds;
         setRetryCountdown(countdown);
-        
+
         const attemptReconnect = async () => {
           if (!eventListenerMounted) return;
           clearTimers();
           setRetryCountdown(null);
           setIsConnecting(true);
           setConnectionError(null);
-          
+
           try {
-            const result = await invoke<ConnectResult>("connect", { 
-              url: settings.gatewayUrl, 
-              token: settings.gatewayToken 
+            const result = await invoke<ConnectResult>("connect", {
+              url: settings.gatewayUrl,
+              token: settings.gatewayToken,
             });
-            
+
             if (!eventListenerMounted) return;
-            
+
             // If protocol was switched, update settings with the working URL
             if (result.protocol_switched) {
               lastAttemptedUrlRef.current = result.used_url;
-              useStore.getState().updateSettings({ gatewayUrl: result.used_url });
+              useStore
+                .getState()
+                .updateSettings({ gatewayUrl: result.used_url });
             }
-            
+
             setConnectionError(null);
             if (!showOnboarding) {
-              const protocolMsg = result.protocol_switched ? ` (using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"})` : "";
+              const protocolMsg = result.protocol_switched
+                ? ` (using ${result.used_url.startsWith("wss://") ? "wss://" : "ws://"})`
+                : "";
               showSuccess(`Reconnected to Gateway${protocolMsg}`);
             }
             disconnectAttempts = 0;
           } catch (err) {
             if (!eventListenerMounted) return;
             console.error("Reconnection failed:", err);
-            const errorMessage = typeof err === 'string' ? err : 'Reconnection failed';
+            const errorMessage =
+              typeof err === "string" ? err : "Reconnection failed";
             setConnectionError(errorMessage);
             setIsConnecting(false);
             // Schedule next retry with backoff
             disconnectAttempts++;
             setReconnectAttempts(disconnectAttempts);
-            const nextBackoffIndex = Math.min(disconnectAttempts - 1, BACKOFF_DELAYS.length - 1);
+            const nextBackoffIndex = Math.min(
+              disconnectAttempts - 1,
+              BACKOFF_DELAYS.length - 1,
+            );
             const nextDelaySeconds = BACKOFF_DELAYS[nextBackoffIndex];
-            
+
             let nextCountdown = nextDelaySeconds;
             setRetryCountdown(nextCountdown);
-            
+
             setRetryNowFn(() => attemptReconnect);
-            
+
             countdownInterval = window.setInterval(() => {
               if (!eventListenerMounted) {
                 clearTimers();
@@ -448,9 +484,9 @@ export default function App() {
             }, 1000);
           }
         };
-        
+
         setRetryNowFn(() => attemptReconnect);
-        
+
         countdownInterval = window.setInterval(() => {
           if (!eventListenerMounted) {
             clearTimers();
@@ -469,7 +505,10 @@ export default function App() {
         if (!eventListenerMounted) return;
         appendToCurrentMessage(event.payload);
       }),
-      listen<{ usage?: { input?: number; output?: number; totalTokens?: number }; stopReason?: string }>("gateway:complete", (event) => {
+      listen<{
+        usage?: { input?: number; output?: number; totalTokens?: number };
+        stopReason?: string;
+      }>("gateway:complete", (event) => {
         if (!eventListenerMounted) return;
         completeCurrentMessage(event.payload?.usage);
       }),
@@ -479,17 +518,20 @@ export default function App() {
         const { message } = event.payload;
         if (message) {
           // Create a new conversation with the message from quick input
-          const { createConversation, selectConversation } = useStore.getState();
-          
+          const { createConversation, selectConversation } =
+            useStore.getState();
+
           // Create new conversation
           const newConv = createConversation();
           selectConversation(newConv.id);
-          
+
           // Add the user message - the ChatView will detect and send it
           // We use a small delay to ensure the conversation is set
           setTimeout(() => {
             // Set the message in the input field via a custom event
-            window.dispatchEvent(new CustomEvent("quickinput:setmessage", { detail: { message } }));
+            window.dispatchEvent(
+              new CustomEvent("quickinput:setmessage", { detail: { message } }),
+            );
           }, 100);
         }
       }),
@@ -502,17 +544,25 @@ export default function App() {
       }),
       listen("menu:toggle_sidebar", () => {
         if (!eventListenerMounted) return;
-        setSidebarOpen(prev => !prev);
+        setSidebarOpen((prev) => !prev);
       }),
       listen("menu:search", () => {
         if (!eventListenerMounted) return;
         // Trigger search dialog via keyboard shortcut simulation
-        window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true }));
+        window.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "k",
+            metaKey: true,
+            ctrlKey: true,
+          }),
+        );
       }),
       listen("menu:preferences", () => {
         if (!eventListenerMounted) return;
         // Trigger settings dialog via keyboard shortcut simulation
-        window.dispatchEvent(new KeyboardEvent("keydown", { key: ",", metaKey: true }));
+        window.dispatchEvent(
+          new KeyboardEvent("keydown", { key: ",", metaKey: true }),
+        );
       }),
       listen("menu:export", () => {
         if (!eventListenerMounted) return;
@@ -522,7 +572,9 @@ export default function App() {
     ]);
 
     // Register global shortcut for quick input (Cmd/Ctrl+Shift+Space)
-    const shortcut = navigator.platform.includes("Mac") ? "Command+Shift+Space" : "Control+Shift+Space";
+    const shortcut = navigator.platform.includes("Mac")
+      ? "Command+Shift+Space"
+      : "Control+Shift+Space";
     register(shortcut, async () => {
       const quickInputWindow = new Window("quickinput");
       const isVisible = await quickInputWindow.isVisible();
@@ -532,7 +584,7 @@ export default function App() {
         await quickInputWindow.show();
         await quickInputWindow.setFocus();
       }
-    }).catch(err => {
+    }).catch((err) => {
       console.error("Failed to register global shortcut:", err);
     });
 
@@ -545,21 +597,29 @@ export default function App() {
         listeners.forEach((fn) => fn());
       });
     };
-  }, [setConnected, appendToCurrentMessage, completeCurrentMessage, settings.gatewayUrl, settings.gatewayToken, showOnboarding, showSuccess]);
+  }, [
+    setConnected,
+    appendToCurrentMessage,
+    completeCurrentMessage,
+    settings.gatewayUrl,
+    settings.gatewayToken,
+    showOnboarding,
+    showSuccess,
+  ]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     // Clear progress
-    localStorage.removeItem('moltzer-onboarding-progress');
+    localStorage.removeItem("moltzer-onboarding-progress");
     // Trigger a connection attempt with new settings
     setIsConnecting(true);
   };
 
   const handleRerunSetup = () => {
     // Clear onboarding flags to trigger setup again
-    localStorage.removeItem('moltzer-onboarding-completed');
-    localStorage.removeItem('moltzer-onboarding-skipped');
-    localStorage.removeItem('moltzer-onboarding-progress');
+    localStorage.removeItem("moltzer-onboarding-completed");
+    localStorage.removeItem("moltzer-onboarding-skipped");
+    localStorage.removeItem("moltzer-onboarding-progress");
     setShowOnboarding(true);
   };
 
@@ -579,247 +639,323 @@ export default function App() {
         Skip to main content
       </a>
       <div className="flex h-screen bg-background text-foreground overflow-hidden">
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 lg:hidden animate-in fade-in duration-200"
-          onClick={() => setSidebarOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setSidebarOpen(false);
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close sidebar"
-        />
-      )}
-
-      {/* Sidebar */}
-      <div
-        className={cn(
-          "border-r border-border transition-all duration-300 ease-in-out flex-shrink-0",
-          "fixed lg:relative inset-y-0 left-0 z-30 lg:z-auto",
-          sidebarOpen ? "w-64" : "w-0 -translate-x-full lg:translate-x-0"
-        )}
-      >
-        <div 
-          id="sidebar"
-          className={cn(
-            "w-64 h-full transition-opacity duration-200 bg-background",
-            sidebarOpen ? "opacity-100" : "opacity-0 lg:opacity-0"
-          )}
-          role="navigation"
-          aria-label="Conversation sidebar"
-        >
-          <Sidebar 
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
-            onRerunSetup={handleRerunSetup}
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 lg:hidden animate-in fade-in duration-200"
+            onClick={() => setSidebarOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setSidebarOpen(false);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close sidebar"
           />
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Reconnection banner */}
-        {!connected && !isConnecting && (
-          <div 
-            className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between gap-2 text-amber-700 dark:text-amber-300 text-sm animate-in slide-in-from-top-2 duration-300"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="relative flex w-2 h-2 flex-shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
-                <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
-              </span>
-              <span className="font-medium flex-shrink-0">Offline Mode</span>
-              {retryCountdown !== null ? (
-                <>
-                  <span className="hidden sm:inline truncate">— Retry in {retryCountdown}s</span>
-                  <span className="sm:hidden">— {retryCountdown}s</span>
-                </>
-              ) : connectionError ? (
-                <span className="hidden sm:inline truncate text-xs">— {getErrorTitle(connectionError)}</span>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {retryNowFn && (
-                <button
-                  onClick={retryNowFn}
-                  className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
-                >
-                  Retry
-                </button>
-              )}
-            </div>
-          </div>
         )}
-        
-        {/* Header - draggable on macOS */}
-        <header 
+
+        {/* Sidebar */}
+        <div
           className={cn(
-            "h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0",
-            isMacOS && "pt-2"
+            "border-r border-border transition-all duration-300 ease-in-out flex-shrink-0",
+            "fixed lg:relative inset-y-0 left-0 z-30 lg:z-auto",
+            sidebarOpen ? "w-64" : "w-0 -translate-x-full lg:translate-x-0",
           )}
-          data-tauri-drag-region
         >
-          <div 
+          <div
+            id="sidebar"
             className={cn(
-              "flex items-center gap-2",
-              isMacOS && !sidebarOpen && "pl-[70px]"
+              "w-64 h-full transition-opacity duration-200 bg-background",
+              sidebarOpen ? "opacity-100" : "opacity-0 lg:opacity-0",
             )}
-            data-tauri-drag-region
+            role="navigation"
+            aria-label="Conversation sidebar"
           >
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-              title={sidebarOpen ? "Hide sidebar (⌘\\)" : "Show sidebar (⌘\\)"}
-              aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-              aria-expanded={sidebarOpen}
-              aria-controls="sidebar"
-            >
-              <svg
-                className={cn(
-                  "w-5 h-5 transition-transform duration-200",
-                  !sidebarOpen && "rotate-180"
-                )}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            <h1 className="font-semibold text-sm truncate select-none" data-tauri-drag-region>
-              {currentConversation?.title || "Moltzer"}
-            </h1>
+            <Sidebar
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+              onRerunSetup={handleRerunSetup}
+            />
           </div>
-          
-          {/* Connection status */}
-          <div className="flex items-center gap-2" data-tauri-drag-region>
-            {isConnecting ? (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm animate-in fade-in duration-200" data-tauri-drag-region>
-                <Spinner size="sm" />
-                <span className="hidden sm:inline select-none" data-tauri-drag-region>
-                  {reconnectAttempts > 1 ? `Reconnecting (${reconnectAttempts})...` : "Connecting..."}
-                </span>
-              </div>
-            ) : !connected ? (
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm animate-in fade-in duration-200" data-tauri-drag-region>
-                <span className="relative flex w-2 h-2" data-tauri-drag-region>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Reconnection banner */}
+          {!connected && !isConnecting && (
+            <div
+              className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between gap-2 text-amber-700 dark:text-amber-300 text-sm animate-in slide-in-from-top-2 duration-300"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="relative flex w-2 h-2 flex-shrink-0">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
                   <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
                 </span>
+                <span className="font-medium flex-shrink-0">Offline Mode</span>
                 {retryCountdown !== null ? (
                   <>
-                    <span className="hidden sm:inline select-none" data-tauri-drag-region>
-                      Reconnecting in {retryCountdown}s...
+                    <span className="hidden sm:inline truncate">
+                      — Retry in {retryCountdown}s
                     </span>
-                    <span className="sm:hidden select-none" data-tauri-drag-region>{retryCountdown}s</span>
-                    {retryNowFn && (
-                      <button
-                        onClick={retryNowFn}
-                        className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
-                      >
-                        Retry
-                      </button>
-                    )}
+                    <span className="sm:hidden">— {retryCountdown}s</span>
                   </>
-                ) : (
-                  <span className="hidden sm:inline select-none" data-tauri-drag-region>Reconnecting...</span>
-                )}
+                ) : connectionError ? (
+                  <span className="hidden sm:inline truncate text-xs">
+                    — {getErrorTitle(connectionError)}
+                  </span>
+                ) : null}
               </div>
-            ) : (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm animate-in fade-in duration-200" title="Connected to Gateway" data-tauri-drag-region>
-                <span className="w-2 h-2 bg-green-500 rounded-full" data-tauri-drag-region />
-                <span className="hidden sm:inline select-none" data-tauri-drag-region>Connected</span>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* Chat or Welcome */}
-        <main id="main-content" className="flex-1 min-h-0 relative">
-          {currentConversation ? <ChatView /> : <WelcomeView />}
-          
-          {/* Data loading overlay */}
-          {isLoadingData && (
-            <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-50 animate-in fade-in duration-300">
-              <Spinner size="lg" />
-              <div className="text-center">
-                <p className="text-sm font-medium mb-1">Loading conversations</p>
-                <p className="text-xs text-muted-foreground">Decrypting data...</p>
-              </div>
-            </div>
-          )}
-          
-          {/* Initial connection loading overlay */}
-          {!isLoadingData && isConnecting && reconnectAttempts === 1 && (
-            <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
-              <Spinner size="lg" />
-              <div className="text-center max-w-md px-4">
-                <p className="text-sm font-medium mb-1">Connecting to Gateway</p>
-                <p className="text-xs text-muted-foreground mb-4">Please wait...</p>
-                {cancelConnection && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {retryNowFn && (
                   <button
-                    onClick={cancelConnection}
-                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                    onClick={retryNowFn}
+                    className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
                   >
-                    Cancel
+                    Retry
                   </button>
                 )}
               </div>
             </div>
           )}
-          
-          {/* Connection error overlay */}
-          {!isLoadingData && !isConnecting && connectionError && reconnectAttempts === 1 && (() => {
-            const friendlyError = translateError(connectionError);
-            return (
-              <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
-                <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
-                  <svg className="w-8 h-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-center max-w-md px-4">
-                  <p className="text-sm font-medium mb-2">{friendlyError.title}</p>
-                  <p className="text-xs text-muted-foreground mb-1">{friendlyError.message}</p>
-                  {friendlyError.suggestion && (
-                    <p className="text-xs text-muted-foreground/70 mb-4">{friendlyError.suggestion}</p>
+
+          {/* Header - draggable on macOS */}
+          <header
+            className={cn(
+              "h-12 border-b border-border flex items-center justify-between px-4 flex-shrink-0",
+              isMacOS && "pt-2",
+            )}
+            data-tauri-drag-region
+          >
+            <div
+              className={cn(
+                "flex items-center gap-2",
+                isMacOS && !sidebarOpen && "pl-[70px]",
+              )}
+              data-tauri-drag-region
+            >
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                title={
+                  sidebarOpen ? "Hide sidebar (⌘\\)" : "Show sidebar (⌘\\)"
+                }
+                aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                aria-expanded={sidebarOpen}
+                aria-controls="sidebar"
+              >
+                <svg
+                  className={cn(
+                    "w-5 h-5 transition-transform duration-200",
+                    !sidebarOpen && "rotate-180",
                   )}
-                  <div className="flex gap-2 justify-center mt-4">
-                    {retryNowFn && (
-                      <button
-                        onClick={retryNowFn}
-                        className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+              <h1
+                className="font-semibold text-sm truncate select-none"
+                data-tauri-drag-region
+              >
+                {currentConversation?.title || "Moltzer"}
+              </h1>
+            </div>
+
+            {/* Connection status */}
+            <div className="flex items-center gap-2" data-tauri-drag-region>
+              {isConnecting ? (
+                <div
+                  className="flex items-center gap-2 text-muted-foreground text-sm animate-in fade-in duration-200"
+                  data-tauri-drag-region
+                >
+                  <Spinner size="sm" />
+                  <span
+                    className="hidden sm:inline select-none"
+                    data-tauri-drag-region
+                  >
+                    {reconnectAttempts > 1
+                      ? `Reconnecting (${reconnectAttempts})...`
+                      : "Connecting..."}
+                  </span>
+                </div>
+              ) : !connected ? (
+                <div
+                  className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm animate-in fade-in duration-200"
+                  data-tauri-drag-region
+                >
+                  <span
+                    className="relative flex w-2 h-2"
+                    data-tauri-drag-region
+                  >
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 animate-ping" />
+                    <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
+                  </span>
+                  {retryCountdown !== null ? (
+                    <>
+                      <span
+                        className="hidden sm:inline select-none"
+                        data-tauri-drag-region
                       >
-                        Retry Now
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        setConnectionError(null);
-                        setIsConnecting(false);
-                      }}
-                      className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                        Reconnecting in {retryCountdown}s...
+                      </span>
+                      <span
+                        className="sm:hidden select-none"
+                        data-tauri-drag-region
+                      >
+                        {retryCountdown}s
+                      </span>
+                      {retryNowFn && (
+                        <button
+                          onClick={retryNowFn}
+                          className="px-2 py-0.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
+                        >
+                          Retry
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <span
+                      className="hidden sm:inline select-none"
+                      data-tauri-drag-region
                     >
-                      Continue Offline
-                    </button>
-                  </div>
+                      Reconnecting...
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm animate-in fade-in duration-200"
+                  title="Connected to Gateway"
+                  data-tauri-drag-region
+                >
+                  <span
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                    data-tauri-drag-region
+                  />
+                  <span
+                    className="hidden sm:inline select-none"
+                    data-tauri-drag-region
+                  >
+                    Connected
+                  </span>
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* Chat or Welcome */}
+          <main id="main-content" className="flex-1 min-h-0 relative">
+            {currentConversation ? <ChatView /> : <WelcomeView />}
+
+            {/* Data loading overlay */}
+            {isLoadingData && (
+              <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-50 animate-in fade-in duration-300">
+                <Spinner size="lg" />
+                <div className="text-center">
+                  <p className="text-sm font-medium mb-1">
+                    Loading conversations
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Decrypting data...
+                  </p>
                 </div>
               </div>
-            );
-          })()}
-        </main>
+            )}
+
+            {/* Initial connection loading overlay */}
+            {!isLoadingData && isConnecting && reconnectAttempts === 1 && (
+              <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
+                <Spinner size="lg" />
+                <div className="text-center max-w-md px-4">
+                  <p className="text-sm font-medium mb-1">
+                    Connecting to Gateway
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Please wait...
+                  </p>
+                  {cancelConnection && (
+                    <button
+                      onClick={cancelConnection}
+                      className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Connection error overlay */}
+            {!isLoadingData &&
+              !isConnecting &&
+              connectionError &&
+              reconnectAttempts === 1 &&
+              (() => {
+                const friendlyError = translateError(connectionError);
+                return (
+                  <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
+                    <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+                      <svg
+                        className="w-8 h-8 text-destructive"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="text-center max-w-md px-4">
+                      <p className="text-sm font-medium mb-2">
+                        {friendlyError.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {friendlyError.message}
+                      </p>
+                      {friendlyError.suggestion && (
+                        <p className="text-xs text-muted-foreground/70 mb-4">
+                          {friendlyError.suggestion}
+                        </p>
+                      )}
+                      <div className="flex gap-2 justify-center mt-4">
+                        {retryNowFn && (
+                          <button
+                            onClick={retryNowFn}
+                            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                          >
+                            Retry Now
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setConnectionError(null);
+                            setIsConnecting(false);
+                          }}
+                          className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                        >
+                          Continue Offline
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+          </main>
+        </div>
       </div>
-    </div>
     </>
   );
 }

@@ -1,10 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useStore } from '../stores/store';
-import { db } from '../lib/db';
-import { 
-  loadPersistedData, 
-  searchPersistedMessages,
-} from '../lib/persistence';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { useStore } from "../stores/store";
+import { db } from "../lib/db";
+import { loadPersistedData, searchPersistedMessages } from "../lib/persistence";
 
 /**
  * Integration tests
@@ -12,392 +9,406 @@ import {
  */
 
 // Mock Tauri keychain for encryption tests
-vi.mock('@tauri-apps/api/core', () => ({
+vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn((command: string) => {
-    if (command === 'keychain_get') {
-      throw new Error('Key not found'); // Simulate no existing key
+    if (command === "keychain_get") {
+      throw new Error("Key not found"); // Simulate no existing key
     }
-    if (command === 'keychain_set') {
+    if (command === "keychain_set") {
       return Promise.resolve();
     }
-    if (command === 'keychain_delete') {
+    if (command === "keychain_delete") {
       return Promise.resolve();
     }
-    return Promise.reject(new Error('Unknown command'));
+    return Promise.reject(new Error("Unknown command"));
   }),
 }));
 
-describe('Integration Tests', () => {
+describe("Integration Tests", () => {
   beforeEach(async () => {
     // Clear database before each test
     await db.conversations.clear();
     await db.messages.clear();
-    
+
     // Reset store
     const store = useStore.getState();
-    store.conversations.forEach(c => store.deleteConversation(c.id));
+    store.conversations.forEach((c) => store.deleteConversation(c.id));
     store.setConnected(false);
   });
 
-  describe('Store and Persistence Integration', () => {
-    it('should persist conversation when created', async () => {
+  describe("Store and Persistence Integration", () => {
+    it("should persist conversation when created", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       // Wait for persistence to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       // Verify conversation was persisted
       const dbConversations = await db.conversations.toArray();
       expect(dbConversations).toHaveLength(1);
       expect(dbConversations[0].id).toBe(conversation.id);
     });
 
-    it('should persist message when added', async () => {
+    it("should persist message when added", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'Hello, world!',
+        role: "user",
+        content: "Hello, world!",
       });
-      
+
       // Wait for persistence (async operation needs sufficient time)
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       const dbMessages = await db.messages.toArray();
       expect(dbMessages).toHaveLength(1);
       expect(dbMessages[0].conversationId).toBe(conversation.id);
     });
 
-    it('should delete persisted conversation when deleted from store', async () => {
+    it("should delete persisted conversation when deleted from store", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       store.deleteConversation(conversation.id);
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const dbConversations = await db.conversations.toArray();
       expect(dbConversations).toHaveLength(0);
     });
 
-    it('should update persisted conversation when title changes', async () => {
+    it("should update persisted conversation when title changes", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      store.updateConversation(conversation.id, { title: 'Updated Title' });
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      store.updateConversation(conversation.id, { title: "Updated Title" });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const dbConversations = await db.conversations.toArray();
       expect(dbConversations[0].title).toBeTruthy(); // Will be encrypted
     });
   });
 
-  describe('Message Streaming Integration', () => {
-    it('should handle streaming message updates', async () => {
+  describe("Message Streaming Integration", () => {
+    it("should handle streaming message updates", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       // Start streaming message
       store.addMessage(conversation.id, {
-        role: 'assistant',
-        content: '',
+        role: "assistant",
+        content: "",
         isStreaming: true,
       });
-      
+
       // Append content multiple times
-      store.appendToCurrentMessage('Hello');
-      store.appendToCurrentMessage(' ');
-      store.appendToCurrentMessage('world');
-      
+      store.appendToCurrentMessage("Hello");
+      store.appendToCurrentMessage(" ");
+      store.appendToCurrentMessage("world");
+
       // Get fresh state after mutations
       const currentState = useStore.getState();
-      const currentConv = currentState.conversations.find(c => c.id === conversation.id)!;
-      expect(currentConv.messages[0].content).toBe('Hello world');
+      const currentConv = currentState.conversations.find(
+        (c) => c.id === conversation.id,
+      )!;
+      expect(currentConv.messages[0].content).toBe("Hello world");
       expect(currentConv.messages[0].isStreaming).toBe(true);
-      
+
       // Complete streaming
       store.completeCurrentMessage();
-      
+
       // Get fresh state after completion
       const finalState = useStore.getState();
-      const updatedConv = finalState.conversations.find(c => c.id === conversation.id)!;
+      const updatedConv = finalState.conversations.find(
+        (c) => c.id === conversation.id,
+      )!;
       expect(updatedConv.messages[0].isStreaming).toBe(false);
     });
 
-    it('should persist streaming message updates with debouncing', async () => {
+    it("should persist streaming message updates with debouncing", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       store.addMessage(conversation.id, {
-        role: 'assistant',
-        content: '',
+        role: "assistant",
+        content: "",
         isStreaming: true,
       });
-      
+
       // Rapid updates (should be debounced)
       for (let i = 0; i < 10; i++) {
-        store.appendToCurrentMessage('word ');
+        store.appendToCurrentMessage("word ");
       }
-      
+
       store.completeCurrentMessage();
-      
+
       // Wait for final persistence
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const dbMessages = await db.messages.toArray();
       expect(dbMessages).toHaveLength(1);
     });
   });
 
-  describe('Conversation Persistence Workflow', () => {
-    it('should persist and load complete conversation', async () => {
+  describe("Conversation Persistence Workflow", () => {
+    it("should persist and load complete conversation", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       // Add multiple messages
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'What is TypeScript?',
+        role: "user",
+        content: "What is TypeScript?",
       });
-      
+
       store.addMessage(conversation.id, {
-        role: 'assistant',
-        content: 'TypeScript is a typed superset of JavaScript.',
+        role: "assistant",
+        content: "TypeScript is a typed superset of JavaScript.",
       });
-      
+
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'Thanks!',
+        role: "user",
+        content: "Thanks!",
       });
-      
+
       // Wait for persistence
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       // Verify in database
       const dbMessages = await db.messages.toArray();
       expect(dbMessages).toHaveLength(3);
-      
+
       // Load from database
       const loaded = await loadPersistedData();
       expect(loaded.conversations).toHaveLength(1);
       expect(loaded.conversations[0].messages).toHaveLength(3);
       // Messages are loaded and may be sorted differently, find the first user message
-      const firstUserMessage = loaded.conversations[0].messages.find(m => m.content === 'What is TypeScript?');
+      const firstUserMessage = loaded.conversations[0].messages.find(
+        (m) => m.content === "What is TypeScript?",
+      );
       expect(firstUserMessage).toBeDefined();
     });
 
-    it('should handle multiple conversations', async () => {
+    it("should handle multiple conversations", async () => {
       const store = useStore.getState();
-      
+
       const conv1 = store.createConversation();
-      store.addMessage(conv1.id, { role: 'user', content: 'Message 1' });
-      
+      store.addMessage(conv1.id, { role: "user", content: "Message 1" });
+
       const conv2 = store.createConversation();
-      store.addMessage(conv2.id, { role: 'user', content: 'Message 2' });
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      store.addMessage(conv2.id, { role: "user", content: "Message 2" });
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       const loaded = await loadPersistedData();
       expect(loaded.conversations).toHaveLength(2);
     });
   });
 
-  describe('Search Integration', () => {
-    it('should search across conversations', async () => {
+  describe("Search Integration", () => {
+    it("should search across conversations", async () => {
       const store = useStore.getState();
-      
+
       const conv1 = store.createConversation();
-      store.addMessage(conv1.id, { 
-        role: 'user', 
-        content: 'Tell me about quantum computing' 
+      store.addMessage(conv1.id, {
+        role: "user",
+        content: "Tell me about quantum computing",
       });
-      
+
       const conv2 = store.createConversation();
-      store.addMessage(conv2.id, { 
-        role: 'user', 
-        content: 'Explain TypeScript to me' 
+      store.addMessage(conv2.id, {
+        role: "user",
+        content: "Explain TypeScript to me",
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const results = await searchPersistedMessages('quantum');
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const results = await searchPersistedMessages("quantum");
       expect(results).toHaveLength(1);
-      expect(results[0].content).toContain('quantum');
+      expect(results[0].content).toContain("quantum");
     });
 
-    it('should handle multi-word search queries', async () => {
+    it("should handle multi-word search queries", async () => {
       const store = useStore.getState();
-      
+
       const conv = store.createConversation();
-      store.addMessage(conv.id, { 
-        role: 'assistant', 
-        content: 'TypeScript is a strongly typed programming language' 
+      store.addMessage(conv.id, {
+        role: "assistant",
+        content: "TypeScript is a strongly typed programming language",
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const results = await searchPersistedMessages('strongly typed');
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const results = await searchPersistedMessages("strongly typed");
       expect(results).toHaveLength(1);
     });
   });
 
-  describe('Encryption Integration', () => {
-    it('should encrypt message content in database', async () => {
+  describe("Encryption Integration", () => {
+    it("should encrypt message content in database", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
-      const plaintext = 'Secret message content';
+
+      const plaintext = "Secret message content";
       store.addMessage(conversation.id, {
-        role: 'user',
+        role: "user",
         content: plaintext,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       // Check database - content should be encrypted (not plaintext)
       const dbMessages = await db.messages.toArray();
       expect(dbMessages[0].content).not.toBe(plaintext);
       expect(dbMessages[0].content.length).toBeGreaterThan(plaintext.length);
-      
+
       // But when loaded, it should decrypt correctly
       const loaded = await loadPersistedData();
       expect(loaded.conversations[0].messages[0].content).toBe(plaintext);
     });
 
-    it('should encrypt conversation title', async () => {
+    it("should encrypt conversation title", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
-      store.updateConversation(conversation.id, { 
-        title: 'My Secret Project' 
+
+      store.updateConversation(conversation.id, {
+        title: "My Secret Project",
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       const dbConversations = await db.conversations.toArray();
-      expect(dbConversations[0].title).not.toBe('My Secret Project');
-      
+      expect(dbConversations[0].title).not.toBe("My Secret Project");
+
       const loaded = await loadPersistedData();
-      expect(loaded.conversations[0].title).toBe('My Secret Project');
+      expect(loaded.conversations[0].title).toBe("My Secret Project");
     });
   });
 
-  describe('Pin Conversation Integration', () => {
-    it('should persist pin status', async () => {
+  describe("Pin Conversation Integration", () => {
+    it("should persist pin status", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       expect(conversation.isPinned).toBe(false);
-      
+
       store.pinConversation(conversation.id);
-      
+
       // Wait for async persistence (increased timeout for CI/load resilience)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       const loaded = await loadPersistedData();
       expect(loaded.conversations[0].isPinned).toBe(true);
     });
 
-    it('should toggle pin status', async () => {
+    it("should toggle pin status", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       store.pinConversation(conversation.id);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       store.pinConversation(conversation.id);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       const loaded = await loadPersistedData();
       expect(loaded.conversations[0].isPinned).toBe(false);
     });
   });
 
-  describe('Auto-title Generation Integration', () => {
-    it('should auto-generate title from first user message', async () => {
+  describe("Auto-title Generation Integration", () => {
+    it("should auto-generate title from first user message", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
-      expect(conversation.title).toBe('New Chat');
-      
+
+      expect(conversation.title).toBe("New Chat");
+
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'Tell me about quantum computing and its applications',
+        role: "user",
+        content: "Tell me about quantum computing and its applications",
       });
-      
+
       // Get fresh state after mutation
-      const updated = useStore.getState().conversations.find(c => c.id === conversation.id)!;
+      const updated = useStore
+        .getState()
+        .conversations.find((c) => c.id === conversation.id)!;
       // Store truncates at 40 chars + '...' for titles
-      expect(updated.title).toBe('Tell me about quantum computing and its ...');
+      expect(updated.title).toBe("Tell me about quantum computing and its ...");
     });
 
-    it('should not change title after first message', async () => {
+    it("should not change title after first message", async () => {
       const store = useStore.getState();
       const conversation = store.createConversation();
-      
+
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'First message',
+        role: "user",
+        content: "First message",
       });
-      
+
       // Wait for store to update
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const titleAfterFirst = store.conversations.find(c => c.id === conversation.id)?.title;
-      
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const titleAfterFirst = store.conversations.find(
+        (c) => c.id === conversation.id,
+      )?.title;
+
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'Second message that should not become title',
+        role: "user",
+        content: "Second message that should not become title",
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const finalConv = store.conversations.find(c => c.id === conversation.id);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const finalConv = store.conversations.find(
+        (c) => c.id === conversation.id,
+      );
       expect(finalConv?.title).toBe(titleAfterFirst);
     });
   });
 
-  describe('Error Handling Integration', () => {
-    it('should handle persistence errors gracefully', async () => {
+  describe("Error Handling Integration", () => {
+    it("should handle persistence errors gracefully", async () => {
       const store = useStore.getState();
-      
+
       // Create conversation
       const conversation = store.createConversation();
-      
+
       // Wait for store to update
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       // Even if persistence fails, store should still work
       store.addMessage(conversation.id, {
-        role: 'user',
-        content: 'Test message',
+        role: "user",
+        content: "Test message",
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       // Get fresh state after mutation
-      const conv = useStore.getState().conversations.find(c => c.id === conversation.id);
+      const conv = useStore
+        .getState()
+        .conversations.find((c) => c.id === conversation.id);
       expect(conv?.messages).toHaveLength(1);
     });
 
-    it('should handle corrupted data when loading', async () => {
+    it("should handle corrupted data when loading", async () => {
       // Add corrupted data to database
       await db.messages.add({
-        id: 'corrupt-1',
-        conversationId: 'test-conv',
-        role: 'user',
-        content: 'not-valid-encrypted-data',
+        id: "corrupt-1",
+        conversationId: "test-conv",
+        role: "user",
+        content: "not-valid-encrypted-data",
         timestamp: new Date(),
-        searchText: 'test',
+        searchText: "test",
       });
-      
+
       // Should not crash when loading
       const loaded = await loadPersistedData();
       expect(loaded).toBeDefined();

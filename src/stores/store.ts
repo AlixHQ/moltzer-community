@@ -1,9 +1,9 @@
 /**
  * Global State Management for Moltzer Client
- * 
+ *
  * Uses Zustand for lightweight, performant state management.
  * All state updates automatically persist to IndexedDB via the persistence layer.
- * 
+ *
  * State structure:
  * - Connection: Gateway connection status and available models
  * - Conversations: All chat conversations with messages
@@ -12,13 +12,13 @@
  */
 
 import { create } from "zustand";
-import { 
-  persistConversation, 
-  deletePersistedConversation, 
+import {
+  persistConversation,
+  deletePersistedConversation,
   updatePersistedConversation,
   persistMessage,
   deletePersistedMessage,
-  deletePersistedMessages
+  deletePersistedMessages,
 } from "../lib/persistence";
 import { getGatewayToken, setGatewayToken } from "../lib/keychain";
 
@@ -89,9 +89,9 @@ export interface Conversation {
  * Information about an available AI model
  */
 export interface ModelInfo {
-  id: string;           // e.g., "anthropic/claude-sonnet-4-5"
-  name: string;         // e.g., "Claude Sonnet 4.5"
-  provider: string;     // e.g., "anthropic"
+  id: string; // e.g., "anthropic/claude-sonnet-4-5"
+  name: string; // e.g., "Claude Sonnet 4.5"
+  provider: string; // e.g., "anthropic"
   isDefault?: boolean;
 }
 
@@ -130,7 +130,7 @@ interface Store {
   conversationsLoading: boolean;
   currentConversationId: string | null;
   currentConversation: Conversation | null;
-  
+
   setConversationsLoading: (loading: boolean) => void;
   createConversation: () => Conversation;
   selectConversation: (id: string) => void;
@@ -139,8 +139,15 @@ interface Store {
   pinConversation: (id: string) => void;
 
   // Messages
-  addMessage: (conversationId: string, message: Omit<Message, "id" | "timestamp">) => Message;
-  updateMessage: (conversationId: string, messageId: string, content: string) => void;
+  addMessage: (
+    conversationId: string,
+    message: Omit<Message, "id" | "timestamp">,
+  ) => Message;
+  updateMessage: (
+    conversationId: string,
+    messageId: string,
+    content: string,
+  ) => void;
   markMessageSent: (conversationId: string, messageId: string) => void;
   deleteMessage: (conversationId: string, messageId: string) => void;
   deleteMessagesAfter: (conversationId: string, messageId: string) => void;
@@ -187,398 +194,429 @@ function enqueuePersistence(convId: string, op: () => Promise<void>): void {
 }
 
 export const useStore = create<Store>()((set, get) => ({
-      // Connection
-      connected: false,
-      setConnected: (connected) => set({ connected }),
+  // Connection
+  connected: false,
+  setConnected: (connected) => set({ connected }),
 
-      // Available models
-      availableModels: [],
-      modelsLoading: false,
-      setAvailableModels: (models) => set({ availableModels: models }),
-      setModelsLoading: (loading) => set({ modelsLoading: loading }),
+  // Available models
+  availableModels: [],
+  modelsLoading: false,
+  setAvailableModels: (models) => set({ availableModels: models }),
+  setModelsLoading: (loading) => set({ modelsLoading: loading }),
 
-      // Conversations
-      conversations: [],
-      conversationsLoading: false,
-      currentConversationId: null,
-      currentStreamingMessageId: null,
+  // Conversations
+  conversations: [],
+  conversationsLoading: false,
+  currentConversationId: null,
+  currentStreamingMessageId: null,
 
-      get currentConversation() {
-        const state = get();
-        return state.conversations.find((c) => c.id === state.currentConversationId) || null;
-      },
+  get currentConversation() {
+    const state = get();
+    return (
+      state.conversations.find((c) => c.id === state.currentConversationId) ||
+      null
+    );
+  },
 
-      setConversationsLoading: (loading) => set({ conversationsLoading: loading }),
+  setConversationsLoading: (loading) => set({ conversationsLoading: loading }),
 
-      createConversation: () => {
-        const conversation: Conversation = {
-          id: generateId(),
-          title: "New Chat",
-          messages: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          thinkingEnabled: get().settings.thinkingDefault,
-          isPinned: false,
-        };
+  createConversation: () => {
+    const conversation: Conversation = {
+      id: generateId(),
+      title: "New Chat",
+      messages: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      thinkingEnabled: get().settings.thinkingDefault,
+      isPinned: false,
+    };
 
-        set((state) => ({
-          conversations: [conversation, ...state.conversations],
-          currentConversationId: conversation.id,
-        }));
-
-        // Persist to IndexedDB (queued to prevent race with subsequent updates)
-        enqueuePersistence(conversation.id, () =>
-          persistConversation(conversation).catch(err => {
-            console.error('Failed to persist new conversation:', err);
-          })
-        );
-
-        return conversation;
-      },
-
-      selectConversation: (id) => {
-        set({ currentConversationId: id });
-      },
-
-      deleteConversation: (id) => {
-        set((state) => ({
-          conversations: state.conversations.filter((c) => c.id !== id),
-          currentConversationId:
-            state.currentConversationId === id ? null : state.currentConversationId,
-        }));
-
-        // Delete from IndexedDB (queued after any pending create)
-        enqueuePersistence(id, () =>
-          deletePersistedConversation(id).catch(err => {
-            console.error('Failed to delete conversation from DB:', err);
-          })
-        );
-      },
-
-      updateConversation: (id, updates) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c
-          ),
-        }));
-
-        // Persist to IndexedDB (queued after any pending create)
-        enqueuePersistence(id, () => {
-          const conversation = get().conversations.find(c => c.id === id);
-          if (conversation) {
-            return updatePersistedConversation(conversation).catch(err => {
-              console.error('Failed to update conversation in DB:', err);
-            });
-          }
-          return Promise.resolve();
-        });
-      },
-
-      pinConversation: (id) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === id ? { ...c, isPinned: !c.isPinned } : c
-          ),
-        }));
-
-        // Persist to IndexedDB (queued after any pending create)
-        enqueuePersistence(id, () => {
-          const conversation = get().conversations.find(c => c.id === id);
-          if (conversation) {
-            return updatePersistedConversation(conversation).catch(err => {
-              console.error('Failed to persist pin status:', err);
-            });
-          }
-          return Promise.resolve();
-        });
-      },
-
-      // Messages
-      addMessage: (conversationId, messageData) => {
-        const message: Message = {
-          ...messageData,
-          id: generateId(),
-          timestamp: new Date(),
-        };
-
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? {
-                  ...c,
-                  messages: [...c.messages, message],
-                  updatedAt: new Date(),
-                  // Auto-generate title from first user message
-                  title:
-                    c.messages.length === 0 && messageData.role === "user"
-                      ? messageData.content.slice(0, 40) + (messageData.content.length > 40 ? "..." : "")
-                      : c.title,
-                }
-              : c
-          ),
-          currentStreamingMessageId: message.isStreaming ? message.id : null,
-        }));
-
-        // Persist message to IndexedDB (queued after any pending create, debounced for streaming)
-        if (message.isStreaming) {
-          debouncedPersist(() => {
-            enqueuePersistence(conversationId, () =>
-              persistMessage(conversationId, message).catch(err => {
-                console.error('Failed to persist streaming message:', err);
-              })
-            );
-          }, 1000);
-        } else {
-          enqueuePersistence(conversationId, () =>
-            persistMessage(conversationId, message).catch(err => {
-              console.error('Failed to persist message:', err);
-            })
-          );
-        }
-
-        return message;
-      },
-
-      updateMessage: (conversationId, messageId, content) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? {
-                  ...c,
-                  messages: c.messages.map((m) =>
-                    m.id === messageId ? { ...m, content } : m
-                  ),
-                  updatedAt: new Date(),
-                }
-              : c
-          ),
-        }));
-
-        // Persist the updated message (queued after any pending create)
-        enqueuePersistence(conversationId, () => {
-          const conversation = get().conversations.find(c => c.id === conversationId);
-          const message = conversation?.messages.find(m => m.id === messageId);
-          if (message) {
-            return persistMessage(conversationId, message).catch(err => {
-              console.error('Failed to persist updated message:', err);
-            });
-          }
-          return Promise.resolve();
-        });
-      },
-
-      markMessageSent: (conversationId, messageId) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? {
-                  ...c,
-                  messages: c.messages.map((m) =>
-                    m.id === messageId ? { ...m, isPending: false } : m
-                  ),
-                }
-              : c
-          ),
-        }));
-
-        // Persist the updated message (queued after any pending create)
-        enqueuePersistence(conversationId, () => {
-          const conversation = get().conversations.find(c => c.id === conversationId);
-          const message = conversation?.messages.find(m => m.id === messageId);
-          if (message) {
-            return persistMessage(conversationId, { ...message, isPending: false }).catch(err => {
-              console.error('Failed to persist message sent status:', err);
-            });
-          }
-          return Promise.resolve();
-        });
-      },
-
-      deleteMessage: (conversationId, messageId) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? {
-                  ...c,
-                  messages: c.messages.filter((m) => m.id !== messageId),
-                  updatedAt: new Date(),
-                }
-              : c
-          ),
-        }));
-
-        // Delete from IndexedDB (queued after any pending create)
-        enqueuePersistence(conversationId, () =>
-          deletePersistedMessage(messageId).catch((err: Error) => {
-            console.error('Failed to delete message from DB:', err);
-          })
-        );
-      },
-
-      deleteMessagesAfter: (conversationId, messageId) => {
-        const conversation = get().conversations.find(c => c.id === conversationId);
-        if (!conversation) return;
-
-        const messageIndex = conversation.messages.findIndex(m => m.id === messageId);
-        if (messageIndex === -1) return;
-
-        const messagesToDelete = conversation.messages.slice(messageIndex + 1);
-        
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === conversationId
-              ? {
-                  ...c,
-                  messages: c.messages.slice(0, messageIndex + 1),
-                  updatedAt: new Date(),
-                }
-              : c
-          ),
-        }));
-
-        // Delete from IndexedDB (queued after any pending create)
-        const messageIds = messagesToDelete.map(m => m.id);
-        enqueuePersistence(conversationId, () =>
-          deletePersistedMessages(messageIds).catch((err: Error) => {
-            console.error('Failed to delete messages from DB:', err);
-          })
-        );
-      },
-
-      appendToCurrentMessage: (content) => {
-        const { currentConversationId, currentStreamingMessageId } = get();
-        if (!currentConversationId || !currentStreamingMessageId) return;
-
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === currentConversationId
-              ? {
-                  ...c,
-                  messages: c.messages.map((m) =>
-                    m.id === currentStreamingMessageId
-                      ? { ...m, content: m.content + content }
-                      : m
-                  ),
-                }
-              : c
-          ),
-        }));
-
-        // Debounced persistence for streaming (every 1s)
-        const conversation = get().conversations.find(c => c.id === currentConversationId);
-        const message = conversation?.messages.find(m => m.id === currentStreamingMessageId);
-        if (message) {
-          debouncedPersist(() => {
-            persistMessage(currentConversationId, message).catch(err => {
-              console.error('Failed to persist streaming update:', err);
-            });
-          }, 1000);
-        }
-      },
-
-      completeCurrentMessage: (usage?: TokenUsage) => {
-        const { currentConversationId, currentStreamingMessageId } = get();
-        if (!currentConversationId || !currentStreamingMessageId) return;
-
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c.id === currentConversationId
-              ? {
-                  ...c,
-                  messages: c.messages.map((m) =>
-                    m.id === currentStreamingMessageId
-                      ? { ...m, isStreaming: false, usage }
-                      : m
-                  ),
-                }
-              : c
-          ),
-          currentStreamingMessageId: null,
-        }));
-
-        // Final persistence after streaming completes
-        const conversation = get().conversations.find(c => c.id === currentConversationId);
-        const message = conversation?.messages.find(m => m.id === currentStreamingMessageId);
-        if (message) {
-          persistMessage(currentConversationId, { ...message, isStreaming: false, usage }).catch(err => {
-            console.error('Failed to persist completed message:', err);
-          });
-        }
-      },
-
-      // Settings
-      settings: {
-        gatewayUrl: "", // Empty by default - forces onboarding
-        gatewayToken: "",
-        defaultModel: "anthropic/claude-sonnet-4-5",
-        thinkingDefault: false,
-        theme: "system",
-        defaultSystemPrompt: "", // Empty by default
-      },
-
-      updateSettings: async (updates) => {
-        set((state) => ({
-          settings: { ...state.settings, ...updates },
-        }));
-        
-        // Persist settings to localStorage (excluding token - stored in keychain)
-        if (typeof window !== 'undefined') {
-          const currentSettings = get().settings;
-          const settingsToSave = { ...currentSettings, ...updates };
-          
-          // Save token to OS keychain (secure)
-          if (updates.gatewayToken !== undefined) {
-            try {
-              await setGatewayToken(updates.gatewayToken);
-            } catch (err) {
-              console.error('Failed to save token to keychain:', err);
-            }
-          }
-          
-          // Save other settings to localStorage (token excluded)
-          const { gatewayToken: _gatewayToken, ...settingsWithoutToken } = settingsToSave;
-          localStorage.setItem('moltzer-settings', JSON.stringify(settingsWithoutToken));
-        }
-      },
-
-      loadSettings: async () => {
-        if (typeof window === 'undefined') return;
-        
-        try {
-          // Load settings from localStorage
-          const savedSettings = localStorage.getItem('moltzer-settings');
-          let settings = get().settings;
-          
-          if (savedSettings) {
-            const parsed = JSON.parse(savedSettings);
-            
-            // MIGRATION: If token is still in localStorage, move it to keychain
-            if (parsed.gatewayToken) {
-              try {
-                await setGatewayToken(parsed.gatewayToken);
-                // Remove token from localStorage after migration
-                delete parsed.gatewayToken;
-                localStorage.setItem('moltzer-settings', JSON.stringify(parsed));
-                // Successfully migrated gateway token to OS keychain
-              } catch (err) {
-                console.error('Failed to migrate token to keychain:', err);
-              }
-            }
-            
-            settings = { ...settings, ...parsed };
-          }
-          
-          // Load token from OS keychain (secure)
-          try {
-            const token = await getGatewayToken();
-            settings = { ...settings, gatewayToken: token };
-          } catch (err) {
-            console.error('Failed to load token from keychain:', err);
-          }
-          
-          set({ settings });
-        } catch (err) {
-          console.error('Failed to load settings:', err);
-        }
-      },
+    set((state) => ({
+      conversations: [conversation, ...state.conversations],
+      currentConversationId: conversation.id,
     }));
+
+    // Persist to IndexedDB (queued to prevent race with subsequent updates)
+    enqueuePersistence(conversation.id, () =>
+      persistConversation(conversation).catch((err) => {
+        console.error("Failed to persist new conversation:", err);
+      }),
+    );
+
+    return conversation;
+  },
+
+  selectConversation: (id) => {
+    set({ currentConversationId: id });
+  },
+
+  deleteConversation: (id) => {
+    set((state) => ({
+      conversations: state.conversations.filter((c) => c.id !== id),
+      currentConversationId:
+        state.currentConversationId === id ? null : state.currentConversationId,
+    }));
+
+    // Delete from IndexedDB (queued after any pending create)
+    enqueuePersistence(id, () =>
+      deletePersistedConversation(id).catch((err) => {
+        console.error("Failed to delete conversation from DB:", err);
+      }),
+    );
+  },
+
+  updateConversation: (id, updates) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c,
+      ),
+    }));
+
+    // Persist to IndexedDB (queued after any pending create)
+    enqueuePersistence(id, () => {
+      const conversation = get().conversations.find((c) => c.id === id);
+      if (conversation) {
+        return updatePersistedConversation(conversation).catch((err) => {
+          console.error("Failed to update conversation in DB:", err);
+        });
+      }
+      return Promise.resolve();
+    });
+  },
+
+  pinConversation: (id) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === id ? { ...c, isPinned: !c.isPinned } : c,
+      ),
+    }));
+
+    // Persist to IndexedDB (queued after any pending create)
+    enqueuePersistence(id, () => {
+      const conversation = get().conversations.find((c) => c.id === id);
+      if (conversation) {
+        return updatePersistedConversation(conversation).catch((err) => {
+          console.error("Failed to persist pin status:", err);
+        });
+      }
+      return Promise.resolve();
+    });
+  },
+
+  // Messages
+  addMessage: (conversationId, messageData) => {
+    const message: Message = {
+      ...messageData,
+      id: generateId(),
+      timestamp: new Date(),
+    };
+
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: [...c.messages, message],
+              updatedAt: new Date(),
+              // Auto-generate title from first user message
+              title:
+                c.messages.length === 0 && messageData.role === "user"
+                  ? messageData.content.slice(0, 40) +
+                    (messageData.content.length > 40 ? "..." : "")
+                  : c.title,
+            }
+          : c,
+      ),
+      currentStreamingMessageId: message.isStreaming ? message.id : null,
+    }));
+
+    // Persist message to IndexedDB (queued after any pending create, debounced for streaming)
+    if (message.isStreaming) {
+      debouncedPersist(() => {
+        enqueuePersistence(conversationId, () =>
+          persistMessage(conversationId, message).catch((err) => {
+            console.error("Failed to persist streaming message:", err);
+          }),
+        );
+      }, 1000);
+    } else {
+      enqueuePersistence(conversationId, () =>
+        persistMessage(conversationId, message).catch((err) => {
+          console.error("Failed to persist message:", err);
+        }),
+      );
+    }
+
+    return message;
+  },
+
+  updateMessage: (conversationId, messageId, content) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === messageId ? { ...m, content } : m,
+              ),
+              updatedAt: new Date(),
+            }
+          : c,
+      ),
+    }));
+
+    // Persist the updated message (queued after any pending create)
+    enqueuePersistence(conversationId, () => {
+      const conversation = get().conversations.find(
+        (c) => c.id === conversationId,
+      );
+      const message = conversation?.messages.find((m) => m.id === messageId);
+      if (message) {
+        return persistMessage(conversationId, message).catch((err) => {
+          console.error("Failed to persist updated message:", err);
+        });
+      }
+      return Promise.resolve();
+    });
+  },
+
+  markMessageSent: (conversationId, messageId) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === messageId ? { ...m, isPending: false } : m,
+              ),
+            }
+          : c,
+      ),
+    }));
+
+    // Persist the updated message (queued after any pending create)
+    enqueuePersistence(conversationId, () => {
+      const conversation = get().conversations.find(
+        (c) => c.id === conversationId,
+      );
+      const message = conversation?.messages.find((m) => m.id === messageId);
+      if (message) {
+        return persistMessage(conversationId, {
+          ...message,
+          isPending: false,
+        }).catch((err) => {
+          console.error("Failed to persist message sent status:", err);
+        });
+      }
+      return Promise.resolve();
+    });
+  },
+
+  deleteMessage: (conversationId, messageId) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.filter((m) => m.id !== messageId),
+              updatedAt: new Date(),
+            }
+          : c,
+      ),
+    }));
+
+    // Delete from IndexedDB (queued after any pending create)
+    enqueuePersistence(conversationId, () =>
+      deletePersistedMessage(messageId).catch((err: Error) => {
+        console.error("Failed to delete message from DB:", err);
+      }),
+    );
+  },
+
+  deleteMessagesAfter: (conversationId, messageId) => {
+    const conversation = get().conversations.find(
+      (c) => c.id === conversationId,
+    );
+    if (!conversation) return;
+
+    const messageIndex = conversation.messages.findIndex(
+      (m) => m.id === messageId,
+    );
+    if (messageIndex === -1) return;
+
+    const messagesToDelete = conversation.messages.slice(messageIndex + 1);
+
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.slice(0, messageIndex + 1),
+              updatedAt: new Date(),
+            }
+          : c,
+      ),
+    }));
+
+    // Delete from IndexedDB (queued after any pending create)
+    const messageIds = messagesToDelete.map((m) => m.id);
+    enqueuePersistence(conversationId, () =>
+      deletePersistedMessages(messageIds).catch((err: Error) => {
+        console.error("Failed to delete messages from DB:", err);
+      }),
+    );
+  },
+
+  appendToCurrentMessage: (content) => {
+    const { currentConversationId, currentStreamingMessageId } = get();
+    if (!currentConversationId || !currentStreamingMessageId) return;
+
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === currentConversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === currentStreamingMessageId
+                  ? { ...m, content: m.content + content }
+                  : m,
+              ),
+            }
+          : c,
+      ),
+    }));
+
+    // Debounced persistence for streaming (every 1s)
+    const conversation = get().conversations.find(
+      (c) => c.id === currentConversationId,
+    );
+    const message = conversation?.messages.find(
+      (m) => m.id === currentStreamingMessageId,
+    );
+    if (message) {
+      debouncedPersist(() => {
+        persistMessage(currentConversationId, message).catch((err) => {
+          console.error("Failed to persist streaming update:", err);
+        });
+      }, 1000);
+    }
+  },
+
+  completeCurrentMessage: (usage?: TokenUsage) => {
+    const { currentConversationId, currentStreamingMessageId } = get();
+    if (!currentConversationId || !currentStreamingMessageId) return;
+
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === currentConversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === currentStreamingMessageId
+                  ? { ...m, isStreaming: false, usage }
+                  : m,
+              ),
+            }
+          : c,
+      ),
+      currentStreamingMessageId: null,
+    }));
+
+    // Final persistence after streaming completes
+    const conversation = get().conversations.find(
+      (c) => c.id === currentConversationId,
+    );
+    const message = conversation?.messages.find(
+      (m) => m.id === currentStreamingMessageId,
+    );
+    if (message) {
+      persistMessage(currentConversationId, {
+        ...message,
+        isStreaming: false,
+        usage,
+      }).catch((err) => {
+        console.error("Failed to persist completed message:", err);
+      });
+    }
+  },
+
+  // Settings
+  settings: {
+    gatewayUrl: "", // Empty by default - forces onboarding
+    gatewayToken: "",
+    defaultModel: "anthropic/claude-sonnet-4-5",
+    thinkingDefault: false,
+    theme: "system",
+    defaultSystemPrompt: "", // Empty by default
+  },
+
+  updateSettings: async (updates) => {
+    set((state) => ({
+      settings: { ...state.settings, ...updates },
+    }));
+
+    // Persist settings to localStorage (excluding token - stored in keychain)
+    if (typeof window !== "undefined") {
+      const currentSettings = get().settings;
+      const settingsToSave = { ...currentSettings, ...updates };
+
+      // Save token to OS keychain (secure)
+      if (updates.gatewayToken !== undefined) {
+        try {
+          await setGatewayToken(updates.gatewayToken);
+        } catch (err) {
+          console.error("Failed to save token to keychain:", err);
+        }
+      }
+
+      // Save other settings to localStorage (token excluded)
+      const { gatewayToken: _gatewayToken, ...settingsWithoutToken } =
+        settingsToSave;
+      localStorage.setItem(
+        "moltzer-settings",
+        JSON.stringify(settingsWithoutToken),
+      );
+    }
+  },
+
+  loadSettings: async () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      // Load settings from localStorage
+      const savedSettings = localStorage.getItem("moltzer-settings");
+      let settings = get().settings;
+
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+
+        // MIGRATION: If token is still in localStorage, move it to keychain
+        if (parsed.gatewayToken) {
+          try {
+            await setGatewayToken(parsed.gatewayToken);
+            // Remove token from localStorage after migration
+            delete parsed.gatewayToken;
+            localStorage.setItem("moltzer-settings", JSON.stringify(parsed));
+            // Successfully migrated gateway token to OS keychain
+          } catch (err) {
+            console.error("Failed to migrate token to keychain:", err);
+          }
+        }
+
+        settings = { ...settings, ...parsed };
+      }
+
+      // Load token from OS keychain (secure)
+      try {
+        const token = await getGatewayToken();
+        settings = { ...settings, gatewayToken: token };
+      } catch (err) {
+        console.error("Failed to load token from keychain:", err);
+      }
+
+      set({ settings });
+    } catch (err) {
+      console.error("Failed to load settings:", err);
+    }
+  },
+}));

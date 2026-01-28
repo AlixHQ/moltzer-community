@@ -32,7 +32,7 @@ export async function setGatewayToken(token: string): Promise<void> {
     await deleteGatewayToken();
     return;
   }
-  
+
   await invoke("keychain_set", {
     service: SERVICE_NAME,
     key: "gateway_token",

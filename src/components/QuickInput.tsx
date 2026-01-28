@@ -1,6 +1,6 @@
 /**
  * QuickInput - Spotlight-style floating input for quick AI queries
- * 
+ *
  * Triggered by global hotkey (Cmd+Shift+Space on Mac, Ctrl+Shift+Space on Windows)
  * Opens main window with the typed message - instant "ask anywhere" functionality.
  */
@@ -19,7 +19,7 @@ export function QuickInput() {
   // Focus input on mount and when window becomes visible
   useEffect(() => {
     inputRef.current?.focus();
-    
+
     const unlisten = currentWindow.onFocusChanged(({ payload: focused }) => {
       if (focused) {
         inputRef.current?.focus();
@@ -27,7 +27,7 @@ export function QuickInput() {
     });
 
     return () => {
-      unlisten.then(fn => fn());
+      unlisten.then((fn) => fn());
     };
   }, [currentWindow]);
 
@@ -52,15 +52,15 @@ export function QuickInput() {
     if (!input.trim()) return;
 
     const message = input.trim();
-    
+
     // Emit event to main window with the message
     await emit("quickinput:submit", { message });
-    
+
     // Show and focus main window
     const mainWindow = new Window("main");
     await mainWindow.show();
     await mainWindow.setFocus();
-    
+
     // Close quickinput
     await handleClose();
   };
@@ -73,12 +73,12 @@ export function QuickInput() {
   };
 
   return (
-    <div 
+    <div
       className="h-screen w-screen bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       data-tauri-drag-region
     >
       {/* Header - draggable */}
-      <div 
+      <div
         className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30"
         data-tauri-drag-region
       >
@@ -106,7 +106,7 @@ export function QuickInput() {
             "w-full min-h-[60px] max-h-[120px] resize-none",
             "bg-transparent text-foreground placeholder:text-muted-foreground",
             "border-0 focus:ring-0 focus:outline-none",
-            "text-base leading-relaxed"
+            "text-base leading-relaxed",
           )}
           autoFocus
         />
@@ -115,7 +115,8 @@ export function QuickInput() {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-border/50 bg-muted/30 flex justify-between items-center">
         <span className="text-xs text-muted-foreground">
-          {navigator.platform.includes("Mac") ? "⌘⇧Space" : "Ctrl+Shift+Space"} to toggle
+          {navigator.platform.includes("Mac") ? "⌘⇧Space" : "Ctrl+Shift+Space"}{" "}
+          to toggle
         </span>
         <button
           onClick={handleSubmit}
@@ -124,7 +125,7 @@ export function QuickInput() {
             "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
             input.trim()
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-muted text-muted-foreground cursor-not-allowed",
           )}
         >
           <ArrowRight className="w-4 h-4" />

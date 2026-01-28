@@ -1,289 +1,312 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { ChatInput } from './ChatInput';
+﻿import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { ChatInput } from "./ChatInput";
 
-describe('ChatInput', () => {
+describe("ChatInput", () => {
   const mockOnSend = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('rendering', () => {
-    it('should render input field', () => {
+  describe("rendering", () => {
+    it("should render input field", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      expect(screen.getByPlaceholderText('Message Moltzer...')).toBeInTheDocument();
+
+      expect(
+        screen.getByPlaceholderText("Message Moltzer..."),
+      ).toBeInTheDocument();
     });
 
-    it('should render attach button', () => {
+    it("should render attach button", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      expect(screen.getByLabelText('Attach files')).toBeInTheDocument();
+
+      expect(screen.getByLabelText("Attach files")).toBeInTheDocument();
     });
 
-    it('should render send button', () => {
+    it("should render send button", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
+
       expect(screen.getByLabelText(/Send message/i)).toBeInTheDocument();
     });
 
-    it('should show keyboard hints', () => {
+    it("should show keyboard hints", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
+
       // Keyboard hints are combined in a single paragraph with kbd elements
-      expect(screen.getByText('Enter')).toBeInTheDocument();
-      expect(screen.getByText('Shift+Enter')).toBeInTheDocument();
+      expect(screen.getByText("Enter")).toBeInTheDocument();
+      expect(screen.getByText("Shift+Enter")).toBeInTheDocument();
       // The descriptive text is part of the paragraph containing the kbd elements
       expect(screen.getByText(/to send/)).toBeInTheDocument();
       expect(screen.getByText(/for new line/)).toBeInTheDocument();
     });
   });
 
-  describe('disabled state', () => {
-    it('should disable input when disabled prop is true', () => {
+  describe("disabled state", () => {
+    it("should disable input when disabled prop is true", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
-      
+
       const input = screen.getByPlaceholderText(/Connect to Gateway/i);
       expect(input).toBeDisabled();
     });
 
-    it('should show different placeholder when disabled', () => {
+    it("should show different placeholder when disabled", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
-      
-      expect(screen.getByPlaceholderText('Connect to Gateway to send messages...')).toBeInTheDocument();
+
+      expect(
+        screen.getByPlaceholderText("Connect to Gateway to send messages..."),
+      ).toBeInTheDocument();
     });
 
-    it('should disable attach button when disabled', () => {
+    it("should disable attach button when disabled", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
-      
-      const attachButton = screen.getByLabelText('Attach files');
+
+      const attachButton = screen.getByLabelText("Attach files");
       expect(attachButton).toBeDisabled();
     });
 
-    it('should disable send button when disabled', () => {
+    it("should disable send button when disabled", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
-      
+
       const sendButton = screen.getByLabelText(/Send message/i);
       expect(sendButton).toBeDisabled();
     });
   });
 
-  describe('sending state', () => {
+  describe("sending state", () => {
     it('should show "Sending..." placeholder when isSending is true', () => {
       render(<ChatInput onSend={mockOnSend} isSending={true} />);
-      
-      expect(screen.getByPlaceholderText('Sending message...')).toBeInTheDocument();
+
+      expect(
+        screen.getByPlaceholderText("Sending message..."),
+      ).toBeInTheDocument();
     });
 
-    it('should show spinner in send button when isSending', () => {
-      const { container } = render(<ChatInput onSend={mockOnSend} isSending={true} />);
-      
+    it("should show spinner in send button when isSending", () => {
+      const { container } = render(
+        <ChatInput onSend={mockOnSend} isSending={true} />,
+      );
+
       // Spinner should be present
-      expect(container.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(container.querySelector(".animate-spin")).toBeInTheDocument();
     });
   });
 
-  describe('input interaction', () => {
-    it('should update input value when typing', async () => {
+  describe("input interaction", () => {
+    it("should update input value when typing", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, 'Hello, Moltzer!');
-      
-      expect(input).toHaveValue('Hello, Moltzer!');
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "Hello, Moltzer!");
+
+      expect(input).toHaveValue("Hello, Moltzer!");
     });
 
-    it('should call onSend when Enter is pressed', async () => {
+    it("should call onSend when Enter is pressed", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, 'Test message');
-      await user.keyboard('{Enter}');
-      
-      expect(mockOnSend).toHaveBeenCalledWith('Test message', []);
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "Test message");
+      await user.keyboard("{Enter}");
+
+      expect(mockOnSend).toHaveBeenCalledWith("Test message", []);
     });
 
-    it('should not call onSend when Shift+Enter is pressed', async () => {
+    it("should not call onSend when Shift+Enter is pressed", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, 'Line 1');
-      await user.keyboard('{Shift>}{Enter}{/Shift}');
-      
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "Line 1");
+      await user.keyboard("{Shift>}{Enter}{/Shift}");
+
       expect(mockOnSend).not.toHaveBeenCalled();
     });
 
-    it('should clear input after sending', async () => {
+    it("should clear input after sending", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
-      await user.type(input, 'Test message');
-      await user.keyboard('{Enter}');
-      
-      expect(input.value).toBe('');
+
+      const input = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
+      await user.type(input, "Test message");
+      await user.keyboard("{Enter}");
+
+      expect(input.value).toBe("");
     });
 
-    it('should call onSend when send button is clicked', async () => {
+    it("should call onSend when send button is clicked", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, 'Test message');
-      
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "Test message");
+
       const sendButton = screen.getByLabelText(/Send message/i);
       await user.click(sendButton);
-      
-      expect(mockOnSend).toHaveBeenCalledWith('Test message', []);
+
+      expect(mockOnSend).toHaveBeenCalledWith("Test message", []);
     });
   });
 
-  describe('send button state', () => {
-    it('should disable send button when input is empty', () => {
+  describe("send button state", () => {
+    it("should disable send button when input is empty", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
+
       const sendButton = screen.getByLabelText(/Send message/i);
       expect(sendButton).toBeDisabled();
     });
 
-    it('should enable send button when input has content', async () => {
+    it("should enable send button when input has content", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, 'Test');
-      
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "Test");
+
       const sendButton = screen.getByLabelText(/Send message/i);
       expect(sendButton).not.toBeDisabled();
     });
 
-    it('should not send when input is only whitespace', async () => {
+    it("should not send when input is only whitespace", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, '   ');
-      await user.keyboard('{Enter}');
-      
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "   ");
+      await user.keyboard("{Enter}");
+
       expect(mockOnSend).not.toHaveBeenCalled();
     });
   });
 
-  describe('focus behavior', () => {
-    it('should apply focus styles when focused', async () => {
+  describe("focus behavior", () => {
+    it("should apply focus styles when focused", async () => {
       const user = userEvent.setup();
       const { container } = render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
       await user.click(input);
-      
-      const inputContainer = container.querySelector('.border-primary\\/40');
+
+      const inputContainer = container.querySelector(".border-primary\\/40");
       expect(inputContainer).toBeInTheDocument();
     });
 
-    it('should not auto-focus when disabled', () => {
+    it("should not auto-focus when disabled", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
-      
+
       const input = screen.getByPlaceholderText(/Connect to Gateway/i);
       expect(input).not.toHaveFocus();
     });
   });
 
-  describe('textarea auto-resize', () => {
-    it('should adjust height based on content', async () => {
+  describe("textarea auto-resize", () => {
+    it("should adjust height based on content", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const textarea = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
-      
+
+      const textarea = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
+
       // Type multiple lines
-      await user.type(textarea, 'Line 1{Shift>}{Enter}{/Shift}Line 2{Shift>}{Enter}{/Shift}Line 3');
-      
+      await user.type(
+        textarea,
+        "Line 1{Shift>}{Enter}{/Shift}Line 2{Shift>}{Enter}{/Shift}Line 3",
+      );
+
       // Height should be different after adding content
       // Note: In jsdom this might not actually change, but we can verify the oninput handler is set
       expect(textarea.oninput).toBeDefined();
     });
 
-    it('should have max height constraint', () => {
+    it("should have max height constraint", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const textarea = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
-      expect(textarea.style.maxHeight).toBe('200px');
+
+      const textarea = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
+      expect(textarea.style.maxHeight).toBe("200px");
     });
   });
 
-  describe('accessibility', () => {
-    it('should have proper ARIA labels for buttons', () => {
+  describe("accessibility", () => {
+    it("should have proper ARIA labels for buttons", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      expect(screen.getByLabelText('Attach files')).toBeInTheDocument();
+
+      expect(screen.getByLabelText("Attach files")).toBeInTheDocument();
       expect(screen.getByLabelText(/Send message/i)).toBeInTheDocument();
     });
 
-    it('should have proper title attributes', () => {
+    it("should have proper title attributes", () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
+
       expect(screen.getByTitle(/Attach files/i)).toBeInTheDocument();
-      expect(screen.getByTitle('Send message (Enter)')).toBeInTheDocument();
+      expect(screen.getByTitle("Send message (Enter)")).toBeInTheDocument();
     });
 
-    it('should update send button aria-label when sending', () => {
+    it("should update send button aria-label when sending", () => {
       render(<ChatInput onSend={mockOnSend} isSending={true} />);
-      
-      expect(screen.getByLabelText('Sending message...')).toBeInTheDocument();
+
+      expect(screen.getByLabelText("Sending message...")).toBeInTheDocument();
     });
   });
 
-  describe('edge cases', () => {
-    it('should handle very long messages', async () => {
+  describe("edge cases", () => {
+    it("should handle very long messages", async () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const longMessage = 'a'.repeat(10000);
-      const input = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
+
+      const longMessage = "a".repeat(10000);
+      const input = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
       // Use fireEvent.change instead of userEvent.type for very long strings (faster)
       fireEvent.change(input, { target: { value: longMessage } });
-      fireEvent.keyDown(input, { key: 'Enter' });
-      
+      fireEvent.keyDown(input, { key: "Enter" });
+
       expect(mockOnSend).toHaveBeenCalledWith(longMessage, []);
     });
 
-    it('should handle special characters', async () => {
+    it("should handle special characters", async () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
+
       const specialChars = '<script>alert("xss")</script>';
-      const input = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
+      const input = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
       // Use fireEvent.change for special characters that userEvent doesn't handle well
       fireEvent.change(input, { target: { value: specialChars } });
-      fireEvent.keyDown(input, { key: 'Enter' });
-      
+      fireEvent.keyDown(input, { key: "Enter" });
+
       expect(mockOnSend).toHaveBeenCalledWith(specialChars, []);
     });
 
-    it('should handle unicode characters', async () => {
+    it("should handle unicode characters", async () => {
       const user = userEvent.setup();
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const input = screen.getByPlaceholderText('Message Moltzer...');
-      await user.type(input, '你好 🌍 Привет');
-      await user.keyboard('{Enter}');
-      
+
+      const input = screen.getByPlaceholderText("Message Moltzer...");
+      await user.type(input, "你好 🌍 Привет");
+      await user.keyboard("{Enter}");
+
       expect(mockOnSend).toHaveBeenCalled();
     });
 
-    it('should handle emoji input', async () => {
+    it("should handle emoji input", async () => {
       render(<ChatInput onSend={mockOnSend} />);
-      
-      const emojiText = '😀 😃 😄 😁';
-      const input = screen.getByPlaceholderText('Message Moltzer...') as HTMLTextAreaElement;
+
+      const emojiText = "😀 😃 😄 😁";
+      const input = screen.getByPlaceholderText(
+        "Message Moltzer...",
+      ) as HTMLTextAreaElement;
       // Use fireEvent.change for emoji as userEvent has encoding issues
       fireEvent.change(input, { target: { value: emojiText } });
-      fireEvent.keyDown(input, { key: 'Enter' });
-      
+      fireEvent.keyDown(input, { key: "Enter" });
+
       expect(mockOnSend).toHaveBeenCalledWith(emojiText, []);
     });
   });
