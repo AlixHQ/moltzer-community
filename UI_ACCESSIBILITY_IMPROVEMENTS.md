@@ -1,11 +1,11 @@
-# UI Polish & Accessibility Improvements
+﻿# UI Polish & Accessibility Improvements
 
 **Completed:** December 2024  
 **Standards:** WCAG 2.1 Level AA/AAA Compliance
 
 ## Overview
 
-This document summarizes all UI polish and accessibility improvements made to Moltzer. Each improvement was committed separately for easy review and potential rollback.
+This document summarizes all UI polish and accessibility improvements made to Moltz. Each improvement was committed separately for easy review and potential rollback.
 
 ---
 

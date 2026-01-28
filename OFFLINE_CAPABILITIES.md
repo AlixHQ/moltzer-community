@@ -1,4 +1,4 @@
-﻿# Moltzer Offline & Local-First Capabilities
+﻿# Moltz Offline & Local-First Capabilities
 
 > **Status:** Design Specification  
 > **Version:** 1.0  
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Moltzer is already architecturally suited for offline-first operation. All conversations are stored locally in IndexedDB, search happens client-side, and the only network dependency is the Clawdbot Gateway for sending messages. This document specifies how to:
+Moltz is already architecturally suited for offline-first operation. All conversations are stored locally in IndexedDB, search happens client-side, and the only network dependency is the Clawdbot Gateway for sending messages. This document specifies how to:
 
 1. Gracefully handle network unavailability
 2. Integrate local LLMs for true offline AI
@@ -590,7 +590,7 @@ export function LocalModelPicker() {
 
 ### 3.1 Sync Architecture
 
-Moltzer is primarily a local-first app. Sync is optional and designed for:
+Moltz is primarily a local-first app. Sync is optional and designed for:
 - Multiple devices (laptop + desktop)
 - Backup to user-controlled storage
 - Sharing conversations
@@ -801,7 +801,7 @@ class WebDAVAdapter implements SyncStorageAdapter {
   ) {}
   
   async getManifest(): Promise<SyncManifest | null> {
-    const response = await fetch(`${this.url}/Moltzer/manifest.json`, {
+    const response = await fetch(`${this.url}/Moltz/manifest.json`, {
       headers: this.authHeaders(),
     });
     if (!response.ok) return null;
@@ -1136,7 +1136,7 @@ interface DBQueuedMessage {
   model: string;
 }
 
-// in MoltzerDB constructor
+// in MoltzDB constructor
 this.version(2).stores({
   messages: 'id, conversationId, timestamp, *searchWords',
   conversations: 'id, updatedAt, isPinned',
@@ -1483,13 +1483,13 @@ curl http://localhost:11434/api/generate -d '{
 
 ```bash
 # Optional: custom Ollama URL
-moltzer_OLLAMA_URL=http://localhost:11434
+Moltz_OLLAMA_URL=http://localhost:11434
 
 # Optional: custom sync folder
-moltzer_SYNC_PATH=/path/to/sync
+Moltz_SYNC_PATH=/path/to/sync
 
 # Debug: verbose connection logging
-moltzer_DEBUG_CONNECTION=1
+Moltz_DEBUG_CONNECTION=1
 ```
 
 ---
@@ -1507,4 +1507,4 @@ moltzer_DEBUG_CONNECTION=1
 
 ---
 
-*Document maintained by the Moltzer team. Last updated: 2025-01-20*
+*Document maintained by the Moltz team. Last updated: 2025-01-20*

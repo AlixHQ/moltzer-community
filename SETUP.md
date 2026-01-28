@@ -1,6 +1,6 @@
-# Getting Started with Moltzer
+﻿# Getting Started with Moltz
 
-Get Moltzer up and chatting in about 5 minutes. Here's exactly what you need.
+Get Moltz up and chatting in about 5 minutes. Here's exactly what you need.
 
 ---
 
@@ -8,7 +8,7 @@ Get Moltzer up and chatting in about 5 minutes. Here's exactly what you need.
 
 | What | Why |
 |------|-----|
-| **Node.js 18+** | Moltzer Gateway runs on Node |
+| **Node.js 18+** | Moltz Gateway runs on Node |
 | **An AI API key** | Claude, OpenAI, or Google (one is enough to start) |
 
 **Where to get API keys:**
@@ -18,9 +18,9 @@ Get Moltzer up and chatting in about 5 minutes. Here's exactly what you need.
 
 ---
 
-## Step 1 — Install Moltzer Gateway
+## Step 1 — Install Moltz Gateway
 
-Moltzer Gateway is the open-source backend that securely routes your chats to AI providers. It runs locally on your machine — your API keys never leave your computer.
+Moltz Gateway is the open-source backend that securely routes your chats to AI providers. It runs locally on your machine — your API keys never leave your computer.
 
 ```bash
 npm install -g moltbot
@@ -41,13 +41,13 @@ moltbot gateway status
 
 ---
 
-## Step 2 — Download & Install Moltzer
+## Step 2 — Download & Install Moltz
 
 | Platform | Download |
 |----------|----------|
-| **macOS** (Apple Silicon & Intel) | [Download for Mac →](https://github.com/AlixHQ/moltzer-community/releases) |
-| **Windows** | [Download for Windows →](https://github.com/AlixHQ/moltzer-community/releases) |
-| **Linux** | [Download for Linux →](https://github.com/AlixHQ/moltzer-community/releases) |
+| **macOS** (Apple Silicon & Intel) | [Download for Mac →](https://github.com/AlixHQ/Moltz-community/releases) |
+| **Windows** | [Download for Windows →](https://github.com/AlixHQ/Moltz-community/releases) |
+| **Linux** | [Download for Linux →](https://github.com/AlixHQ/Moltz-community/releases) |
 
 Install normally — drag to Applications on Mac, run the `.exe` on Windows, or use the `.deb`/`.rpm` on Linux.
 
@@ -55,7 +55,7 @@ Install normally — drag to Applications on Mac, run the `.exe` on Windows, or 
 
 ## Step 3 — Connect & Chat
 
-1. **Launch Moltzer** — find it in your Applications or start menu
+1. **Launch Moltz** — find it in your Applications or start menu
 2. **First launch** — the onboarding wizard guides you through connecting to your Gateway
 3. If prompted manually: open **Settings** (`Cmd+,` on Mac, `Ctrl+,` on Windows) and enter:
    ```
@@ -70,7 +70,7 @@ Install normally — drag to Applications on Mac, run the `.exe` on Windows, or 
 
 | Action | Shortcut |
 |--------|----------|
-| Open Moltzer from anywhere | `Cmd/Ctrl + Shift + Space` |
+| Open Moltz from anywhere | `Cmd/Ctrl + Shift + Space` |
 | New conversation | `Cmd/Ctrl + N` |
 | Search conversations | `Cmd/Ctrl + K` |
 | Open settings | `Cmd/Ctrl + ,` |
@@ -80,7 +80,7 @@ Install normally — drag to Applications on Mac, run the `.exe` on Windows, or 
 ## Troubleshooting
 
 ### "Connection failed"
-- Check that Moltzer Gateway is running: `moltbot gateway status`
+- Check that Moltz Gateway is running: `moltbot gateway status`
 - Restart it if needed: `moltbot gateway restart`
 - Verify the URL in Settings matches `ws://localhost:18789`
 
@@ -89,13 +89,13 @@ Install normally — drag to Applications on Mac, run the `.exe` on Windows, or 
 - Make sure you've enabled at least one AI provider during `moltbot setup`
 
 ### App won't launch (macOS)
-- You may need to allow it: **System Settings → Security → Allow Moltzer**
+- You may need to allow it: **System Settings → Security → Allow Moltz**
 
 ### Port already in use
-- Something else is on port 18789. Stop it, or configure a custom port: `moltbot setup --port 18790` and update the URL in Moltzer Settings.
+- Something else is on port 18789. Stop it, or configure a custom port: `moltbot setup --port 18790` and update the URL in Moltz Settings.
 
 ---
 
 For full Gateway documentation, visit [Moltbot on GitHub](https://github.com/moltbot/moltbot).
 
-Having trouble? Open an [issue on GitHub](https://github.com/AlixHQ/moltzer-community/issues) — we're happy to help!
+Having trouble? Open an [issue on GitHub](https://github.com/AlixHQ/Moltz-community/issues) — we're happy to help!

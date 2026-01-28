@@ -1,6 +1,6 @@
-# Moltzer client - CI/CD
+﻿# Moltz client - CI/CD
 
-This directory contains the complete CI/CD configuration for the Moltzer client.
+This directory contains the complete CI/CD configuration for the Moltz client.
 
 ## 🚀 Quick Links
 

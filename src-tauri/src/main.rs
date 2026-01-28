@@ -5,5 +5,5 @@
 )]
 
 fn main() {
-    moltzer_client_lib::run()
+    moltz_client_lib::run()
 }

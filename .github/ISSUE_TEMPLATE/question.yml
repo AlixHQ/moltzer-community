@@ -1,5 +1,5 @@
-name: ❓ Question / Help
-description: Ask a question or get help with Moltzer
+﻿name: ❓ Question / Help
+description: Ask a question or get help with Moltz
 title: "[Question]: "
 labels: ["question"]
 body:
@@ -42,8 +42,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Moltzer Version (if relevant)
-      description: What version of Moltzer are you using? (Help → About)
+      label: Moltz Version (if relevant)
+      description: What version of Moltz are you using? (Help → About)
       placeholder: "1.0.0"
     validations:
       required: false

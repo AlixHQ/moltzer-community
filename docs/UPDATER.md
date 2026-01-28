@@ -1,6 +1,6 @@
-# Auto-Update System
+﻿# Auto-Update System
 
-Moltzer includes a comprehensive auto-update mechanism using Tauri's plugin-updater with custom UI and UX.
+Moltz includes a comprehensive auto-update mechanism using Tauri's plugin-updater with custom UI and UX.
 
 ## Features
 
@@ -71,7 +71,7 @@ Provides:
       "active": true,
       "dialog": false,
       "endpoints": [
-        "https://github.com/AlixHQ/moltzer-community/releases/latest/download/latest.json"
+        "https://github.com/AlixHQ/Moltz-community/releases/latest/download/latest.json"
       ],
       "pubkey": "YOUR_PUBLIC_KEY_HERE"
     }
@@ -90,7 +90,7 @@ Provides:
 npm install -g @tauri-apps/cli
 
 # Generate signing keypair
-tauri signer generate -w ~/.tauri/moltzer.key
+tauri signer generate -w ~/.tauri/Moltz.key
 
 # This outputs:
 # - Private key (save securely!)
@@ -259,7 +259,7 @@ println!("Update check failed: {}", e);
 
 **Fix:**
 - Run as administrator (Windows)
-- Add exclusion for Moltzer in antivirus
+- Add exclusion for Moltz in antivirus
 - Ensure no other instances are running
 
 ## Manual Override

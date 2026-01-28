@@ -1,14 +1,14 @@
-# Security Policy
+﻿# Security Policy
 
 ## ?? Security Overview
 
-Moltzer takes security and privacy seriously. This document outlines our security practices and how to report vulnerabilities.
+Moltz takes security and privacy seriously. This document outlines our security practices and how to report vulnerabilities.
 
 ## ??? Security Features
 
 ### End-to-End Encryption
 
-All conversations stored in Moltzer are encrypted using **AES-GCM 256-bit** encryption:
+All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryption:
 
 - **At Rest:** All messages in the local IndexedDB database are encrypted
 - **Master Key:** Stored securely in your OS's credential manager:
@@ -21,7 +21,7 @@ All conversations stored in Moltzer are encrypted using **AES-GCM 256-bit** encr
 
 - **WebSocket Security:** Automatic fallback from `ws://` to `wss://` for secure connections
 - **Auth Tokens:** Optional authentication tokens stored in OS keychain
-- **No Telemetry:** Moltzer doesn't collect or transmit usage data
+- **No Telemetry:** Moltz doesn't collect or transmit usage data
 
 ### Code Security
 
@@ -43,7 +43,7 @@ All conversations stored in Moltzer are encrypted using **AES-GCM 256-bit** encr
 
 ### How to Report
 
-1. **Email:** Send details to **security@moltzer.dev** (or create a private security advisory on GitHub)
+1. **Email:** Send details to **security@Moltz.dev** (or create a private security advisory on GitHub)
 2. **Include:**
    - Description of the vulnerability
    - Steps to reproduce
@@ -78,11 +78,11 @@ All conversations stored in Moltzer are encrypted using **AES-GCM 256-bit** encr
 
 ### General Security
 
-- Download Moltzer only from official sources:
+- Download Moltz only from official sources:
   - [GitHub Releases](https://github.com/dokterdok/molt-client/releases)
   - Official package managers (when available)
 - Verify checksums of downloaded binaries
-- Keep Moltzer and your OS updated
+- Keep Moltz and your OS updated
 - Don't install untrusted plugins or extensions
 
 ## ?? Encryption Details
@@ -144,7 +144,7 @@ Subscribe to **Watch ? Custom ? Security alerts** on GitHub to get notified.
 
 ## ? Security Audit
 
-Moltzer has not yet undergone a formal third-party security audit. If you're interested in sponsoring an audit, please reach out to security@moltzer.dev.
+Moltz has not yet undergone a formal third-party security audit. If you're interested in sponsoring an audit, please reach out to security@Moltz.dev.
 
 ## ?? Acknowledgments
 
@@ -154,4 +154,4 @@ We're grateful to security researchers who responsibly disclose vulnerabilities.
 
 **Last Updated:** January 2026
 
-For questions about this policy, contact: security@moltzer.dev
+For questions about this policy, contact: security@Moltz.dev

@@ -327,7 +327,7 @@ export function toHTML(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(conversation.title)} - Moltzer Export</title>
+  <title>${escapeHtml(conversation.title)} - Moltz Export</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -391,7 +391,7 @@ export function toHTML(
     ${messagesHtml}
   </div>
   <div class="footer">
-    Exported from Moltzer on ${formatTimestamp(new Date())}
+    Exported from Moltz on ${formatTimestamp(new Date())}
   </div>
 </body>
 </html>`;

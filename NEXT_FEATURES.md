@@ -51,11 +51,11 @@ From ROADMAP.md, these features block public release:
 
 ## 2. Competitive Gaps Analysis
 
-From COMPETITIVE_ANALYSIS.md, what ChatGPT/Claude have that Moltzer doesn't:
+From COMPETITIVE_ANALYSIS.md, what ChatGPT/Claude have that Moltz doesn't:
 
 ### High Priority Gaps
 
-| Feature | ChatGPT | Claude | Moltzer | Feasibility | Strategic Value |
+| Feature | ChatGPT | Claude | Moltz | Feasibility | Strategic Value |
 |---------|---------|--------|------|-------------|-----------------|
 | **Edit previous messages** | ✅ | ✅ | ❌ | 🟢 Easy | 🔥 Must-have |
 | **Regenerate responses** | ✅ | ✅ | ❌ | 🟢 Easy | 🔥 Must-have |
@@ -67,7 +67,7 @@ From COMPETITIVE_ANALYSIS.md, what ChatGPT/Claude have that Moltzer doesn't:
 | **Voice input** | ✅ | ⚠️ | ❌ | 🔴 Hard | 🟡 Medium |
 | **Always-on-top mode** | ✅ | ⚠️ | ❌ | 🟢 Easy | 🟡 Medium |
 
-### What Moltzer Already Does Better
+### What Moltz Already Does Better
 
 ✅ **Multi-model support** — Switch between GPT, Claude, Gemini (competitors lock to one provider)  
 ✅ **Lighter weight** — Tauri vs Electron (~50MB vs ~500MB RAM)  
@@ -85,7 +85,7 @@ Each feature evaluated on:
 - **Testing complexity** — Can it be tested autonomously?
 - **User impact** — High/medium/low demand
 - **Dependencies** — Gateway changes? OS features?
-- **Strategic value** — Does it differentiate Moltzer or match table stakes?
+- **Strategic value** — Does it differentiate Moltz or match table stakes?
 
 ### Priority Tiers
 
@@ -262,7 +262,7 @@ regenerateLastResponse: (conversationId: string) => {
   updatePersistedConversation(conversationId, { messages: newMessages });
 
   // Re-send last user message (trigger in App.tsx via event)
-  window.dispatchEvent(new CustomEvent('Moltzer:regenerate', { 
+  window.dispatchEvent(new CustomEvent('Moltz:regenerate', { 
     detail: { conversationId, message: conversation.messages[lastUserMessageIndex] }
   }));
 }
@@ -314,8 +314,8 @@ useEffect(() => {
     }
   };
 
-  window.addEventListener('Moltzer:regenerate', handleRegenerate);
-  return () => window.removeEventListener('Moltzer:regenerate', handleRegenerate);
+  window.addEventListener('Moltz:regenerate', handleRegenerate);
+  return () => window.removeEventListener('Moltz:regenerate', handleRegenerate);
 }, [currentConversationId]);
 ```
 
@@ -358,7 +358,7 @@ describe('regenerateLastResponse', () => {
 
   it('should dispatch regenerate event', () => {
     const eventSpy = vi.fn();
-    window.addEventListener('Moltzer:regenerate', eventSpy);
+    window.addEventListener('Moltz:regenerate', eventSpy);
     
     const store = useStore.getState();
     const conv = store.createConversation();
@@ -622,7 +622,7 @@ function conversationToMarkdown(conversation: Conversation): string {
   lines.push('');
   lines.push('---');
   lines.push('');
-  lines.push(`*Exported from Moltzer on ${new Date().toLocaleString()}*`);
+  lines.push(`*Exported from Moltz on ${new Date().toLocaleString()}*`);
   
   return lines.join('\n');
 }
@@ -648,7 +648,7 @@ function conversationToText(conversation: Conversation): string {
   });
   
   lines.push(`--`);
-  lines.push(`Exported from Moltzer on ${new Date().toLocaleString()}`);
+  lines.push(`Exported from Moltz on ${new Date().toLocaleString()}`);
   
   return lines.join('\n');
 }
@@ -1363,7 +1363,7 @@ test.describe('Image Rendering', () => {
     
     // Mock the response (inject into store)
     await page.evaluate((md) => {
-      const store = (window as any).__moltzer_STORE__;
+      const store = (window as any).__Moltz_STORE__;
       const conv = store.createConversation();
       store.addMessage(conv.id, { role: 'assistant', content: md });
     }, markdownWithImage);
@@ -1378,7 +1378,7 @@ test.describe('Image Rendering', () => {
     
     // Create message with image (similar to above)
     await page.evaluate(() => {
-      const store = (window as any).__moltzer_STORE__;
+      const store = (window as any).__Moltz_STORE__;
       const conv = store.createConversation();
       store.addMessage(conv.id, {
         role: 'assistant',
@@ -1398,7 +1398,7 @@ test.describe('Image Rendering', () => {
     
     // Open lightbox (same setup as above)
     await page.evaluate(() => {
-      const store = (window as any).__moltzer_STORE__;
+      const store = (window as any).__Moltz_STORE__;
       const conv = store.createConversation();
       store.addMessage(conv.id, {
         role: 'assistant',

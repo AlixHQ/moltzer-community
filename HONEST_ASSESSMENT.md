@@ -1,4 +1,4 @@
-﻿# Moltzer - Brutally Honest Assessment
+﻿# Moltz - Brutally Honest Assessment
 
 **Date:** 2025-01-27  
 **Reviewer:** Claude (subagent)  
@@ -75,7 +75,7 @@ Failing tests are in:
 ## 3. Integration Points
 
 ### ⚠️ WebSocket Protocol - CRITICAL CONCERN
-**Moltzer sends:**
+**Moltz sends:**
 ```json
 {"id":"uuid","method":"chat.send","params":{"message":"...","sessionKey":"...","model":"..."}}
 ```
@@ -132,7 +132,7 @@ pub async fn get_models(...) -> Result<Vec<ModelInfo>, String> {
 ### 🚨 Security Concern: Token in localStorage
 ```tsx
 // GatewaySetupStep.tsx
-localStorage.setItem('Moltzer-onboarding-progress', JSON.stringify({
+localStorage.setItem('Moltz-onboarding-progress', JSON.stringify({
   step: 'setup-complete',
   gatewayUrl: actualUrl,
   gatewayToken: trimmedToken,  // <-- OOPS
@@ -211,7 +211,7 @@ README promises these shortcuts:
 
 1. **Verify Gateway Protocol**
    - Get actual Clawdbot Gateway docs
-   - Compare with Moltzer's expected format
+   - Compare with Moltz's expected format
    - Could be completely incompatible
 
 2. **Fix get_models**

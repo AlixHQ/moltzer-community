@@ -1,5 +1,5 @@
 /**
- * Global State Management for Moltzer Client
+ * Global State Management for Moltz Client
  *
  * Uses Zustand for lightweight, performant state management.
  * All state updates automatically persist to IndexedDB via the persistence layer.
@@ -573,7 +573,7 @@ export const useStore = create<Store>()((set, get) => ({
       const { gatewayToken: _gatewayToken, ...settingsWithoutToken } =
         settingsToSave;
       localStorage.setItem(
-        "moltzer-settings",
+        "moltz-settings",
         JSON.stringify(settingsWithoutToken),
       );
     }
@@ -584,7 +584,7 @@ export const useStore = create<Store>()((set, get) => ({
 
     try {
       // Load settings from localStorage
-      const savedSettings = localStorage.getItem("moltzer-settings");
+      const savedSettings = localStorage.getItem("moltz-settings");
       let settings = get().settings;
 
       if (savedSettings) {
@@ -596,7 +596,7 @@ export const useStore = create<Store>()((set, get) => ({
             await setGatewayToken(parsed.gatewayToken);
             // Remove token from localStorage after migration
             delete parsed.gatewayToken;
-            localStorage.setItem("moltzer-settings", JSON.stringify(parsed));
+            localStorage.setItem("moltz-settings", JSON.stringify(parsed));
             // Successfully migrated gateway token to OS keychain
           } catch (err) {
             console.error("Failed to migrate token to keychain:", err);

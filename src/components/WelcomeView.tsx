@@ -12,7 +12,7 @@ export function WelcomeView() {
     availableModels,
   } = useStore();
 
-  // Moltzer-specific suggestions showcasing agentic capabilities
+  // Moltz-specific suggestions showcasing agentic capabilities
   const suggestions = [
     {
       icon: "📅",
@@ -84,7 +84,7 @@ export function WelcomeView() {
             <span className="text-5xl drop-shadow-lg">🦞</span>
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent mb-3">
-            Moltzer
+            Moltz
           </h1>
           <p className="text-lg text-muted-foreground">
             Your AI that actually{" "}

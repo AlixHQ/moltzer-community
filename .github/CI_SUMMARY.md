@@ -1,8 +1,8 @@
-# CI/CD Enhancement Summary
+﻿# CI/CD Enhancement Summary
 
 ## 🎉 Completed Tasks
 
-All CI/CD enhancements for Moltzer client have been successfully implemented and committed.
+All CI/CD enhancements for Moltz client have been successfully implemented and committed.
 
 ---
 

@@ -44,7 +44,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   // Restore progress on mount - but NEVER skip welcome screen
   useEffect(() => {
-    const savedProgress = localStorage.getItem("moltzer-onboarding-progress");
+    const savedProgress = localStorage.getItem("moltz-onboarding-progress");
     if (savedProgress) {
       try {
         const progress: OnboardingProgress = JSON.parse(savedProgress);
@@ -76,14 +76,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   // All callbacks wrapped in useCallback for stability
   const handleSkip = useCallback(() => {
     // Mark onboarding as skipped (not completed)
-    localStorage.setItem("moltzer-onboarding-skipped", "true");
+    localStorage.setItem("moltz-onboarding-skipped", "true");
     onComplete();
   }, [onComplete]);
 
   const handleComplete = useCallback(() => {
     // Mark onboarding as fully completed
-    localStorage.setItem("moltzer-onboarding-completed", "true");
-    localStorage.removeItem("moltzer-onboarding-skipped");
+    localStorage.setItem("moltz-onboarding-completed", "true");
+    localStorage.removeItem("moltz-onboarding-skipped");
     onComplete();
   }, [onComplete]);
 
@@ -99,7 +99,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleNoGateway = useCallback(() => {
     // Save progress
     localStorage.setItem(
-      "moltzer-onboarding-progress",
+      "moltz-onboarding-progress",
       JSON.stringify({
         step: "detection-failed",
         timestamp: Date.now(),
@@ -120,7 +120,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleManualSetup = useCallback(() => {
     // Save progress (token NOT stored in localStorage - security)
     localStorage.setItem(
-      "moltzer-onboarding-progress",
+      "moltz-onboarding-progress",
       JSON.stringify({
         step: "setup-started",
         gatewayUrl,

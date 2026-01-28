@@ -1,4 +1,4 @@
-# macOS Tailscale Connection Fix - Developer Notes
+﻿# macOS Tailscale Connection Fix - Developer Notes
 
 ## Quick Reference
 
@@ -236,6 +236,6 @@ let ws_stream = tokio_tungstenite::client_async(url_str, tls_stream).await?;
 **Testing**: ⏳ Pending (needs macOS)  
 **Confidence**: 🟢 High (95%)
 
-**Created by**: Claude (Moltzer PM Subagent)  
+**Created by**: Claude (Moltz PM Subagent)  
 **Date**: 2026-01-28  
 **Status**: Ready for macOS testing

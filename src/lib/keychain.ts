@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 
-const SERVICE_NAME = "com.moltzer.client";
+const SERVICE_NAME = "com.moltz.client";
 
 /**
  * Get the gateway token from the OS keychain

@@ -1,7 +1,7 @@
-# Moltzer - Status
+﻿# Moltz - Status
 
 **Date:** 2026-01-28 07:49
-**Repo:** https://github.com/AlixHQ/moltzer-community
+**Repo:** https://github.com/AlixHQ/Moltz-community
 **License:** Apache 2.0
 
 ## ✅ Completed Features

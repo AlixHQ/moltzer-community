@@ -1,6 +1,6 @@
-# Accessibility Testing Guide
+﻿# Accessibility Testing Guide
 
-Quick guide for testing the accessibility improvements in Moltzer.
+Quick guide for testing the accessibility improvements in Moltz.
 
 ---
 
@@ -11,7 +11,7 @@ Quick guide for testing the accessibility improvements in Moltzer.
 **Goal:** Ensure all functionality works without a mouse.
 
 1. **Unplug your mouse** or don't touch it
-2. Open Moltzer
+2. Open Moltz
 3. Press **Tab** repeatedly:
    - ✅ Skip-to-content link should appear
    - ✅ Focus visible on all buttons/inputs
@@ -36,7 +36,7 @@ Quick guide for testing the accessibility improvements in Moltzer.
 **macOS:** VoiceOver (built-in, Cmd+F5)
 
 1. **Start screen reader**
-2. Navigate to Moltzer
+2. Navigate to Moltz
 3. Press **Tab** through the interface:
    - Listen for button/input announcements
    - Verify labels make sense
@@ -60,7 +60,7 @@ Quick guide for testing the accessibility improvements in Moltzer.
 **Goal:** Check contrast and focus visibility.
 
 1. **Enable high contrast mode** (Windows Settings)
-2. Open Moltzer:
+2. Open Moltz:
    - ✅ All borders visible
    - ✅ Focus indicators prominent (3px)
 3. **Disable high contrast**
@@ -85,7 +85,7 @@ Quick guide for testing the accessibility improvements in Moltzer.
 1. **Enable "Reduce motion"**:
    - **macOS:** System Settings → Accessibility → Display → Reduce motion
    - **Windows:** Settings → Accessibility → Visual effects → Animation effects OFF
-2. Open Moltzer
+2. Open Moltz
 3. Navigate through interface:
    - ✅ Animations instant/minimal
    - ✅ No jarring motion
@@ -249,4 +249,4 @@ Actual: No announcement
 
 **Happy Testing! 🎉**
 
-If all tests pass, you can be confident that Moltzer is accessible to users with disabilities.
+If all tests pass, you can be confident that Moltz is accessible to users with disabilities.

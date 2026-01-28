@@ -1,6 +1,6 @@
-# Moltzer Features
+ï»¿# Moltz Features
 
-Complete documentation of all Moltzer features, keyboard shortcuts, and settings.
+Complete documentation of all Moltz features, keyboard shortcuts, and settings.
 
 ---
 
@@ -35,7 +35,7 @@ Complete documentation of all Moltzer features, keyboard shortcuts, and settings
 
 ### Rich Markdown Rendering
 
-Moltzer supports full GitHub-flavored markdown:
+Moltz supports full GitHub-flavored markdown:
 
 **Text formatting:**
 - **Bold** (`**text**`)
@@ -47,7 +47,7 @@ Moltzer supports full GitHub-flavored markdown:
 ````markdown
 ```python
 def hello_world():
-    print("Hello from Moltzer!")
+    print("Hello from Moltz!")
 ```
 ````
 
@@ -91,10 +91,10 @@ Supported languages: Python, JavaScript, TypeScript, Rust, Go, Java, C++, SQL, S
 ### Message Actions
 
 **Per-message actions:**
-- **Copy message** — Copy full markdown content
-- **Copy code** — Extract all code blocks
-- **Regenerate** *(coming soon)* — Re-run the query
-- **Edit** *(coming soon)* — Modify and resubmit
+- **Copy message** ï¿½ Copy full markdown content
+- **Copy code** ï¿½ Extract all code blocks
+- **Regenerate** *(coming soon)* ï¿½ Re-run the query
+- **Edit** *(coming soon)* ï¿½ Modify and resubmit
 
 ### Input Features
 
@@ -178,7 +178,7 @@ Supported languages: Python, JavaScript, TypeScript, Rust, Go, Java, C++, SQL, S
 **Context window:**
 - Gateway manages context limits
 - Older messages may be summarized by Gateway
-- No artificial limits in Moltzer
+- No artificial limits in Moltz
 
 ---
 
@@ -250,11 +250,11 @@ Type "python" ? Shows all conversations mentioning Python
 - Grouped by provider (Anthropic, OpenAI, Google, etc.)
 
 **Popular models:**
-- **Claude Sonnet 4.5** — Balanced intelligence and speed
-- **Claude Opus 4.5** — Maximum intelligence for complex tasks
-- **Claude Haiku 4** — Fast and affordable
-- **GPT-4o** — OpenAI's latest
-- **Gemini 2.5 Pro** — Google's flagship
+- **Claude Sonnet 4.5** ï¿½ Balanced intelligence and speed
+- **Claude Opus 4.5** ï¿½ Maximum intelligence for complex tasks
+- **Claude Haiku 4** ï¿½ Fast and affordable
+- **GPT-4o** ï¿½ OpenAI's latest
+- **Gemini 2.5 Pro** ï¿½ Google's flagship
 
 ### Per-Conversation Models
 
@@ -330,7 +330,7 @@ Extended reasoning mode that allows Claude to "think" before responding.
 | **?,** / **Ctrl+,** | Open settings | Anywhere |
 | **?\\** / **Ctrl+\\** | Toggle sidebar | Anywhere |
 | **?W** / **Ctrl+W** | Close window | Anywhere |
-| **?Q** / **Ctrl+Q** | Quit Moltzer | Anywhere |
+| **?Q** / **Ctrl+Q** | Quit Moltz | Anywhere |
 
 ### Chat Input Shortcuts
 
@@ -363,7 +363,7 @@ Extended reasoning mode that allows Claude to "think" before responding.
 
 | Shortcut | Action |
 |----------|--------|
-| **?H** | Hide Moltzer |
+| **?H** | Hide Moltz |
 | **?M** | Minimize window |
 | **??I** | Open developer tools |
 
@@ -413,9 +413,9 @@ Extended reasoning mode that allows Claude to "think" before responding.
 ### Appearance
 
 **Theme:**
-- **Light** — Always light mode
-- **Dark** — Always dark mode
-- **System** — Follows OS preference (recommended)
+- **Light** ï¿½ Always light mode
+- **Dark** ï¿½ Always dark mode
+- **System** ï¿½ Follows OS preference (recommended)
 
 **Theme switching:**
 - Instant theme change on selection
@@ -453,19 +453,19 @@ Extended reasoning mode that allows Claude to "think" before responding.
 **What's stored locally:**
 - All conversations (encrypted)
 - All messages (encrypted)
-- Settings (NOT encrypted — no sensitive data)
+- Settings (NOT encrypted ï¿½ no sensitive data)
 - Model preferences
 - UI state (sidebar, theme, etc.)
 
 **Storage size:**
 - Minimal: ~100KB for 100 messages
 - Typical: 1-5MB for active users
-- No hard limits — IndexedDB can handle gigabytes
+- No hard limits ï¿½ IndexedDB can handle gigabytes
 
 **Location:**
-- **macOS:** `~/Library/Application Support/com.moltzer.client/`
-- **Windows:** `%APPDATA%\com.moltzer.client\`
-- **Linux:** `~/.local/share/com.moltzer.client/`
+- **macOS:** `~/Library/Application Support/com.Moltz.client/`
+- **Windows:** `%APPDATA%\com.Moltz.client\`
+- **Linux:** `~/.local/share/com.Moltz.client/`
 
 ### Encryption
 
@@ -516,7 +516,7 @@ Extended reasoning mode that allows Claude to "think" before responding.
 - Encryption keys
 
 **No telemetry:**
-- Moltzer does not track usage
+- Moltz does not track usage
 - No analytics or crash reports (unless you opt in)
 - No ads, ever
 
@@ -600,7 +600,7 @@ Extended reasoning mode that allows Claude to "think" before responding.
 ### Planned for v1.2
 - [ ] Voice output (TTS)
 - [ ] System tray integration
-- [ ] Global hotkey (show/hide Moltzer)
+- [ ] Global hotkey (show/hide Moltz)
 - [ ] Multi-window support
 - [ ] Conversation sharing
 
@@ -627,11 +627,11 @@ Extended reasoning mode that allows Claude to "think" before responding.
 
 **Image generation:**
 - Gateway may support it
-- Moltzer doesn't display images yet
+- Moltz doesn't display images yet
 - Planned for v1.2
 
 **Context limits:**
-- Managed by Gateway, not Moltzer
+- Managed by Gateway, not Moltz
 - No visual indicator of context usage
 - Planned for v1.1
 
@@ -645,7 +645,7 @@ See [GitHub Issues](https://github.com/dokterdok/molt-client/issues) for full li
 
 ### Power User Tips
 
-1. **Quick new chat:** **?N** is your friend — use it liberally!
+1. **Quick new chat:** **?N** is your friend ï¿½ use it liberally!
 2. **Search everything:** **?K** to find any past conversation
 3. **Pin important chats:** Keep your most-used conversations at the top
 4. **Multi-line messages:** Use **Shift+Enter** for code snippets

@@ -1,7 +1,7 @@
 ﻿# macOS Frozen UI Bug - Fix Summary
 
 ## Problem
-Moltzer was completely unusable on macOS with these symptoms:
+Moltz was completely unusable on macOS with these symptoms:
 - App shows "Connecting to Gateway" forever
 - Can't click any UI element
 - Can't move the window
@@ -106,7 +106,7 @@ const needsOnboarding = !hasValidGatewayUrl ||
 
 ### On macOS:
 1. **Fresh Install Test:**
-   - Delete app data: `~/Library/Application Support/com.moltzer.client`
+   - Delete app data: `~/Library/Application Support/com.Moltz.client`
    - Launch app → Should show onboarding immediately
    - UI should remain clickable/responsive throughout
 

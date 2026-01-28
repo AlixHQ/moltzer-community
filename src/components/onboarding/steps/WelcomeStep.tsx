@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { cn } from "../../../lib/utils";
 
 interface WelcomeStepProps {
@@ -27,7 +27,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8">
       <div className="max-w-2xl w-full text-center space-y-8">
-        {/* Animated Moltzer Logo */}
+        {/* Animated Moltz Logo */}
         <div
           className={cn(
             "transition-all duration-700 ease-out",
@@ -51,7 +51,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
           )}
         >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent mb-4">
-            Welcome to Moltzer
+            Welcome to Moltz
           </h1>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
             Your AI assistant that doesn't just chat—it actually{" "}

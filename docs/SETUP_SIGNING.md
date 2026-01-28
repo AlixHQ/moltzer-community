@@ -1,6 +1,6 @@
-# Setting Up Code Signing for Auto-Updates
+﻿# Setting Up Code Signing for Auto-Updates
 
-This guide walks you through setting up code signing for Moltzer's auto-update system.
+This guide walks you through setting up code signing for Moltz's auto-update system.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ Open a terminal and run:
 mkdir -p ~/.tauri
 
 # Generate the signing keypair
-tauri signer generate -w ~/.tauri/moltzer.key
+tauri signer generate -w ~/.tauri/Moltz.key
 ```
 
 This will output:
@@ -26,7 +26,7 @@ Your keypair was generated successfully
 Private: (a long base64 string)
 Public: (a shorter base64 string)
 
-Key path: ~/.tauri/moltzer.key
+Key path: ~/.tauri/Moltz.key
 Password: (empty if you didn't set one)
 ```
 
@@ -50,7 +50,7 @@ Example:
       "active": true,
       "dialog": false,
       "endpoints": [
-        "https://github.com/AlixHQ/moltzer-community/releases/latest/download/latest.json"
+        "https://github.com/AlixHQ/Moltz-community/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6..."
     }
@@ -222,7 +222,7 @@ When ready for your first release:
 1. Check `endpoints` in tauri.conf.json
 2. Verify release is published (not draft)
 3. Check that `latest.json` exists at the endpoint URL
-4. Test manually: `curl https://github.com/AlixHQ/moltzer-community/releases/latest/download/latest.json`
+4. Test manually: `curl https://github.com/AlixHQ/Moltz-community/releases/latest/download/latest.json`
 
 ## Security Best Practices
 

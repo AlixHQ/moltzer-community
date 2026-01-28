@@ -1,4 +1,4 @@
-# Would Peter Steinberger Back This?
+﻿# Would Peter Steinberger Back This?
 
 **Verdict: Not yet. Here's why, and how to fix it.**
 
@@ -89,7 +89,7 @@ Right now? **No.** Here's the gap:
 → Local RAG: "Chat with my files" (unique to native)
 → System integration: "Summarize my clipboard" always-available
 → Quick capture: Global hotkey to ask anything, anywhere
-→ Voice-first: "Hey Moltzer" activation
+→ Voice-first: "Hey Moltz" activation
 → Multi-model: A/B test responses from Claude vs GPT
 ```
 

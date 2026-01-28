@@ -20,14 +20,14 @@ describe("MessageBubble", () => {
       const message: Message = {
         id: "1",
         role: "user",
-        content: "Hello, Moltzer!",
+        content: "Hello, Moltz!",
         timestamp: new Date(),
       };
 
       render(<MessageBubble message={message} />);
 
       expect(screen.getByText("You")).toBeInTheDocument();
-      expect(screen.getByText("Hello, Moltzer!")).toBeInTheDocument();
+      expect(screen.getByText("Hello, Moltz!")).toBeInTheDocument();
     });
 
     it("should render assistant message", () => {
@@ -40,7 +40,7 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      expect(screen.getByText("Moltzer")).toBeInTheDocument();
+      expect(screen.getByText("Moltz")).toBeInTheDocument();
       expect(
         screen.getByText(/Hello! How can I help you?/),
       ).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      expect(screen.getByText(/Moltzer is typing.../i)).toBeInTheDocument();
+      expect(screen.getByText(/Moltz is typing.../i)).toBeInTheDocument();
     });
 
     it("should show streaming cursor when streaming with content", () => {

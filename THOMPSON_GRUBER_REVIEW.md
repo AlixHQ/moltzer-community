@@ -1,4 +1,4 @@
-# Would Ben Thompson & John Gruber Love This?
+﻿# Would Ben Thompson & John Gruber Love This?
 
 **Current verdict: No. Here's why.**
 
@@ -10,7 +10,7 @@
 
 ### The Strategic Problem
 
-**Moltzer sits in a weak position:**
+**Moltz sits in a weak position:**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -27,7 +27,7 @@
 │     • OS-level integration                              │
 │     • Default advantage                                 │
 │                                                         │
-│  Moltzer (???)                                          │
+│  Moltz (???)                                          │
 │  └─ Client for... another client (Clawdbot)             │
 │     • Requires technical setup                          │
 │     • No direct model relationship                      │
@@ -55,7 +55,7 @@
 
 4. **"What's the aggregation potential?"**
    - Aggregators win by owning demand (users) or supply (models)
-   - Moltzer owns neither
+   - Moltz owns neither
    - It's a pass-through client
 
 ### Ben's Verdict:
@@ -88,7 +88,7 @@
    - No ⌘, for preferences (uses gear icon like a web app)
    - No ⌘W to close conversation (web pattern: X button)
    - No window → tab conversion (⌘T for new tab)
-   - No "Moltzer" menu with About, Preferences, Services
+   - No "Moltz" menu with About, Preferences, Services
 
 2. **"The typography is... fine"**
    - System font is correct (SF Pro on Mac)
@@ -120,7 +120,7 @@
 
 | Problem | Fix |
 |---------|-----|
-| No menu bar | Full native menu: Moltzer, File, Edit, View, Conversation, Window, Help |
+| No menu bar | Full native menu: Moltz, File, Edit, View, Conversation, Window, Help |
 | Wrong shortcuts | ⌘, = Preferences, ⌘N = New Conversation, ⌘W = Close, ⌘T = New Tab |
 | Web animations | Framer Motion with spring physics, or native via Tauri |
 | No system integration | Handoff, iCloud sync, Universal Clipboard, Share Sheet |
@@ -136,7 +136,7 @@
 1. **Native Menu Bar** (Gruber)
    - Full Mac menu structure
    - Standard keyboard shortcuts
-   - "About Moltzer" with version, credits
+   - "About Moltz" with version, credits
 
 2. **Clear Value Proposition** (Thompson)
    - Not "Clawdbot client" but "Your private AI assistant"
@@ -171,7 +171,7 @@
    - Feels alive
 
 8. **System Integration** (Gruber)
-   - Share Sheet for sending to Moltzer
+   - Share Sheet for sending to Moltz
    - Services menu integration
    - Spotlight/Alfred integration
 
@@ -212,7 +212,7 @@
 ## The Pitch That Would Work
 
 **For Thompson:**
-> "Moltzer is the only AI client that keeps your data local while giving you access to every model. Your conversations, your documents, your knowledge graph—all on your machine, all private, all searchable. It's what the AI giants can't offer because their business model requires your data."
+> "Moltz is the only AI client that keeps your data local while giving you access to every model. Your conversations, your documents, your knowledge graph—all on your machine, all private, all searchable. It's what the AI giants can't offer because their business model requires your data."
 
 **For Gruber:**
 > "Finally, an AI app that feels like it belongs on your Mac. Native menus, proper shortcuts, spring animations, iCloud sync. Not a web app in a wrapper—a Mac app that happens to talk to AI."

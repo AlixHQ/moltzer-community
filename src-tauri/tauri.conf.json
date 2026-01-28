@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Moltzer",
+  "productName": "Moltz",
   "version": "1.0.0",
-  "identifier": "com.moltzer.client",
+  "identifier": "com.moltz.client",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Moltzer",
+        "title": "Moltz",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
@@ -82,7 +82,7 @@
       "active": true,
       "dialog": false,
       "endpoints": [
-        "https://github.com/AlixHQ/moltzer-community/releases/latest/download/latest.json"
+        "https://github.com/AlixHQ/moltz/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYxRDQ0NkI4NTA5RDhGRTUKUldRdGw1M3hiY3B6N3BwazZ4cHNCblBXVndIL0xTMGJ2c2R5VnFuUWxsdGY3NDE4WDFON0VBUEE="
     }

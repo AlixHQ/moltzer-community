@@ -1,4 +1,4 @@
-# Moltzer App Store Strategy
+ï»¿# Moltz App Store Strategy
 
 **Complete ASO (App Store Optimization) guide for all platforms**
 
@@ -36,60 +36,60 @@ Chat with Claude, GPT, Gemini & more in one lightning-fast native app. 10x light
 #### Long Description (4000 characters max)
 
 ```
-Moltzer is a lightning-fast, native desktop client for AI chat. Connect to your personal AI gateway and chat with Claude, GPT, Gemini, and other models — all in one beautiful, distraction-free interface.
+Moltz is a lightning-fast, native desktop client for AI chat. Connect to your personal AI gateway and chat with Claude, GPT, Gemini, and other models ï¿½ all in one beautiful, distraction-free interface.
 
 BLAZING FAST PERFORMANCE
-• 10MB binary — not 300MB like Electron apps
-• ~50MB RAM usage vs 500MB for browser-based alternatives  
-• Native macOS experience with full keyboard navigation
-• Streaming responses appear in real-time
+ï¿½ 10MB binary ï¿½ not 300MB like Electron apps
+ï¿½ ~50MB RAM usage vs 500MB for browser-based alternatives  
+ï¿½ Native macOS experience with full keyboard navigation
+ï¿½ Streaming responses appear in real-time
 
 BEAUTIFUL, FOCUSED DESIGN
-• Clean, minimalist interface that gets out of your way
-• Dark mode, light mode, or follow your system preference
-• Rich markdown with syntax-highlighted code blocks
-• GitHub-flavored markdown: tables, task lists, strikethrough
+ï¿½ Clean, minimalist interface that gets out of your way
+ï¿½ Dark mode, light mode, or follow your system preference
+ï¿½ Rich markdown with syntax-highlighted code blocks
+ï¿½ GitHub-flavored markdown: tables, task lists, strikethrough
 
 PRIVATE & SECURE
-• End-to-end encryption — all conversations encrypted at rest with AES-256
-• Credentials stored in macOS Keychain — never in plain text
-• Zero cloud storage — your data stays on YOUR device
-• Open source: audit the code yourself
+ï¿½ End-to-end encryption ï¿½ all conversations encrypted at rest with AES-256
+ï¿½ Credentials stored in macOS Keychain ï¿½ never in plain text
+ï¿½ Zero cloud storage ï¿½ your data stays on YOUR device
+ï¿½ Open source: audit the code yourself
 
 POWERFUL ORGANIZATION
-• Unlimited chat history with instant full-text search
-• Pin important conversations to the top
-• Auto-generated titles from your first message
-• Find any past conversation in milliseconds
+ï¿½ Unlimited chat history with instant full-text search
+ï¿½ Pin important conversations to the top
+ï¿½ Auto-generated titles from your first message
+ï¿½ Find any past conversation in milliseconds
 
 MULTI-MODEL FREEDOM
-• Connect to Claude, GPT-4, Gemini, and more
-• Switch models on the fly — use the best AI for each task
-• Thinking mode for extended reasoning on complex problems
-• Works with any OpenAI-compatible API endpoint
+ï¿½ Connect to Claude, GPT-4, Gemini, and more
+ï¿½ Switch models on the fly ï¿½ use the best AI for each task
+ï¿½ Thinking mode for extended reasoning on complex problems
+ï¿½ Works with any OpenAI-compatible API endpoint
 
 KEYBOARD-FIRST WORKFLOW
-• ?N — New conversation
-• ?K — Search all messages
-• ?\ — Toggle sidebar
-• ?, — Settings
-• Full keyboard navigation for power users
+ï¿½ ?N ï¿½ New conversation
+ï¿½ ?K ï¿½ Search all messages
+ï¿½ ?\ ï¿½ Toggle sidebar
+ï¿½ ?, ï¿½ Settings
+ï¿½ Full keyboard navigation for power users
 
 BUILT FOR PROS
-• Copy code blocks with one click
-• Preserve formatting when pasting
-• Multi-line input with Shift+Enter
-• Respects your accessibility settings
+ï¿½ Copy code blocks with one click
+ï¿½ Preserve formatting when pasting
+ï¿½ Multi-line input with Shift+Enter
+ï¿½ Respects your accessibility settings
 
-WHY Moltzer?
-We built Moltzer because we were tired of sluggish Electron apps eating 500MB of RAM for a text box. Moltzer is built with Tauri v2 and Rust — the same technology behind secure, high-performance native apps. It's what ChatGPT's desktop app should have been.
+WHY Moltz?
+We built Moltz because we were tired of sluggish Electron apps eating 500MB of RAM for a text box. Moltz is built with Tauri v2 and Rust ï¿½ the same technology behind secure, high-performance native apps. It's what ChatGPT's desktop app should have been.
 
 REQUIREMENTS
-• Requires connection to a Clawdbot Gateway or compatible AI endpoint
-• macOS 11 (Big Sur) or later
-• Internet connection required for AI inference
+ï¿½ Requires connection to a Clawdbot Gateway or compatible AI endpoint
+ï¿½ macOS 11 (Big Sur) or later
+ï¿½ Internet connection required for AI inference
 
-Questions? Feedback? We'd love to hear from you at support@moltzer.dev
+Questions? Feedback? We'd love to hear from you at support@Moltz.dev
 ```
 
 ---
@@ -116,8 +116,8 @@ AI,ChatGPT,Claude,chat,assistant,GPT,Gemini,LLM,coding,productivity,Anthropic,Op
 | **Secondary** | Developer Tools | Appeals to power users (coding assistance) |
 
 *Alternative considerations:*
-- Utilities — Too generic, lower discoverability
-- Business — B2B focus, not our primary audience
+- Utilities ï¿½ Too generic, lower discoverability
+- Business ï¿½ B2B focus, not our primary audience
 
 ---
 
@@ -136,19 +136,19 @@ AI,ChatGPT,Claude,chat,assistant,GPT,Gemini,LLM,coding,productivity,Anthropic,Op
 | Mature/Suggestive Themes | None | ? |
 
 **Important:** Since AI outputs are not controlled by the app, include disclaimer in app description:
-> "AI responses are generated by third-party models and are not controlled by Moltzer."
+> "AI responses are generated by third-party models and are not controlled by Moltz."
 
 ---
 
 ### 1.5 Privacy Policy Requirements
 
-**Required URL:** `https://moltzer.dev/privacy` *(create this)*
+**Required URL:** `https://Moltz.dev/privacy` *(create this)*
 
 **Privacy Policy Must Include:**
 
 1. **Data Collection:**
    - Conversations stored locally on device (encrypted)
-   - No data transmitted to Moltzer servers
+   - No data transmitted to Moltz servers
    - Messages sent to user-configured AI gateway
    
 2. **Third-Party Services:**
@@ -180,12 +180,12 @@ AI,ChatGPT,Claude,chat,assistant,GPT,Gemini,LLM,coding,productivity,Anthropic,Op
 
 | Requirement | Value |
 |-------------|-------|
-| Bundle ID | `com.moltzer.client` |
-| SKU | `Moltzer-macos-client` |
+| Bundle ID | `com.Moltz.client` |
+| SKU | `Moltz-macos-client` |
 | Primary Language | English (US) |
-| Copyright | `© 2025 Moltzer. All rights reserved.` |
-| Support URL | `https://moltzer.dev/support` |
-| Marketing URL | `https://moltzer.dev` |
+| Copyright | `ï¿½ 2025 Moltz. All rights reserved.` |
+| Support URL | `https://Moltz.dev/support` |
+| Marketing URL | `https://Moltz.dev` |
 | Version Number | `1.0.0` |
 | Build Number | Auto-increment (CI) |
 
@@ -195,8 +195,8 @@ AI,ChatGPT,Claude,chat,assistant,GPT,Gemini,LLM,coding,productivity,Anthropic,Op
 
 | Asset | Size | Format |
 |-------|------|--------|
-| App Icon | 1024×1024 | PNG (no transparency for App Store) |
-| Screenshots (required) | 2880×1800, 1600×1000 | PNG or JPEG |
+| App Icon | 1024ï¿½1024 | PNG (no transparency for App Store) |
+| Screenshots (required) | 2880ï¿½1800, 1600ï¿½1000 | PNG or JPEG |
 
 ---
 
@@ -212,55 +212,55 @@ Lightning-fast native AI chat client for Claude, GPT, Gemini, and more
 #### Full Description (10000 characters max)
 
 ```
-Moltzer — The AI Chat Client Windows Deserves
+Moltz ï¿½ The AI Chat Client Windows Deserves
 
-Tired of browser tabs and slow Electron apps? Moltzer is a native Windows application that lets you chat with Claude, GPT, Gemini, and other AI models in a beautiful, blazing-fast interface.
+Tired of browser tabs and slow Electron apps? Moltz is a native Windows application that lets you chat with Claude, GPT, Gemini, and other AI models in a beautiful, blazing-fast interface.
 
-? 10× LIGHTER THAN ELECTRON ?
-• 10MB installer — not the 300MB of typical chat apps
-• Uses ~50MB RAM vs 500MB for browser-based alternatives
-• Starts instantly, runs smoothly even on modest hardware
-• True native Windows experience
+? 10ï¿½ LIGHTER THAN ELECTRON ?
+ï¿½ 10MB installer ï¿½ not the 300MB of typical chat apps
+ï¿½ Uses ~50MB RAM vs 500MB for browser-based alternatives
+ï¿½ Starts instantly, runs smoothly even on modest hardware
+ï¿½ True native Windows experience
 
 ? BEAUTIFUL & FUNCTIONAL ?
-• Clean, minimalist design that doesn't get in your way
-• Dark mode, light mode, or sync with Windows settings
-• Rich markdown with syntax-highlighted code blocks
-• Full support for tables, task lists, and code formatting
+ï¿½ Clean, minimalist design that doesn't get in your way
+ï¿½ Dark mode, light mode, or sync with Windows settings
+ï¿½ Rich markdown with syntax-highlighted code blocks
+ï¿½ Full support for tables, task lists, and code formatting
 
 ? YOUR PRIVACY MATTERS ?
-• End-to-end encryption — AES-256 encrypted conversations at rest
-• Credentials secured by Windows Credential Manager
-• No cloud sync — your data stays on YOUR computer
-• Open source: review every line of code
+ï¿½ End-to-end encryption ï¿½ AES-256 encrypted conversations at rest
+ï¿½ Credentials secured by Windows Credential Manager
+ï¿½ No cloud sync ï¿½ your data stays on YOUR computer
+ï¿½ Open source: review every line of code
 
 ? STAY ORGANIZED ?
-• Unlimited conversation history
-• Instant full-text search across all messages
-• Pin important conversations to the top
-• Auto-generated titles from your messages
+ï¿½ Unlimited conversation history
+ï¿½ Instant full-text search across all messages
+ï¿½ Pin important conversations to the top
+ï¿½ Auto-generated titles from your messages
 
 ? MULTI-MODEL SUPPORT ?
-• Connect to Claude, GPT-4, Gemini, and more
-• Switch models anytime — use the best AI for each task
-• Thinking mode for complex reasoning
-• Compatible with any OpenAI-compatible endpoint
+ï¿½ Connect to Claude, GPT-4, Gemini, and more
+ï¿½ Switch models anytime ï¿½ use the best AI for each task
+ï¿½ Thinking mode for complex reasoning
+ï¿½ Compatible with any OpenAI-compatible endpoint
 
 ? KEYBOARD WARRIORS WELCOME ?
-• Ctrl+N — New conversation
-• Ctrl+K — Search messages  
-• Ctrl+\ — Toggle sidebar
-• Complete keyboard navigation
+ï¿½ Ctrl+N ï¿½ New conversation
+ï¿½ Ctrl+K ï¿½ Search messages  
+ï¿½ Ctrl+\ ï¿½ Toggle sidebar
+ï¿½ Complete keyboard navigation
 
 ? REQUIREMENTS ?
-• Windows 10 version 1803+ or Windows 11
-• Connection to Clawdbot Gateway or compatible AI API
-• Internet connection for AI inference
+ï¿½ Windows 10 version 1803+ or Windows 11
+ï¿½ Connection to Clawdbot Gateway or compatible AI API
+ï¿½ Internet connection for AI inference
 
 ? ABOUT ?
-Built with Tauri v2 and Rust for maximum performance and security. This is what AI chat apps should be — fast, private, and beautiful.
+Built with Tauri v2 and Rust for maximum performance and security. This is what AI chat apps should be ï¿½ fast, private, and beautiful.
 
-Questions? support@moltzer.dev
+Questions? support@Moltz.dev
 ```
 
 ---
@@ -269,15 +269,15 @@ Questions? support@moltzer.dev
 
 | Field | Value |
 |-------|-------|
-| App Name | `Moltzer` |
-| Publisher | `Moltzer` (display name) |
+| App Name | `Moltz` |
+| Publisher | `Moltz` (display name) |
 | Category | Productivity |
 | Subcategory | Personal Assistant |
 | Languages | English (United States), English (United Kingdom) |
 | Pricing | Free |
-| Website | `https://moltzer.dev` |
-| Privacy Policy | `https://moltzer.dev/privacy` |
-| Support Contact | `support@moltzer.dev` |
+| Website | `https://Moltz.dev` |
+| Privacy Policy | `https://Moltz.dev/privacy` |
+| Support Contact | `support@Moltz.dev` |
 | Publisher ID | *From Partner Center* |
 
 ---
@@ -286,11 +286,11 @@ Questions? support@moltzer.dev
 
 | Asset | Sizes (all required) | Format |
 |-------|---------------------|--------|
-| App Icon | 150×150, 310×150, 71×71, 44×44 | PNG (transparent OK) |
-| Store Logo | 300×300, 50×50 | PNG |
-| Hero Image | 1920×1080 | PNG or JPEG |
-| Screenshots | 1366×768 (min), 3840×2160 (max) | PNG or JPEG |
-| Promotional Images | 2400×1200 (wide), 1080×1080 (square) | PNG |
+| App Icon | 150ï¿½150, 310ï¿½150, 71ï¿½71, 44ï¿½44 | PNG (transparent OK) |
+| Store Logo | 300ï¿½300, 50ï¿½50 | PNG |
+| Hero Image | 1920ï¿½1080 | PNG or JPEG |
+| Screenshots | 1366ï¿½768 (min), 3840ï¿½2160 (max) | PNG or JPEG |
+| Promotional Images | 2400ï¿½1200 (wide), 1080ï¿½1080 (square) | PNG |
 
 **Tile Design Guidelines:**
 - Logo should work on light AND dark backgrounds
@@ -318,9 +318,9 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 1. **Create Flatpak manifest:**
    
-   `com.moltzer.Client.yml`:
+   `com.Moltz.Client.yml`:
    ```yaml
-   app-id: com.moltzer.Client
+   app-id: com.Moltz.Client
    runtime: org.freedesktop.Platform
    runtime-version: '23.08'
    sdk: org.freedesktop.Sdk
@@ -333,30 +333,30 @@ Submit through Microsoft Partner Center for automatic IARC rating.
      - --socket=wayland
      - --device=dri
      - --talk-name=org.freedesktop.secrets  # For keyring
-     - --filesystem=xdg-config/Moltzer:create
+     - --filesystem=xdg-config/Moltz:create
    
    modules:
      - name: molt-client
        buildsystem: simple
        build-commands:
          - install -Dm755 molt-client /app/bin/molt-client
-         - install -Dm644 Moltzer.desktop /app/share/applications/com.moltzer.Client.desktop
-         - install -Dm644 Moltzer.svg /app/share/icons/hicolor/scalable/apps/com.moltzer.Client.svg
+         - install -Dm644 Moltz.desktop /app/share/applications/com.Moltz.Client.desktop
+         - install -Dm644 Moltz.svg /app/share/icons/hicolor/scalable/apps/com.Moltz.Client.svg
        sources:
          - type: archive
-           url: https://github.com/dokterdok/molt-client/releases/download/v1.0.0/Moltzer-linux-x64.tar.gz
+           url: https://github.com/dokterdok/molt-client/releases/download/v1.0.0/Moltz-linux-x64.tar.gz
            sha256: <SHA256_HASH>
    ```
 
 2. **Create desktop entry:**
    
-   `com.moltzer.Client.desktop`:
+   `com.Moltz.Client.desktop`:
    ```ini
    [Desktop Entry]
-   Name=Moltzer
+   Name=Moltz
    Comment=Native AI chat client for Claude, GPT, and more
    Exec=molt-client %U
-   Icon=com.moltzer.Client
+   Icon=com.Moltz.Client
    Terminal=false
    Type=Application
    Categories=Utility;Network;Chat;
@@ -366,24 +366,24 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 3. **Create AppStream metadata:**
    
-   `com.moltzer.Client.metainfo.xml`:
+   `com.Moltz.Client.metainfo.xml`:
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
    <component type="desktop-application">
-     <id>com.moltzer.Client</id>
-     <name>Moltzer</name>
+     <id>com.Moltz.Client</id>
+     <name>Moltz</name>
      <summary>Lightning-fast native AI chat client</summary>
      <metadata_license>CC0-1.0</metadata_license>
      <project_license>MIT</project_license>
      
      <description>
        <p>
-         Moltzer is a native desktop client for AI chat. Connect to Claude, GPT, 
+         Moltz is a native desktop client for AI chat. Connect to Claude, GPT, 
          Gemini, and other models in one beautiful, distraction-free interface.
        </p>
        <p>Features:</p>
        <ul>
-         <li>10MB binary — 10x smaller than Electron apps</li>
+         <li>10MB binary ï¿½ 10x smaller than Electron apps</li>
          <li>End-to-end encryption for all conversations</li>
          <li>Multi-model support (Claude, GPT, Gemini)</li>
          <li>Full-text search across all messages</li>
@@ -391,18 +391,18 @@ Submit through Microsoft Partner Center for automatic IARC rating.
        </ul>
      </description>
      
-     <launchable type="desktop-id">com.moltzer.Client.desktop</launchable>
+     <launchable type="desktop-id">com.Moltz.Client.desktop</launchable>
      
-     <url type="homepage">https://moltzer.dev</url>
+     <url type="homepage">https://Moltz.dev</url>
      <url type="bugtracker">https://github.com/dokterdok/molt-client/issues</url>
      
      <screenshots>
        <screenshot type="default">
-         <image>https://moltzer.dev/screenshots/main-dark.png</image>
+         <image>https://Moltz.dev/screenshots/main-dark.png</image>
          <caption>Chat interface in dark mode</caption>
        </screenshot>
        <screenshot>
-         <image>https://moltzer.dev/screenshots/search.png</image>
+         <image>https://Moltz.dev/screenshots/search.png</image>
          <caption>Full-text search across all conversations</caption>
        </screenshot>
      </screenshots>
@@ -421,7 +421,7 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 4. **Submit PR to Flathub:**
    - Fork `flathub/flathub`
-   - Create `com.moltzer.Client` directory
+   - Create `com.Moltz.Client` directory
    - Add manifest, desktop file, metainfo
    - Submit PR with description
 
@@ -435,7 +435,7 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 1. **Create snapcraft.yaml:**
    ```yaml
-   name: Moltzer
+   name: Moltz
    version: '1.0.0'
    summary: Lightning-fast native AI chat client
    description: |
@@ -447,9 +447,9 @@ Submit through Microsoft Partner Center for automatic IARC rating.
    base: core22
    
    apps:
-     Moltzer:
+     Moltz:
        command: bin/molt-client
-       desktop: share/applications/Moltzer.desktop
+       desktop: share/applications/Moltz.desktop
        extensions:
          - gnome
        plugs:
@@ -459,9 +459,9 @@ Submit through Microsoft Partner Center for automatic IARC rating.
          - password-manager-service
    
    parts:
-     Moltzer:
+     Moltz:
        plugin: dump
-       source: https://github.com/dokterdok/molt-client/releases/download/v1.0.0/Moltzer-linux-x64.tar.gz
+       source: https://github.com/dokterdok/molt-client/releases/download/v1.0.0/Moltz-linux-x64.tar.gz
        stage-packages:
          - libwebkit2gtk-4.1-0
          - libgtk-3-0
@@ -470,13 +470,13 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 2. **Build and test locally:**
    ```bash
    snapcraft --use-lxd
-   sudo snap install ./moltzer_1.0.0_amd64.snap --dangerous
+   sudo snap install ./Moltz_1.0.0_amd64.snap --dangerous
    ```
 
 3. **Register and upload:**
    ```bash
-   snapcraft register Moltzer
-   snapcraft upload moltzer_1.0.0_amd64.snap --release=stable
+   snapcraft register Moltz
+   snapcraft upload Moltz_1.0.0_amd64.snap --release=stable
    ```
 
 4. **Configure store listing** on snapcraft.io:
@@ -488,7 +488,7 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 ### 3.3 AppImage Distribution
 
-**Simpler distribution** — no store submission required.
+**Simpler distribution** ï¿½ no store submission required.
 
 #### Steps:
 
@@ -497,15 +497,15 @@ Submit through Microsoft Partner Center for automatic IARC rating.
    - Tauri bundles AppImage automatically for Linux
 
 2. **Host on GitHub Releases:**
-   - `Moltzer-1.0.0.AppImage`
+   - `Moltz-1.0.0.AppImage`
    - Include SHA256 checksum file
 
 3. **Add to AppImageHub** (optional):
    - Submit to [AppImageHub.com](https://appimage.github.io/apps/)
-   - Create `Moltzer.yml` in [AppImage/appimage.github.io](https://github.com/AppImage/appimage.github.io)
+   - Create `Moltz.yml` in [AppImage/appimage.github.io](https://github.com/AppImage/appimage.github.io)
 
 4. **AppImage desktop integration:**
-   - Users run: `chmod +x Moltzer-*.AppImage && ./Moltzer-*.AppImage`
+   - Users run: `chmod +x Moltz-*.AppImage && ./Moltz-*.AppImage`
    - Recommend [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) for menu integration
 
 ---
@@ -514,7 +514,7 @@ Submit through Microsoft Partner Center for automatic IARC rating.
 
 ### 4.1 The 5-Screenshot Story
 
-Each screenshot should tell a part of Moltzer's story. Order matters!
+Each screenshot should tell a part of Moltz's story. Order matters!
 
 | # | Screen | Purpose | Key Elements |
 |---|--------|---------|--------------|
@@ -530,10 +530,10 @@ Each screenshot should tell a part of Moltzer's story. Order matters!
 
 | Platform | Resolution | Format |
 |----------|-----------|--------|
-| macOS App Store | 2880×1800 (Retina) | PNG |
-| macOS App Store | 1600×1000 (non-Retina) | PNG |
-| Microsoft Store | 2560×1600 (recommended) | PNG/JPEG |
-| Flathub/Snap | 1920×1080 (16:9) | PNG |
+| macOS App Store | 2880ï¿½1800 (Retina) | PNG |
+| macOS App Store | 1600ï¿½1000 (non-Retina) | PNG |
+| Microsoft Store | 2560ï¿½1600 (recommended) | PNG/JPEG |
+| Flathub/Snap | 1920ï¿½1080 (16:9) | PNG |
 
 ---
 
@@ -651,9 +651,9 @@ You can use it like this:
 
 | Platform | Duration | Resolution | Format |
 |----------|----------|------------|--------|
-| macOS App Store | 15-30 seconds | 1920×1080 or 1280×720 | MP4 (H.264) |
-| Microsoft Store | 30-120 seconds | 1920×1080 | MP4 |
-| Website/Social | 30-60 seconds | 1920×1080 | MP4 |
+| macOS App Store | 15-30 seconds | 1920ï¿½1080 or 1280ï¿½720 | MP4 (H.264) |
+| Microsoft Store | 30-120 seconds | 1920ï¿½1080 | MP4 |
+| Website/Social | 30-60 seconds | 1920ï¿½1080 | MP4 |
 
 ---
 
@@ -661,13 +661,13 @@ You can use it like this:
 
 | Time | Scene | Visual | Audio/Text |
 |------|-------|--------|-----------|
-| 0-3s | **Title Card** | Moltzer logo animation, tagline | "Moltzer — AI Chat, Reimagined" |
+| 0-3s | **Title Card** | Moltz logo animation, tagline | "Moltz ï¿½ AI Chat, Reimagined" |
 | 3-7s | **Problem** | Browser with 10 tabs, slow loading spinner | "Tired of slow, bloated chat apps?" |
-| 7-12s | **Solution: Speed** | Moltzer launching instantly, first message sent | "Meet Moltzer. Lightning fast." |
+| 7-12s | **Solution: Speed** | Moltz launching instantly, first message sent | "Meet Moltz. Lightning fast." |
 | 12-17s | **Feature: Models** | Model picker opens, select Claude ? GPT | "Chat with any AI model" |
 | 17-22s | **Feature: Search** | ?K pressed, search "python", jump to result | "Find anything instantly" |
 | 22-26s | **Feature: Privacy** | Lock icon animation, encrypted indicator | "Your data stays yours" |
-| 26-30s | **CTA** | App Store badge, download URL | "Download Moltzer today" |
+| 26-30s | **CTA** | App Store badge, download URL | "Download Moltz today" |
 
 ---
 
@@ -727,7 +727,7 @@ You can use it like this:
 
 | Platform | Sizes | Format |
 |----------|-------|--------|
-| macOS App Store | 1024×1024 (single, Apple resizes) | PNG, no transparency |
+| macOS App Store | 1024ï¿½1024 (single, Apple resizes) | PNG, no transparency |
 | macOS App | 16, 32, 64, 128, 256, 512, 1024 | ICNS |
 | Windows Store | 44, 71, 150, 310 (square + wide) | PNG |
 | Windows App | 16, 32, 48, 64, 256 | ICO |
@@ -735,11 +735,11 @@ You can use it like this:
 
 ### 6.2 Icon Design Principles
 
-**Current Icon:** ?? Lobster (Moltzer = shed shell)
+**Current Icon:** ?? Lobster (Moltz = shed shell)
 
 **Guidelines:**
 - Simple, recognizable silhouette
-- Works at 16×16 (must be legible)
+- Works at 16ï¿½16 (must be legible)
 - Looks good on dark AND light backgrounds
 - No text (doesn't scale)
 - Single focal point
@@ -752,8 +752,8 @@ You can use it like this:
 
 - [ ] All screenshots captured at correct resolutions
 - [ ] App preview video edited and exported
-- [ ] Privacy policy published at `https://moltzer.dev/privacy`
-- [ ] Support website live at `https://moltzer.dev/support`
+- [ ] Privacy policy published at `https://Moltz.dev/privacy`
+- [ ] Support website live at `https://Moltz.dev/support`
 - [ ] App binaries built and tested on all platforms
 - [ ] Code signing configured (macOS notarization, Windows)
 - [ ] Version number and build number finalized
@@ -775,7 +775,7 @@ You can use it like this:
 - [ ] Microsoft Partner Center account ($19 one-time)
 - [ ] MSIX package created and signed
 - [ ] Store listing completed with all assets
-- [ ] Screenshots (1366×768 minimum)
+- [ ] Screenshots (1366ï¿½768 minimum)
 - [ ] Tile images (all sizes)
 - [ ] IARC age rating completed
 - [ ] Submit for certification
@@ -798,15 +798,15 @@ You can use it like this:
 |-------|-------|---------|-------|
 | App Icon (1024px) | ? | ? | ? |
 | App Icon (ICO/ICNS) | ICNS | ICO | PNG+SVG |
-| Screenshot 1 | 2880×1800 | 2560×1600 | 1920×1080 |
-| Screenshot 2 | 2880×1800 | 2560×1600 | 1920×1080 |
-| Screenshot 3 | 2880×1800 | 2560×1600 | 1920×1080 |
-| Screenshot 4 | 2880×1800 | 2560×1600 | 1920×1080 |
-| Screenshot 5 | 2880×1800 | 2560×1600 | 1920×1080 |
-| Hero Image | — | 1920×1080 | — |
-| Wide Tile | — | 2400×1200 | — |
-| Square Tile | — | 1080×1080 | — |
-| App Preview Video | 1920×1080 | 1920×1080 | — |
+| Screenshot 1 | 2880ï¿½1800 | 2560ï¿½1600 | 1920ï¿½1080 |
+| Screenshot 2 | 2880ï¿½1800 | 2560ï¿½1600 | 1920ï¿½1080 |
+| Screenshot 3 | 2880ï¿½1800 | 2560ï¿½1600 | 1920ï¿½1080 |
+| Screenshot 4 | 2880ï¿½1800 | 2560ï¿½1600 | 1920ï¿½1080 |
+| Screenshot 5 | 2880ï¿½1800 | 2560ï¿½1600 | 1920ï¿½1080 |
+| Hero Image | ï¿½ | 1920ï¿½1080 | ï¿½ |
+| Wide Tile | ï¿½ | 2400ï¿½1200 | ï¿½ |
+| Square Tile | ï¿½ | 1080ï¿½1080 | ï¿½ |
+| App Preview Video | 1920ï¿½1080 | 1920ï¿½1080 | ï¿½ |
 | Privacy Policy URL | ? | ? | ? |
 | Support URL | ? | ? | ? |
 
@@ -833,4 +833,4 @@ You can use it like this:
 
 ---
 
-*Document maintained by Moltzer team. Last updated January 2025.*
+*Document maintained by Moltz team. Last updated January 2025.*

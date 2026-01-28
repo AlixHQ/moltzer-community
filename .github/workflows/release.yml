@@ -1,4 +1,4 @@
-name: Release
+﻿name: Release
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: `v${{ env.VERSION }}`,
-              name: `Moltzer v${{ env.VERSION }}`,
+              name: `Moltz v${{ env.VERSION }}`,
               body: 'Release notes will be added here',
               draft: true,
               prerelease: false

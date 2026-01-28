@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+﻿import React, { useEffect, useState, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useStore, type ModelInfo } from "../../../stores/store";
@@ -309,7 +309,7 @@ export function GatewaySetupStep({
 
         // Save progress
         localStorage.setItem(
-          "moltzer-onboarding-progress",
+          "Moltz-onboarding-progress",
           JSON.stringify({
             step: "setup-complete",
             gatewayUrl: actualUrl,
@@ -493,7 +493,7 @@ export function GatewaySetupStep({
 
       // Save progress (token NOT stored here - goes to keychain via updateSettings)
       localStorage.setItem(
-        "moltzer-onboarding-progress",
+        "Moltz-onboarding-progress",
         JSON.stringify({
           step: "setup-complete",
           gatewayUrl: actualUrl,

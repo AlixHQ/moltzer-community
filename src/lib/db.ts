@@ -1,5 +1,5 @@
 ﻿/**
- * IndexedDB database for Moltzer Client
+ * IndexedDB database for Moltz Client
  * Uses Dexie for easy IndexedDB interaction and full-text search
  */
 
@@ -34,13 +34,13 @@ export interface DBSettings {
   value: string;
 }
 
-export class MoltzerDB extends Dexie {
+export class MoltzDB extends Dexie {
   messages!: Table<DBMessage>;
   conversations!: Table<DBConversation>;
   settings!: Table<DBSettings>;
 
   constructor() {
-    super("MoltzerDB");
+    super("MoltzDB");
 
     this.version(1).stores({
       messages: "id, conversationId, timestamp, *searchWords",
@@ -83,7 +83,7 @@ function extractSearchWords(text: string): string[] {
     .filter((word, index, arr) => arr.indexOf(word) === index); // Unique words
 }
 
-export const db = new MoltzerDB();
+export const db = new MoltzDB();
 
 /**
  * Search messages by content

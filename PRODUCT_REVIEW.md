@@ -1,4 +1,4 @@
-# Moltzer Product Review
+﻿# Moltz Product Review
 
 **Review Date:** 2025-01-27  
 **Reviewer:** Product Manager (Automated Review)  
@@ -10,7 +10,7 @@
 
 **Verdict: SHIP-READY with minor polish**
 
-Moltzer is a well-crafted, professional-grade AI chat client. The codebase is clean, the UX is polished, and the app meets the competitive bar set by ChatGPT/Claude desktop apps. After fixing critical build blockers and branding issues (completed), the app is ready to ship.
+Moltz is a well-crafted, professional-grade AI chat client. The codebase is clean, the UX is polished, and the app meets the competitive bar set by ChatGPT/Claude desktop apps. After fixing critical build blockers and branding issues (completed), the app is ready to ship.
 
 ---
 
@@ -85,13 +85,13 @@ Moltzer is a well-crafted, professional-grade AI chat client. The codebase is cl
 |----------|--------|-------|
 | `errors.ts:25` | "Clawdbot Gateway" | "Gateway" |
 | `DetectionStep.tsx` | "Moltbot Gateway" | "Gateway" |
-| `GatewaySetupStep.tsx` | `moltzer gateway status` | `clawdbot gateway status` |
-| `SettingsDialog.tsx` | `moltzer gateway status` | `clawdbot gateway status` |
+| `GatewaySetupStep.tsx` | `Moltz gateway status` | `clawdbot gateway status` |
+| `SettingsDialog.tsx` | `Moltz gateway status` | `clawdbot gateway status` |
 
 **Consistent Now:**
-- App name: **Moltzer** ✅
+- App name: **Moltz** ✅
 - CLI commands: **clawdbot** ✅
-- Internal keys: **moltzer-*** (localStorage, keychain) ✅
+- Internal keys: **Moltz-*** (localStorage, keychain) ✅
 - Logo: 🦞 (lobster emoji) ✅
 
 ---
@@ -99,27 +99,27 @@ Moltzer is a well-crafted, professional-grade AI chat client. The codebase is cl
 ## 4. Competitive Bar
 
 ### vs ChatGPT Desktop
-| Feature | ChatGPT | Moltzer | Notes |
+| Feature | ChatGPT | Moltz | Notes |
 |---------|---------|---------|-------|
 | Streaming | ✅ | ✅ | |
 | Code highlighting | ✅ | ✅ | |
 | File attachments | ✅ | ✅ | |
 | Conversation history | ✅ | ✅ | |
-| Export | ❌ | ✅ | Moltzer wins |
-| Offline mode | ❌ | ✅ | Moltzer wins |
-| Model switching | ❌ | ✅ | Moltzer wins |
-| Local encryption | ❌ | ✅ | Moltzer wins |
+| Export | ❌ | ✅ | Moltz wins |
+| Offline mode | ❌ | ✅ | Moltz wins |
+| Model switching | ❌ | ✅ | Moltz wins |
+| Local encryption | ❌ | ✅ | Moltz wins |
 
 ### vs Claude Desktop
-| Feature | Claude | Moltzer | Notes |
+| Feature | Claude | Moltz | Notes |
 |---------|--------|---------|-------|
 | Streaming | ✅ | ✅ | |
 | Extended thinking | ✅ | ✅ | |
 | File attachments | ✅ | ✅ | |
-| Multi-provider | ❌ | ✅ | Moltzer wins |
-| Quick input (global) | ❌ | ✅ | Moltzer wins |
+| Multi-provider | ❌ | ✅ | Moltz wins |
+| Quick input (global) | ❌ | ✅ | Moltz wins |
 
-**Verdict:** Moltzer is competitive and has unique advantages.
+**Verdict:** Moltz is competitive and has unique advantages.
 
 ---
 
@@ -157,8 +157,8 @@ None identified.
 ```
 - src/lib/errors.ts: "Clawdbot Gateway" → "Gateway"
 - src/components/onboarding/steps/DetectionStep.tsx: "Moltbot" → removed, generic "Gateway"
-- src/components/onboarding/steps/GatewaySetupStep.tsx: "moltzer gateway" → "clawdbot gateway" (4 occurrences)
-- src/components/SettingsDialog.tsx: "moltzer gateway" → "clawdbot gateway"
+- src/components/onboarding/steps/GatewaySetupStep.tsx: "Moltz gateway" → "clawdbot gateway" (4 occurrences)
+- src/components/SettingsDialog.tsx: "Moltz gateway" → "clawdbot gateway"
 ```
 
 ---
@@ -167,7 +167,7 @@ None identified.
 
 ### ✅ SHIP IT
 
-Moltzer is ready for release. The app is polished, feature-complete, and competitive with market leaders. All critical issues have been fixed.
+Moltz is ready for release. The app is polished, feature-complete, and competitive with market leaders. All critical issues have been fixed.
 
 **Next Steps:**
 1. Commit fixes with `product: ` prefix

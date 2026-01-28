@@ -1,6 +1,6 @@
 ﻿# USER SCENARIOS: UX for Different Use Cases
 
-This document outlines optimal UX design for different Moltzer user personas and scenarios.
+This document outlines optimal UX design for different Moltz user personas and scenarios.
 
 ---
 
@@ -63,10 +63,10 @@ This document outlines optimal UX design for different Moltzer user personas and
 ### 3. Team Admin
 
 **Profile:**
-- Sets up Moltzer for team or organization
+- Sets up Moltz for team or organization
 - Manages Gateway, configurations, user access
 - Cares about security, cost control, consistency
-- May not use Moltzer daily themselves
+- May not use Moltz daily themselves
 - Needs visibility into usage
 - Troubleshoots issues for others
 
@@ -94,15 +94,15 @@ This document outlines optimal UX design for different Moltzer user personas and
 **User:** Casual User or Power User (first time)
 
 **Flow:**
-1. **Launch Moltzer** → Welcome screen appears
+1. **Launch Moltz** → Welcome screen appears
 2. **Welcome Screen** shows:
-   - "Welcome to Moltzer - Your AI Assistant"
+   - "Welcome to Moltz - Your AI Assistant"
    - Two clear paths:
      - **Quick Start**: "Use cloud AI (requires API key)"
      - **Advanced**: "Connect to local Gateway (recommended for teams)"
 3. **User chooses Quick Start**
 4. **API Key Screen**:
-   - Simple explanation: "Moltzer needs an AI provider. We support Anthropic, OpenAI, and others."
+   - Simple explanation: "Moltz needs an AI provider. We support Anthropic, OpenAI, and others."
    - Drop-down: Select provider (Anthropic selected by default)
    - Input: "Paste your API key here"
    - Link: "Don't have one? Get an Anthropic key here →"
@@ -130,7 +130,7 @@ This document outlines optimal UX design for different Moltzer user personas and
 **User:** Power User or Team Member
 
 **Flow:**
-1. **Launch Moltzer** → Welcome screen
+1. **Launch Moltz** → Welcome screen
 2. **User chooses "Connect to Gateway"**
 3. **Gateway Connection Screen**:
    - Input: "Gateway URL" (placeholder: `http://localhost:3000`)
@@ -162,7 +162,7 @@ This document outlines optimal UX design for different Moltzer user personas and
 **User:** Power User
 
 **Flow:**
-1. **Launch Moltzer** (already configured)
+1. **Launch Moltz** (already configured)
    - Opens to last conversation OR conversation list
 2. **User needs new coding session**:
    - Keyboard: `Cmd/Ctrl+N` → New conversation
@@ -220,7 +220,7 @@ This document outlines optimal UX design for different Moltzer user personas and
    - Names conversation: Click title → "Neural Network History Research"
    - OR conversation auto-titled by AI
 5. **User takes break**:
-   - Closes Moltzer
+   - Closes Moltz
 6. **Returns later**:
    - Conversation list shows "Neural Network History Research"
    - Opens it, continues
@@ -248,7 +248,7 @@ This document outlines optimal UX design for different Moltzer user personas and
 **User:** Casual User
 
 **Flow:**
-1. **User opens Moltzer**
+1. **User opens Moltz**
 2. **Types quick question**: "What's the capital of Latvia?"
 3. **AI responds**: "Riga"
 4. **User is done**
@@ -550,4 +550,4 @@ Install Gateway → Configure → Set up users → Monitor → Troubleshoot
 - **Complex things should be possible** (power user automates workflow)
 - **Expert things should be discoverable** (admin configures Gateway)
 
-Moltzer should feel as simple as a notepad for casual users, yet as powerful as a terminal for power users.
+Moltz should feel as simple as a notepad for casual users, yet as powerful as a terminal for power users.

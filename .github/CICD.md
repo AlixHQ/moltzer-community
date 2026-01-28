@@ -1,10 +1,10 @@
-# CI/CD Pipeline Documentation
+﻿# CI/CD Pipeline Documentation
 
-This document describes the CI/CD setup for the Moltzer client, including workflows, automated testing, releases, and dependency management.
+This document describes the CI/CD setup for the Moltz client, including workflows, automated testing, releases, and dependency management.
 
 ## Overview
 
-The Moltzer client uses GitHub Actions for continuous integration and deployment with the following workflows:
+The Moltz client uses GitHub Actions for continuous integration and deployment with the following workflows:
 
 1. **CI Workflow** (`ci.yml`) - Runs on every push and PR
 2. **Release Workflow** (`release.yml`) - Builds and publishes releases on tags
@@ -121,17 +121,17 @@ Finalize release (publish)
 Each release produces:
 
 #### macOS
-- `moltzer_1.0.0_aarch64.dmg` - Apple Silicon installer
-- `moltzer_1.0.0_x64.dmg` - Intel installer
+- `Moltz_1.0.0_aarch64.dmg` - Apple Silicon installer
+- `Moltz_1.0.0_x64.dmg` - Intel installer
 - Signed and notarized (if configured)
 
 #### Windows
-- `moltzer_1.0.0_x64.msi` - MSI installer
+- `Moltz_1.0.0_x64.msi` - MSI installer
 - Signed (if configured)
 
 #### Linux
-- `moltzer_1.0.0_amd64.AppImage` - AppImage bundle
-- `moltzer_1.0.0_amd64.deb` - Debian package
+- `Moltz_1.0.0_amd64.AppImage` - AppImage bundle
+- `Moltz_1.0.0_amd64.deb` - Debian package
 
 #### Updater Files
 - `latest.json` - Update manifest
@@ -180,7 +180,7 @@ git push origin v1.0.0
 
 ## Auto-Updates
 
-The Moltzer client uses Tauri's built-in updater for seamless updates.
+The Moltz client uses Tauri's built-in updater for seamless updates.
 
 ### How It Works
 

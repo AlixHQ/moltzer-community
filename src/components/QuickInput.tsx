@@ -129,7 +129,7 @@ export function QuickInput() {
           )}
         >
           <ArrowRight className="w-4 h-4" />
-          Open in Moltzer
+          Open in Moltz
         </button>
       </div>
     </div>

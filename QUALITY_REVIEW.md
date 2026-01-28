@@ -1,4 +1,4 @@
-﻿# Moltzer client - Quality Review Report
+﻿# Moltz client - Quality Review Report
 
 **Generated:** 2025-01-29  
 **Reviewer:** Subagent deep-review-quality  
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The Moltzer client codebase has significant quality issues that **block a production release**. While the application has a good architecture and comprehensive test suite, there are critical compilation errors, lint violations, failing tests, and missing Rust toolchain that must be resolved before deployment.
+The Moltz client codebase has significant quality issues that **block a production release**. While the application has a good architecture and comprehensive test suite, there are critical compilation errors, lint violations, failing tests, and missing Rust toolchain that must be resolved before deployment.
 
 ### Critical Blockers (Must Fix)
 - ❌ **Build fails** - TypeScript compilation errors in performance tests
@@ -613,7 +613,7 @@ Output: 'aaa<asacaraiapata>aaalaearata(a"axasasa")a<a/asacaraiapata>aaa'
 if (parsed.gatewayToken) {
   await setGatewayToken(parsed.gatewayToken);
   delete parsed.gatewayToken;
-  localStorage.setItem('Moltzer-settings', JSON.stringify(parsed));
+  localStorage.setItem('Moltz-settings', JSON.stringify(parsed));
 }
 ```
 
@@ -749,7 +749,7 @@ Based on the issues found:
 
 ### Is This Code Production Ready?
 
-**No.** The Moltzer client has a solid foundation but requires significant quality improvements before production deployment.
+**No.** The Moltz client has a solid foundation but requires significant quality improvements before production deployment.
 
 ### What's Good
 

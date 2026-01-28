@@ -78,7 +78,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
             You're All Set!
           </h2>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-            Moltzer is connected and ready to help you get things done.
+            Moltz is connected and ready to help you get things done.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
             className="group px-8 py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold text-lg shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
           >
             <span className="flex items-center gap-2">
-              Start Using Moltzer
+              Start Using Moltz
               <svg
                 className="w-5 h-5 group-hover:translate-x-1 transition-transform"
                 fill="none"

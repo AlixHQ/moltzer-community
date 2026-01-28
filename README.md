@@ -1,26 +1,26 @@
 <div align="center">
 
-# Moltzer
+# Moltz
 
 ### The AI chat interface you already know. But native.
 
 **A familiar, fast desktop app for AI chat — like ChatGPT or Claude.ai, but running on your computer.**
 
-[**Download for Mac**](https://github.com/AlixHQ/moltzer-community/releases) ·
-[Windows](https://github.com/AlixHQ/moltzer-community/releases) ·
-[Linux](https://github.com/AlixHQ/moltzer-community/releases)
+[**Download for Mac**](https://github.com/AlixHQ/moltz/releases) ·
+[Windows](https://github.com/AlixHQ/moltz/releases) ·
+[Linux](https://github.com/AlixHQ/moltz/releases)
 
 </div>
 
-![Moltzer — Native Desktop AI Chat](.github/social-preview.png)
+![Moltz — Native Desktop AI Chat](.github/social-preview.png)
 
 ---
 
-## Why Moltzer?
+## Why Moltz?
 
-If you've used ChatGPT or Claude.ai, you already know how to use Moltzer. Same familiar interface — but as a real desktop app.
+If you've used ChatGPT or Claude.ai, you already know how to use Moltz. Same familiar interface — but as a real desktop app.
 
-| ChatGPT/Claude.ai | Moltzer |
+| ChatGPT/Claude.ai | Moltz |
 |-------------------|---------|
 | Browser tab you lose | Native app that's always there |
 | Generic web interface | Feels like a real desktop app |
@@ -41,7 +41,7 @@ If you've used ChatGPT or Claude.ai, you already know how to use Moltzer. Same f
 
 ### Step 1: Install Moltbot Gateway
 
-Moltzer connects to [Moltbot](https://github.com/moltbot/moltbot), the open-source AI gateway that routes your requests to AI providers.
+Moltz connects to [Moltbot](https://github.com/moltbot/moltbot), the open-source AI gateway that routes your requests to AI providers.
 
 **Install Moltbot:**
 ```bash
@@ -51,17 +51,17 @@ moltbot setup
 
 See the [official Moltbot installation guide](https://github.com/moltbot/moltbot#installation) for details.
 
-### Step 2: Download Moltzer
+### Step 2: Download Moltz
 
 Download the latest release for your platform:
 
-- [Mac (Apple Silicon / Intel)](https://github.com/AlixHQ/moltzer-community/releases)
-- [Windows](https://github.com/AlixHQ/moltzer-community/releases)
-- [Linux](https://github.com/AlixHQ/moltzer-community/releases)
+- [Mac (Apple Silicon / Intel)](https://github.com/AlixHQ/moltz/releases)
+- [Windows](https://github.com/AlixHQ/moltz/releases)
+- [Linux](https://github.com/AlixHQ/moltz/releases)
 
 ### Step 3: Connect
 
-1. Launch Moltzer
+1. Launch Moltz
 2. Open Settings
 3. Enter your Gateway URL (default: `ws://localhost:18789`)
 4. Start chatting!
@@ -110,8 +110,8 @@ Download the latest release for your platform:
 ## Building from Source
 
 ```bash
-git clone https://github.com/AlixHQ/moltzer-community.git
-cd moltzer-community
+git clone https://github.com/AlixHQ/moltz.git
+cd moltz
 npm install
 npm run tauri build
 ```

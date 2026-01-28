@@ -234,7 +234,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                           : "bg-orange-500/10 text-orange-500",
                       )}
                     >
-                      {result.role === "user" ? "You" : "Moltzer"}
+                      {result.role === "user" ? "You" : "Moltz"}
                     </span>
                     <span className="text-sm font-medium truncate">
                       {result.conversationTitle}

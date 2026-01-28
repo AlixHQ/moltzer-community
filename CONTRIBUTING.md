@@ -1,6 +1,6 @@
-# Contributing to Moltzer 🦞
+﻿# Contributing to Moltz 🦞
 
-Thank you for your interest in contributing to Moltzer! Whether you're fixing a bug, adding a feature, or improving documentation, we appreciate your help in making Moltzer better for everyone.
+Thank you for your interest in contributing to Moltz! Whether you're fixing a bug, adding a feature, or improving documentation, we appreciate your help in making Moltz better for everyone.
 
 This document provides guidelines and instructions for contributing. Don't worry if you're new to open source — we're here to help!
 
@@ -9,10 +9,10 @@ This document provides guidelines and instructions for contributing. Don't worry
 Welcome! Here are some good ways to start:
 
 - **Fix typos or improve documentation** — Check out [README.md](README.md), [SETUP.md](SETUP.md), or [FEATURES.md](FEATURES.md)
-- **Report bugs** — Use our [bug report template](https://github.com/AlixHQ/moltzer-community/issues/new?template=bug_report.yml)
-- **Suggest features** — Use our [feature request template](https://github.com/AlixHQ/moltzer-community/issues/new?template=feature_request.yml)
+- **Report bugs** — Use our [bug report template](https://github.com/AlixHQ/Moltz-community/issues/new?template=bug_report.yml)
+- **Suggest features** — Use our [feature request template](https://github.com/AlixHQ/Moltz-community/issues/new?template=feature_request.yml)
 - **Look for "good first issue" labels** — These are beginner-friendly tasks
-- **Ask questions** — Use [GitHub Discussions](https://github.com/AlixHQ/moltzer-community/discussions) or open a [question issue](https://github.com/AlixHQ/moltzer-community/issues/new?template=question.yml)
+- **Ask questions** — Use [GitHub Discussions](https://github.com/AlixHQ/Moltz-community/discussions) or open a [question issue](https://github.com/AlixHQ/Moltz-community/issues/new?template=question.yml)
 
 Not sure where to start? That's totally normal! Open a discussion and we'll help you find something that fits your skills and interests.
 
@@ -33,8 +33,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/AlixHQ/moltzer-community.git
-   cd moltzer-community
+   git clone https://github.com/AlixHQ/Moltz-community.git
+   cd Moltz-community
    ```
 
 2. **Install dependencies:**
@@ -52,7 +52,7 @@ The app will open with hot-reload enabled. Changes to the frontend will automati
 ## 🏗️ Project Structure
 
 ```
-moltzer-community/
+Moltz-community/
 ├── src/                      # React frontend
 │   ├── components/           # UI components
 │   ├── stores/               # Zustand state management
@@ -133,7 +133,7 @@ export async function sendMessage(
 
 **Example:**
 ```rust
-/// Connect to the Moltzer Gateway
+/// Connect to the Moltz Gateway
 ///
 /// # Arguments
 /// * `url` - WebSocket URL (ws:// or wss://)
@@ -283,7 +283,7 @@ Builds will be output to `src-tauri/target/release/`.
 
 ## 🐛 Reporting Bugs
 
-Use the [Bug Report template](https://github.com/AlixHQ/moltzer-community/issues/new?template=bug_report.yml) and include:
+Use the [Bug Report template](https://github.com/AlixHQ/Moltz-community/issues/new?template=bug_report.yml) and include:
 
 - Clear description of the bug
 - Steps to reproduce
@@ -293,7 +293,7 @@ Use the [Bug Report template](https://github.com/AlixHQ/moltzer-community/issues
 
 ## 💡 Suggesting Features
 
-Use the [Feature Request template](https://github.com/AlixHQ/moltzer-community/issues/new?template=feature_request.yml) and include:
+Use the [Feature Request template](https://github.com/AlixHQ/Moltz-community/issues/new?template=feature_request.yml) and include:
 
 - Problem you're trying to solve
 - Proposed solution
@@ -311,7 +311,7 @@ Help improve documentation by:
 
 ## 🔒 Security
 
-If you discover a security vulnerability, please **do not** open a public issue. Instead, email security@moltzer.dev (or create a private security advisory).
+If you discover a security vulnerability, please **do not** open a public issue. Instead, email security@Moltz.dev (or create a private security advisory).
 
 ## 📄 License
 
@@ -329,7 +329,7 @@ By contributing, you agree that your contributions will be licensed under the Ap
 - **Public discussions** for questions and ideas (helps others learn too!)
 - **Issues** for bugs and feature requests
 - **Pull requests** for code contributions
-- **Email** (support@moltzer.dev) for security issues or private matters
+- **Email** (support@Moltz.dev) for security issues or private matters
 
 ## 🙏 Code of Conduct
 
@@ -347,11 +347,11 @@ Violations may result in warnings, temporary bans, or permanent removal from the
 
 ## ❓ Questions?
 
-- **Discussions:** [GitHub Discussions](https://github.com/AlixHQ/moltzer-community/discussions)
-- **Questions:** [Ask a question](https://github.com/AlixHQ/moltzer-community/issues/new?template=question.yml)
-- **Issues:** [GitHub Issues](https://github.com/AlixHQ/moltzer-community/issues)
-- **Email:** support@moltzer.dev
+- **Discussions:** [GitHub Discussions](https://github.com/AlixHQ/Moltz-community/discussions)
+- **Questions:** [Ask a question](https://github.com/AlixHQ/Moltz-community/issues/new?template=question.yml)
+- **Issues:** [GitHub Issues](https://github.com/AlixHQ/Moltz-community/issues)
+- **Email:** support@Moltz.dev
 
 ---
 
-Thank you for contributing to Moltzer! Every contribution, big or small, makes a difference. 🦞
+Thank you for contributing to Moltz! Every contribution, big or small, makes a difference. 🦞

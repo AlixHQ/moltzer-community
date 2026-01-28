@@ -1,6 +1,6 @@
-# Clawdbot Gateway Protocol
+﻿# Clawdbot Gateway Protocol
 
-This document describes the WebSocket protocol used by Moltzer to communicate with the Clawdbot Gateway.
+This document describes the WebSocket protocol used by Moltz to communicate with the Clawdbot Gateway.
 
 ## Table of Contents
 

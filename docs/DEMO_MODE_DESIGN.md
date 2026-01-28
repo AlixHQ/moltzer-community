@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-**Goal**: Allow users to experience Moltzer without requiring Gateway setup, reducing the barrier to adoption while demonstrating the app's value.
+**Goal**: Allow users to experience Moltz without requiring Gateway setup, reducing the barrier to adoption while demonstrating the app's value.
 
 **Recommendation**: Implement **Direct API Mode** for V1, with a **Cloud Gateway** as the ideal long-term solution.
 
@@ -12,13 +12,13 @@
 
 ### Current Flow
 ```
-User downloads Moltzer
+User downloads Moltz
         ↓
 Must set up Gateway (requires Node.js, npm, CLI)
         ↓
 Configure API keys, ports, security
         ↓
-Finally can use Moltzer
+Finally can use Moltz
 ```
 
 ### Pain Points
@@ -100,7 +100,7 @@ demo.moltbot.io
 | Time to Implement | 1-2 weeks | |
 
 **Pros**:
-- Full Moltzer experience
+- Full Moltz experience
 - No user setup required
 - Easy upgrade path (just change Gateway URL)
 
@@ -122,12 +122,12 @@ demo.moltbot.io
 
 ### Option C: Direct API Mode (Recommended for V1)
 
-**Description**: Moltzer connects directly to AI providers (OpenAI, Anthropic, Google) without Gateway.
+**Description**: Moltz connects directly to AI providers (OpenAI, Anthropic, Google) without Gateway.
 
 **Implementation**:
 ```
 ┌─────────────────┐
-│   Moltzer client   │
+│   Moltz client   │
 └────────┬────────┘
          │ BYOK (Bring Your Own Key)
          ↓
@@ -254,7 +254,7 @@ class DirectAPIClient {
 **Implementation**:
 ```
 ┌─────────────────┐
-│   Moltzer client   │
+│   Moltz client   │
 └────────┬────────┘
          │ Local HTTP
          ↓
@@ -300,7 +300,7 @@ class DirectAPIClient {
 
 ### Long-term: Cloud Gateway
 
-Once Moltzer has traction:
+Once Moltz has traction:
 1. Launch `demo.moltbot.io` with rate-limited free tier
 2. Users can try full Gateway experience
 3. Easy upgrade: change URL to self-hosted Gateway
@@ -315,7 +315,7 @@ Once Moltzer has traction:
 #### Connection Screen (Updated)
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                    Connect to Moltzer                         │
+│                    Connect to Moltz                         │
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
 │  ┌─────────────────────────────────────────────────────┐  │
@@ -374,7 +374,7 @@ Once Moltzer has traction:
 When in Direct API mode, show subtle indicator:
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Moltzer Chat                                    ⚡ Direct API   │
+│ Moltz Chat                                    ⚡ Direct API   │
 ├──────────────────────────────────────────────────────────────┤
 ```
 
@@ -669,7 +669,7 @@ Add keychain storage for API keys (already exists, just expand):
 ```rust
 #[tauri::command]
 pub fn set_api_key(provider: &str, key: &str) -> Result<(), String> {
-    let service = format!("moltzer.direct.{}", provider);
+    let service = format!("Moltz.direct.{}", provider);
     keyring::Entry::new(&service, "api_key")?
         .set_password(key)
         .map_err(|e| e.to_string())
@@ -677,7 +677,7 @@ pub fn set_api_key(provider: &str, key: &str) -> Result<(), String> {
 
 #[tauri::command]
 pub fn get_api_key(provider: &str) -> Result<String, String> {
-    let service = format!("moltzer.direct.{}", provider);
+    let service = format!("Moltz.direct.{}", provider);
     keyring::Entry::new(&service, "api_key")?
         .get_password()
         .map_err(|e| e.to_string())

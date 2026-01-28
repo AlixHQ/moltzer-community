@@ -101,7 +101,7 @@ export const MessageBubble = memo(function MessageBubble({
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
       role="article"
-      aria-label={`Message from ${isUser ? "You" : "Moltzer"} sent ${formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}`}
+      aria-label={`Message from ${isUser ? "You" : "Moltz"} sent ${formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}`}
     >
       {/* Avatar */}
       <div
@@ -126,7 +126,7 @@ export const MessageBubble = memo(function MessageBubble({
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm font-medium">
-            {isUser ? "You" : "Moltzer"}
+            {isUser ? "You" : "Moltz"}
           </span>
           {message.isPending && (
             <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -348,7 +348,7 @@ function TypingIndicator() {
           aria-hidden="true"
         />
       ))}
-      <span className="sr-only">Moltzer is typing...</span>
+      <span className="sr-only">Moltz is typing...</span>
     </div>
   );
 }

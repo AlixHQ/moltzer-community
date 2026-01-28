@@ -1,6 +1,6 @@
-# Moltzer Testing Requirements
+ï»¿# Moltz Testing Requirements
 
-Comprehensive analysis of testing complexity for all Moltzer features.
+Comprehensive analysis of testing complexity for all Moltz features.
 
 **Legend:**
 - ?? **AUTONOMOUS**: Can test fully without human interaction
@@ -38,7 +38,7 @@ test('should detect Gateway automatically', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText(/Looking for Gateway/i)).toBeVisible();
   // If Gateway is running, should proceed
-  await expect(page.getByPlaceholder(/Message Moltzer/i)).toBeVisible({ timeout: 10000 });
+  await expect(page.getByPlaceholder(/Message Moltz/i)).toBeVisible({ timeout: 10000 });
 });
 
 // Test 2: Failure path (no Gateway)
@@ -64,7 +64,7 @@ test('should show no Gateway screen when detection fails', async ({ page }) => {
 ### Notes
 
 - Can mock WebSocket responses for predictable testing
-- Detection timeout is ~5 seconds (4 URLs × 400ms delay + connection time)
+- Detection timeout is ~5 seconds (4 URLs ï¿½ 400ms delay + connection time)
 - Test both success and failure paths
 - Verify URL switching (ws:// ? wss://)
 
@@ -82,7 +82,7 @@ test('should show no Gateway screen when detection fails', async ({ page }) => {
 3. Copy install command for your platform
 4. Open terminal, paste command: `npm install -g clawdbot`
 5. Run `clawdbot gateway start`
-6. Return to app, click "I've installed it — Retry Detection"
+6. Return to app, click "I've installed it ï¿½ Retry Detection"
 7. Verify detection succeeds
 
 ### Automated E2E (Playwright)
@@ -111,7 +111,7 @@ test('should show installation instructions', async ({ page }) => {
 - **Real Gateway Connection:** Yes (for end-to-end flow)
 - **Real API Keys/Models:** No
 - **OS Features:** Terminal access, npm
-- **Human Actions:** **Required** — install Gateway, run commands
+- **Human Actions:** **Required** ï¿½ install Gateway, run commands
 
 ### Test Time
 
@@ -141,9 +141,9 @@ test('should show installation instructions', async ({ page }) => {
 4. Restart app
 5. Open Settings ? verify token is loaded (shows placeholder, not actual value)
 6. Verify token is stored in OS keychain:
-   - **macOS:** `security find-generic-password -s com.moltzer.client`
+   - **macOS:** `security find-generic-password -s com.Moltz.client`
    - **Windows:** Credential Manager
-   - **Linux:** `secret-tool lookup service com.moltzer.client key gateway_token`
+   - **Linux:** `secret-tool lookup service com.Moltz.client key gateway_token`
 
 ### Automated E2E (Playwright)
 
@@ -177,7 +177,7 @@ test('should store token in keychain', async ({ page }) => {
 
 - **Real Gateway Connection:** No (for storage test)
 - **Real API Keys/Models:** No
-- **OS Features:** **Yes** — Keychain/Credential Manager access
+- **OS Features:** **Yes** ï¿½ Keychain/Credential Manager access
 - **Human Actions:** May need to approve keychain access on first use (macOS)
 
 ### Test Time
@@ -266,7 +266,7 @@ test('should fallback to wss:// if ws:// fails', async ({ page }) => {
 
 - Current implementation: Rust (`gateway.rs`) uses `tokio_tungstenite`
 - Protocol fallback is automatic (`try_connect_with_fallback`)
-- Retry logic: **Not yet implemented** — manual reconnection required
+- Retry logic: **Not yet implemented** ï¿½ manual reconnection required
 - Future: add exponential backoff reconnection
 
 ---
@@ -296,7 +296,7 @@ test('should stream message response', async ({ page }) => {
   await page.goto('/');
   
   // Send message
-  const input = page.getByPlaceholder(/Message Moltzer/i);
+  const input = page.getByPlaceholder(/Message Moltz/i);
   await input.fill('Hello!');
   await page.keyboard.press('Enter');
   
@@ -371,7 +371,7 @@ test('should create new conversation', async ({ page }) => {
   await page.getByRole('button', { name: /New Chat/i }).click();
   
   // Should show empty input
-  const input = page.getByPlaceholder(/Message Moltzer/i);
+  const input = page.getByPlaceholder(/Message Moltz/i);
   await expect(input).toBeVisible();
   await expect(input).toHaveValue('');
 });
@@ -381,7 +381,7 @@ test('should delete conversation', async ({ page }) => {
   
   // Create test conversation
   const uniqueTitle = `Test Conv ${Date.now()}`;
-  await page.getByPlaceholder(/Message Moltzer/i).fill(uniqueTitle);
+  await page.getByPlaceholder(/Message Moltz/i).fill(uniqueTitle);
   await page.keyboard.press('Enter');
   
   // Wait for message to appear
@@ -422,7 +422,7 @@ test('should delete conversation', async ({ page }) => {
 ### Notes
 
 - All operations use Zustand store + IndexedDB persistence
-- Deletion is permanent (no undo) — confirm this in tests
+- Deletion is permanent (no undo) ï¿½ confirm this in tests
 - Pinning: conversations with `isPinned: true` show at top
 - Title generation: first user message (truncated to 40 chars)
 
@@ -457,12 +457,12 @@ test('should filter conversations in sidebar', async ({ page }) => {
   await page.goto('/');
   
   // Create a few conversations with distinct names
-  await page.getByPlaceholder(/Message Moltzer/i).fill('Python tutorial');
+  await page.getByPlaceholder(/Message Moltz/i).fill('Python tutorial');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(500);
   
   await page.getByRole('button', { name: /New Chat/i }).click();
-  await page.getByPlaceholder(/Message Moltzer/i).fill('JavaScript guide');
+  await page.getByPlaceholder(/Message Moltz/i).fill('JavaScript guide');
   await page.keyboard.press('Enter');
   
   // Filter by "Python"
@@ -487,7 +487,7 @@ test('should search across all messages', async ({ page }) => {
   await searchInput.fill('test query');
   
   // Should show results or "no results" message
-  const results = page.getByRole('button').filter({ hasText: /You|Moltzer/ });
+  const results = page.getByRole('button').filter({ hasText: /You|Moltz/ });
   const noResults = page.getByText(/No results found/i);
   
   // One or the other should be visible
@@ -585,7 +585,7 @@ test('should persist settings across reload', async ({ page }) => {
 
 ### Notes
 
-- Settings stored in localStorage (key: `Moltzer-settings`)
+- Settings stored in localStorage (key: `Moltz-settings`)
 - Gateway token stored separately in OS keychain (not in settings)
 - Settings schema defined in Zustand store
 - Theme applies immediately without reload (but persists across restarts)
@@ -601,14 +601,14 @@ test('should persist settings across reload', async ({ page }) => {
 **Manual Steps:**
 1. **Verify Encryption:**
    - Send a message
-   - Open browser DevTools ? IndexedDB ? MoltzerDB ? messages
+   - Open browser DevTools ? IndexedDB ? MoltzDB ? messages
    - Verify `content` field is base64 gibberish (encrypted)
 2. **Verify Decryption:**
    - Reload app
    - Verify messages display correctly (decrypted transparently)
 3. **Verify Master Key:**
    - Check OS keychain for `molt-client-master-key`
-   - **macOS:** `security find-generic-password -s com.moltzer.client -a molt-client-master-key`
+   - **macOS:** `security find-generic-password -s com.Moltz.client -a molt-client-master-key`
    - Verify key exists and is base64 string
 4. **Verify Key Generation:**
    - Delete master key from keychain
@@ -627,7 +627,7 @@ test('should encrypt messages in IndexedDB', async ({ page }) => {
   
   // Send a message
   const uniqueMsg = `Secret message ${Date.now()}`;
-  await page.getByPlaceholder(/Message Moltzer/i).fill(uniqueMsg);
+  await page.getByPlaceholder(/Message Moltz/i).fill(uniqueMsg);
   await page.keyboard.press('Enter');
   
   // Wait for message to be saved
@@ -635,7 +635,7 @@ test('should encrypt messages in IndexedDB', async ({ page }) => {
   
   // Check IndexedDB
   const encryptedContent = await page.evaluate(async (msg) => {
-    const db = await (window as any).indexedDB.open('MoltzerDB');
+    const db = await (window as any).indexedDB.open('MoltzDB');
     const tx = db.transaction('messages', 'readonly');
     const store = tx.objectStore('messages');
     const messages = await store.getAll();
@@ -656,7 +656,7 @@ test('should decrypt messages on load', async ({ page }) => {
   
   // Send message
   const testMsg = `Test ${Date.now()}`;
-  await page.getByPlaceholder(/Message Moltzer/i).fill(testMsg);
+  await page.getByPlaceholder(/Message Moltz/i).fill(testMsg);
   await page.keyboard.press('Enter');
   
   // Reload page
@@ -671,7 +671,7 @@ test('should decrypt messages on load', async ({ page }) => {
 
 - **Real Gateway Connection:** No
 - **Real API Keys/Models:** No
-- **OS Features:** **Yes** — Keychain access (via Tauri)
+- **OS Features:** **Yes** ï¿½ Keychain access (via Tauri)
 - **Human Actions:** May need to approve keychain access on first run
 
 ### Test Time
@@ -686,7 +686,7 @@ test('should decrypt messages on load', async ({ page }) => {
 - Each message has unique IV (12-byte nonce)
 - Encryption/decryption is transparent to users
 - Key generation happens automatically on first message
-- **Important:** No password needed — OS handles auth (biometrics, login password)
+- **Important:** No password needed ï¿½ OS handles auth (biometrics, login password)
 
 ---
 
@@ -822,7 +822,7 @@ test('should send thinking parameter when enabled', async ({ page }) => {
   await page.getByRole('button', { name: /Save Changes/i }).click();
   
   // Send message
-  await page.getByPlaceholder(/Message Moltzer/i).fill('Solve a complex problem');
+  await page.getByPlaceholder(/Message Moltz/i).fill('Solve a complex problem');
   await page.keyboard.press('Enter');
   
   // If Gateway supports thinking, should show thinking indicator
@@ -883,7 +883,7 @@ test('Cmd+N should create new conversation', async ({ page }) => {
   await page.keyboard.press('Control+n');
   
   // Should clear chat and focus input
-  const input = page.getByPlaceholder(/Message Moltzer/i);
+  const input = page.getByPlaceholder(/Message Moltz/i);
   await expect(input).toBeFocused();
 });
 
@@ -906,7 +906,7 @@ test('Cmd+, should open settings', async ({ page }) => {
 test('Shift+Enter should add new line', async ({ page }) => {
   await page.goto('/');
   
-  const input = page.getByPlaceholder(/Message Moltzer/i);
+  const input = page.getByPlaceholder(/Message Moltz/i);
   await input.fill('Line 1');
   await page.keyboard.press('Shift+Enter');
   await input.pressSequentially('Line 2');
@@ -1087,7 +1087,7 @@ test('should upload file attachment', async ({ page }) => {
 - **Real Gateway Connection:** Yes (Gateway must support attachments)
 - **Real API Keys/Models:** Yes (multimodal models like GPT-4 Vision, Claude 3+)
 - **OS Features:** File picker dialog
-- **Human Actions:** **Required** — select files, verify visual rendering
+- **Human Actions:** **Required** ï¿½ select files, verify visual rendering
 
 ### Test Time
 
@@ -1096,7 +1096,7 @@ test('should upload file attachment', async ({ page }) => {
 
 ### Notes
 
-- **NOT YET IMPLEMENTED** in Moltzer (UI exists, functionality planned for v1.1)
+- **NOT YET IMPLEMENTED** in Moltz (UI exists, functionality planned for v1.1)
 - **PARKED FOR MANUAL REVIEW** with David
 - Requires Gateway support for multipart/form-data or base64 encoding
 - Security: validate file types, size limits
@@ -1127,7 +1127,7 @@ test('should render image in message', async ({ page }) => {
   await page.goto('/');
   
   // Send message with image markdown
-  await page.getByPlaceholder(/Message Moltzer/i).fill('![Test image](https://example.com/image.png)');
+  await page.getByPlaceholder(/Message Moltz/i).fill('![Test image](https://example.com/image.png)');
   await page.keyboard.press('Enter');
   
   // Verify image element exists
@@ -1142,7 +1142,7 @@ test('should render image in message', async ({ page }) => {
 - **Real Gateway Connection:** Optional (can test with static markdown)
 - **Real API Keys/Models:** Optional
 - **OS Features:** No
-- **Human Actions:** **Required** — verify image displays correctly, good quality
+- **Human Actions:** **Required** ï¿½ verify image displays correctly, good quality
 
 ### Test Time
 
@@ -1152,7 +1152,7 @@ test('should render image in message', async ({ page }) => {
 
 ### Notes
 
-- **NOT YET FULLY IMPLEMENTED** in Moltzer (markdown images might work, inline display TBD)
+- **NOT YET FULLY IMPLEMENTED** in Moltz (markdown images might work, inline display TBD)
 - **PARKED FOR MANUAL REVIEW** with David
 - Consider lazy loading for performance
 - Accessibility: require alt text, keyboard navigation
@@ -1233,7 +1233,7 @@ Human QA required:
 
 3. **Image Rendering**
    - **Why parked:** Partially implemented (markdown images work, inline display TBD)
-   - **Blocker:** Visual QA required — humans must verify rendering quality
+   - **Blocker:** Visual QA required ï¿½ humans must verify rendering quality
    - **Recommendation:** Add to manual QA checklist when feature complete
 
 ---

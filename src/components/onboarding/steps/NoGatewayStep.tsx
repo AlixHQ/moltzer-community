@@ -80,9 +80,9 @@ export function NoGatewayStep({
             What is Moltbot?
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Moltbot is the <strong>local server</strong> that powers Moltzer.
+            Moltbot is the <strong>local server</strong> that powers Moltz.
             Think of it like your personal AI assistant's brain — it runs on
-            your computer, keeps your data private, and connects Moltzer to your
+            your computer, keeps your data private, and connects Moltz to your
             calendar, email, files, and more.
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground">

@@ -1,6 +1,6 @@
-# Performance & Loading States - Implementation Summary
+﻿# Performance & Loading States - Implementation Summary
 
-This document summarizes the performance improvements and loading state enhancements made to the Moltzer client.
+This document summarizes the performance improvements and loading state enhancements made to the Moltz client.
 
 ## 1. Skeleton Loaders ✅
 

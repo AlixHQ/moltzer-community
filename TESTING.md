@@ -95,7 +95,7 @@ import { test, expect } from '@playwright/test';
 
 test('should load app', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/Moltzer/);
+  await expect(page).toHaveTitle(/Moltz/);
 });
 ```
 

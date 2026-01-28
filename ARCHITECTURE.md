@@ -1,39 +1,39 @@
-# Moltzer client Architecture
+ï»¿# Moltz client Architecture
 
 ## Overview
 
-Moltzer client is designed to operate in two distinct modes:
+Moltz client is designed to operate in two distinct modes:
 
-1. **Personal Mode** - Direct connection to Moltzerbot Gateway (current implementation)
-2. **Team Mode** - Connection through Moltzer Backend for org management, RBAC, and audit
+1. **Personal Mode** - Direct connection to Moltzbot Gateway (current implementation)
+2. **Team Mode** - Connection through Moltz Backend for org management, RBAC, and audit
 
 ```
 +---------------------------------------------------------------------+
-¦                         PERSONAL MODE                                ¦
-¦  +-------------+         +-------------+         +-------------+   ¦
-¦  ¦ Moltzer client ¦ --WS--? ¦   Gateway   ¦ ------? ¦   Moltbot   ¦   ¦
-¦  ¦  (Tauri)    ¦         ¦  (direct)   ¦         ¦             ¦   ¦
-¦  +-------------+         +-------------+         +-------------+   ¦
-¦        ¦                                                            ¦
-¦        ?                                                            ¦
-¦  +-------------+                                                   ¦
-¦  ¦  IndexedDB  ¦  (local storage)                                  ¦
-¦  +-------------+                                                   ¦
+ï¿½                         PERSONAL MODE                                ï¿½
+ï¿½  +-------------+         +-------------+         +-------------+   ï¿½
+ï¿½  ï¿½ Moltz client ï¿½ --WS--? ï¿½   Gateway   ï¿½ ------? ï¿½   Moltbot   ï¿½   ï¿½
+ï¿½  ï¿½  (Tauri)    ï¿½         ï¿½  (direct)   ï¿½         ï¿½             ï¿½   ï¿½
+ï¿½  +-------------+         +-------------+         +-------------+   ï¿½
+ï¿½        ï¿½                                                            ï¿½
+ï¿½        ?                                                            ï¿½
+ï¿½  +-------------+                                                   ï¿½
+ï¿½  ï¿½  IndexedDB  ï¿½  (local storage)                                  ï¿½
+ï¿½  +-------------+                                                   ï¿½
 +---------------------------------------------------------------------+
 
 +---------------------------------------------------------------------+
-¦                           TEAM MODE                                  ¦
-¦  +-------------+         +-------------+         +-------------+   ¦
-¦  ¦ Moltzer client ¦ --WS--? ¦Moltzer Backend ¦ --WS--? ¦   Gateway   ¦   ¦
-¦  ¦  (Tauri)    ¦         ¦  (proxy)    ¦         ¦             ¦   ¦
-¦  +-------------+         +-------------+         +-------------+   ¦
-¦                                ¦                        ¦           ¦
-¦                    +-----------+-----------+           ¦           ¦
-¦                    ?           ?           ?           ?           ¦
-¦              +----------+ +---------+ +---------+ +---------+     ¦
-¦              ¦PostgreSQL¦ ¦  Redis  ¦ ¦  Audit  ¦ ¦ Moltbot ¦     ¦
-¦              ¦(main DB) ¦ ¦(pubsub) ¦ ¦  Logs   ¦ ¦         ¦     ¦
-¦              +----------+ +---------+ +---------+ +---------+     ¦
+ï¿½                           TEAM MODE                                  ï¿½
+ï¿½  +-------------+         +-------------+         +-------------+   ï¿½
+ï¿½  ï¿½ Moltz client ï¿½ --WS--? ï¿½Moltz Backend ï¿½ --WS--? ï¿½   Gateway   ï¿½   ï¿½
+ï¿½  ï¿½  (Tauri)    ï¿½         ï¿½  (proxy)    ï¿½         ï¿½             ï¿½   ï¿½
+ï¿½  +-------------+         +-------------+         +-------------+   ï¿½
+ï¿½                                ï¿½                        ï¿½           ï¿½
+ï¿½                    +-----------+-----------+           ï¿½           ï¿½
+ï¿½                    ?           ?           ?           ?           ï¿½
+ï¿½              +----------+ +---------+ +---------+ +---------+     ï¿½
+ï¿½              ï¿½PostgreSQLï¿½ ï¿½  Redis  ï¿½ ï¿½  Audit  ï¿½ ï¿½ Moltbot ï¿½     ï¿½
+ï¿½              ï¿½(main DB) ï¿½ ï¿½(pubsub) ï¿½ ï¿½  Logs   ï¿½ ï¿½         ï¿½     ï¿½
+ï¿½              +----------+ +---------+ +---------+ +---------+     ï¿½
 +---------------------------------------------------------------------+
 ```
 
@@ -47,20 +47,20 @@ Moltzer client is designed to operate in two distinct modes:
 Organizations (workspaces)
 +-- Settings (name, logo, billing, etc.)
 +-- Members
-¦   +-- User reference
-¦   +-- Role
-¦   +-- Custom permission overrides
+ï¿½   +-- User reference
+ï¿½   +-- Role
+ï¿½   +-- Custom permission overrides
 +-- Roles
-¦   +-- Built-in: owner, admin, member, read-only, guest
-¦   +-- Custom roles with granular permissions
+ï¿½   +-- Built-in: owner, admin, member, read-only, guest
+ï¿½   +-- Custom roles with granular permissions
 +-- Rooms (shared conversation spaces)
-¦   +-- Public rooms (all members can see)
-¦   +-- Private rooms (invite-only)
-¦   +-- Direct messages
+ï¿½   +-- Public rooms (all members can see)
+ï¿½   +-- Private rooms (invite-only)
+ï¿½   +-- Direct messages
 +-- Permission Policies
-¦   +-- Tool allowlists/denylists
-¦   +-- Source access rules
-¦   +-- Action restrictions
+ï¿½   +-- Tool allowlists/denylists
+ï¿½   +-- Source access rules
+ï¿½   +-- Action restrictions
 +-- Audit Logs
     +-- Every request/response with full context
 ```
@@ -566,33 +566,33 @@ interface Store {
 ```
 molt-client/
 +-- src/                      # React frontend
-¦   +-- components/
-¦   +-- hooks/
-¦   +-- lib/
-¦   ¦   +-- connection.ts     # Connection abstraction
-¦   ¦   +-- api.ts           # REST API client
-¦   ¦   +-- ws.ts            # WebSocket client
-¦   +-- stores/
-¦   +-- ...
+ï¿½   +-- components/
+ï¿½   +-- hooks/
+ï¿½   +-- lib/
+ï¿½   ï¿½   +-- connection.ts     # Connection abstraction
+ï¿½   ï¿½   +-- api.ts           # REST API client
+ï¿½   ï¿½   +-- ws.ts            # WebSocket client
+ï¿½   +-- stores/
+ï¿½   +-- ...
 +-- src-tauri/                # Rust backend (Tauri)
-¦   +-- src/
-¦       +-- gateway.rs        # Direct gateway connection
-¦       +-- ...
+ï¿½   +-- src/
+ï¿½       +-- gateway.rs        # Direct gateway connection
+ï¿½       +-- ...
 +-- ...
 
-Moltzer-backend/                 # Separate repo for team backend
+Moltz-backend/                 # Separate repo for team backend
 +-- src/
-¦   +-- api/                  # REST endpoints
-¦   +-- ws/                   # WebSocket handler
-¦   +-- services/
-¦   ¦   +-- auth.ts
-¦   ¦   +-- rbac.ts
-¦   ¦   +-- audit.ts
-¦   ¦   +-- gateway_proxy.ts
-¦   +-- db/
-¦   ¦   +-- schema.sql
-¦   ¦   +-- migrations/
-¦   +-- ...
+ï¿½   +-- api/                  # REST endpoints
+ï¿½   +-- ws/                   # WebSocket handler
+ï¿½   +-- services/
+ï¿½   ï¿½   +-- auth.ts
+ï¿½   ï¿½   +-- rbac.ts
+ï¿½   ï¿½   +-- audit.ts
+ï¿½   ï¿½   +-- gateway_proxy.ts
+ï¿½   +-- db/
+ï¿½   ï¿½   +-- schema.sql
+ï¿½   ï¿½   +-- migrations/
+ï¿½   +-- ...
 +-- ...
 ```
 
@@ -606,22 +606,22 @@ All conversation history encrypted locally with zero user friction:
 
 ```
 +-----------------------------------------------------+
-¦              OS Keychain                            ¦
-¦  (macOS Keychain / Windows Credential Manager /    ¦
-¦   Linux Secret Service)                            ¦
-¦                                                     ¦
-¦  Stores: 256-bit encryption key                    ¦
-¦  Auto-generated on first launch                    ¦
+ï¿½              OS Keychain                            ï¿½
+ï¿½  (macOS Keychain / Windows Credential Manager /    ï¿½
+ï¿½   Linux Secret Service)                            ï¿½
+ï¿½                                                     ï¿½
+ï¿½  Stores: 256-bit encryption key                    ï¿½
+ï¿½  Auto-generated on first launch                    ï¿½
 +-----------------------------------------------------+
-                      ¦
+                      ï¿½
                       ?
 +-----------------------------------------------------+
-¦              SQLCipher Database                     ¦
-¦                                                     ¦
-¦  • All messages encrypted (AES-256)                ¦
-¦  • Conversation metadata encrypted                 ¦
-¦  • Attachments encrypted                           ¦
-¦  • Key never leaves OS keychain                    ¦
+ï¿½              SQLCipher Database                     ï¿½
+ï¿½                                                     ï¿½
+ï¿½  ï¿½ All messages encrypted (AES-256)                ï¿½
+ï¿½  ï¿½ Conversation metadata encrypted                 ï¿½
+ï¿½  ï¿½ Attachments encrypted                           ï¿½
+ï¿½  ï¿½ Key never leaves OS keychain                    ï¿½
 +-----------------------------------------------------+
 ```
 
@@ -636,10 +636,10 @@ rusqlite = { version = "0.31", features = ["bundled-sqlcipher"] }
 
 ### User Experience
 
-- **Zero setup** — Key auto-generated on first launch
-- **No passwords** — OS handles authentication (biometrics, login password)
-- **Transparent** — User never sees encryption, it just works
-- **Portable** — Export includes encrypted blob + key (optional password protection)
+- **Zero setup** ï¿½ Key auto-generated on first launch
+- **No passwords** ï¿½ OS handles authentication (biometrics, login password)
+- **Transparent** ï¿½ User never sees encryption, it just works
+- **Portable** ï¿½ Export includes encrypted blob + key (optional password protection)
 
 ---
 

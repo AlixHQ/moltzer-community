@@ -1,4 +1,4 @@
-# Moltzer - Multi-Persona Evaluation
+﻿# Moltz - Multi-Persona Evaluation
 
 **Date:** 2026-01-28  
 **Evaluator:** Clawd (AI Assistant)
@@ -209,7 +209,7 @@
 - **Clawdbot integration** - Unique ecosystem play
 
 ### What's Missing vs Competitors
-| Feature | Moltzer | ChatGPT | Claude.ai | Cursor |
+| Feature | Moltz | ChatGPT | Claude.ai | Cursor |
 |---------|---------|---------|-----------|--------|
 | Voice input | ❌ | ✅ | ✅ | ❌ |
 | Voice output | ❌ | ✅ | ❌ | ❌ |
@@ -260,4 +260,4 @@
 
 ---
 
-*This evaluation is meant to be constructive. Moltzer is already a capable app - these are paths to excellence.*
+*This evaluation is meant to be constructive. Moltz is already a capable app - these are paths to excellence.*

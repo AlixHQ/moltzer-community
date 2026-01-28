@@ -232,7 +232,7 @@ describe("toHTML", () => {
     const conversation = createTestConversation();
     const result = toHTML(conversation);
     expect(result).toContain(
-      "<title>Test Conversation - Moltzer Export</title>",
+      "<title>Test Conversation - Moltz Export</title>",
     );
     expect(result).toContain("<h1>Test Conversation</h1>");
   });

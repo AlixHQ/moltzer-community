@@ -1,5 +1,5 @@
 /**
- * Encryption utilities for Moltzer Client
+ * Encryption utilities for Moltz Client
  *
  * Provides transparent encryption/decryption of sensitive data using:
  * - Web Crypto API (AES-GCM 256-bit encryption)
@@ -13,7 +13,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 
-const ENCRYPTION_KEY_NAME = "moltzer-client-master-key";
+const ENCRYPTION_KEY_NAME = "moltz-client-master-key";
 const ALGORITHM = "AES-GCM";
 const KEY_LENGTH = 256;
 
@@ -29,7 +29,7 @@ async function getMasterKey(): Promise<CryptoKey> {
   try {
     // Try to load existing key from keychain
     const storedKey = await invoke<string>("keychain_get", {
-      service: "com.moltzer.client",
+      service: "com.moltz.client",
       key: ENCRYPTION_KEY_NAME,
     });
 
@@ -62,7 +62,7 @@ async function getMasterKey(): Promise<CryptoKey> {
 
   try {
     await invoke("keychain_set", {
-      service: "com.moltzer.client",
+      service: "com.moltz.client",
       key: ENCRYPTION_KEY_NAME,
       value: base64Key,
     });
@@ -169,7 +169,7 @@ export function clearCachedKey() {
 export async function deleteMasterKey(): Promise<void> {
   try {
     await invoke("keychain_delete", {
-      service: "com.moltzer.client",
+      service: "com.moltz.client",
       key: ENCRYPTION_KEY_NAME,
     });
   } catch (err) {

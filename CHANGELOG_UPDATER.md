@@ -1,8 +1,8 @@
-# Auto-Update Implementation - Changelog
+﻿# Auto-Update Implementation - Changelog
 
 ## Summary
 
-Implemented a comprehensive auto-update mechanism for Moltzer desktop application with the following features:
+Implemented a comprehensive auto-update mechanism for Moltz desktop application with the following features:
 
 ✅ **All CEO Requirements Met:**
 1. ✅ Check for updates on app startup (10s delay)
@@ -136,7 +136,7 @@ App restarts automatically
       "active": true,
       "dialog": false,
       "endpoints": [
-        "https://github.com/AlixHQ/moltzer-community/releases/latest/download/latest.json"
+        "https://github.com/AlixHQ/Moltz-community/releases/latest/download/latest.json"
       ],
       "pubkey": "<base64-encoded-public-key>"
     }
@@ -194,7 +194,7 @@ App restarts automatically
 
 1. **Generate Signing Keys:**
    ```bash
-   tauri signer generate -w ~/.tauri/moltzer.key
+   tauri signer generate -w ~/.tauri/Moltz.key
    ```
 
 2. **Configure GitHub Secrets:**

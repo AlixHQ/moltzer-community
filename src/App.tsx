@@ -62,17 +62,17 @@ export default function App() {
   // Check if this is first launch (onboarding needed)
   useEffect(() => {
     const APP_VERSION = "1.0.0"; // Should match package.json version
-    const storedVersion = localStorage.getItem("moltzer-app-version");
+    const storedVersion = localStorage.getItem("moltz-app-version");
 
     // Version upgrade: Clear stale onboarding flags
     if (storedVersion && storedVersion !== APP_VERSION) {
-      localStorage.removeItem("moltzer-onboarding-completed");
-      localStorage.removeItem("moltzer-onboarding-skipped");
-      localStorage.removeItem("moltzer-onboarding-progress");
+      localStorage.removeItem("moltz-onboarding-completed");
+      localStorage.removeItem("moltz-onboarding-skipped");
+      localStorage.removeItem("moltz-onboarding-progress");
     }
 
     // Store current version
-    localStorage.setItem("moltzer-app-version", APP_VERSION);
+    localStorage.setItem("moltz-app-version", APP_VERSION);
 
     const loadData = async () => {
       try {
@@ -103,10 +103,10 @@ export default function App() {
       await loadData();
 
       const onboardingCompleted = localStorage.getItem(
-        "moltzer-onboarding-completed",
+        "moltz-onboarding-completed",
       );
       const onboardingSkipped = localStorage.getItem(
-        "moltzer-onboarding-skipped",
+        "moltz-onboarding-skipped",
       );
       const currentSettings = useStore.getState().settings;
 
@@ -190,9 +190,9 @@ export default function App() {
     // BUT don't re-trigger onboarding if it was just completed (check localStorage)
     if (!settings.gatewayUrl || settings.gatewayUrl.trim() === "") {
       const justCompleted = localStorage.getItem(
-        "moltzer-onboarding-completed",
+        "moltz-onboarding-completed",
       );
-      const justSkipped = localStorage.getItem("moltzer-onboarding-skipped");
+      const justSkipped = localStorage.getItem("moltz-onboarding-skipped");
       if (!justCompleted && !justSkipped) {
         setIsConnecting(false);
         setShowOnboarding(true); // Force onboarding if no URL and not just completed
@@ -619,16 +619,16 @@ export default function App() {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     // Clear progress
-    localStorage.removeItem("moltzer-onboarding-progress");
+    localStorage.removeItem("moltz-onboarding-progress");
     // Trigger a connection attempt with new settings
     setIsConnecting(true);
   };
 
   const handleRerunSetup = () => {
     // Clear onboarding flags to trigger setup again
-    localStorage.removeItem("moltzer-onboarding-completed");
-    localStorage.removeItem("moltzer-onboarding-skipped");
-    localStorage.removeItem("moltzer-onboarding-progress");
+    localStorage.removeItem("moltz-onboarding-completed");
+    localStorage.removeItem("moltz-onboarding-skipped");
+    localStorage.removeItem("moltz-onboarding-progress");
     setShowOnboarding(true);
   };
 
@@ -777,7 +777,7 @@ export default function App() {
                 className="font-semibold text-sm truncate select-none"
                 data-tauri-drag-region
               >
-                {currentConversation?.title || "Moltzer"}
+                {currentConversation?.title || "Moltz"}
               </h1>
             </div>
 

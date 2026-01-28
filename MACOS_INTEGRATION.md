@@ -2,7 +2,7 @@
 
 ## Overview
 
-Moltzer client features **Slack/Discord-style window chrome** on macOS with integrated traffic lights and native drag regions.
+Moltz client features **Slack/Discord-style window chrome** on macOS with integrated traffic lights and native drag regions.
 
 ---
 
@@ -56,7 +56,7 @@ Used throughout the app to conditionally apply macOS-specific styling.
     data-tauri-drag-region
   >
     <span className="text-2xl select-none">🦞</span>
-    <span className="font-semibold text-lg select-none">Moltzer</span>
+    <span className="font-semibold text-lg select-none">Moltz</span>
     {/* Connection status */}
   </div>
 </div>
@@ -93,7 +93,7 @@ Used throughout the app to conditionally apply macOS-specific styling.
   >
     {/* Sidebar toggle + title */}
     <h1 className="font-semibold select-none" data-tauri-drag-region>
-      {currentConversation?.title || "Moltzer"}
+      {currentConversation?.title || "Moltz"}
     </h1>
   </div>
   
@@ -167,7 +167,7 @@ We use `pl-[70px]` to ensure content starts after the traffic lights.
 On macOS:
 ```
 ┌─[●●●]─────────────────────────┐
-│  🦞 Moltzer        ● Online      │ ← Draggable, traffic lights integrated
+│  🦞 Moltz        ● Online      │ ← Draggable, traffic lights integrated
 ├───────────────────────────────┤
 │  [New Chat]                   │
 │  [Search...]                  │
@@ -176,8 +176,8 @@ On macOS:
 
 On Windows/Linux:
 ```
-┌─ Moltzer ──────────────[─][□][×]─┐ ← System title bar
-│  🦞 Moltzer        ● Online      │
+┌─ Moltz ──────────────[─][□][×]─┐ ← System title bar
+│  🦞 Moltz        ● Online      │
 ├───────────────────────────────┤
 │  [New Chat]                   │
 ```

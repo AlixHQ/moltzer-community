@@ -1,8 +1,8 @@
-# Encryption at Rest - Implementation Guide
+﻿# Encryption at Rest - Implementation Guide
 
 ## Overview
 
-Moltzer client implements **transparent encryption at rest** for all sensitive conversation data with zero user friction.
+Moltz client implements **transparent encryption at rest** for all sensitive conversation data with zero user friction.
 
 ## Architecture
 
@@ -56,7 +56,7 @@ Moltzer client implements **transparent encryption at rest** for all sensitive c
 
 2. **Key Storage**
    - Stored in OS keychain via Tauri `keyring` crate
-   - Service: `com.moltzer.client`
+   - Service: `com.Moltz.client`
    - Key name: `molt-client-master-key`
    - Protected by OS-level authentication
 

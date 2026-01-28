@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+﻿import { describe, it, expect } from "vitest";
 
 /**
  * URL validation and parsing tests
@@ -154,7 +154,7 @@ describe("URL Utilities", () => {
         "ws://localhost:18789",
         "ws://127.0.0.1:18789",
         "wss://gateway.example.com",
-        "wss://moltzer.example.com:8443",
+        "wss://Moltz.example.com:8443",
       ];
 
       validGatewayUrls.forEach((url) => {

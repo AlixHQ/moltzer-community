@@ -1,11 +1,11 @@
-﻿# Protocol Verification Report: Moltzer ↔ Clawdbot Gateway
+﻿# Protocol Verification Report: Moltz ↔ Clawdbot Gateway
 
 **Date:** 2025-01-27  
 **Status:** 🔴 CRITICAL MISMATCHES FOUND
 
 ## Summary
 
-Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot Gateway that prevent communication.
+Moltz's WebSocket implementation has several protocol mismatches with Clawdbot Gateway that prevent communication.
 
 ---
 
@@ -70,7 +70,7 @@ Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot
        "minProtocol": 3,
        "maxProtocol": 3,
        "client": {
-         "id": "Moltzer",
+         "id": "Moltz",
          "version": "0.1.0",
          "platform": "windows|macos|linux",
          "mode": "operator"
@@ -82,7 +82,7 @@ Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot
        "permissions": {},
        "auth": { "token": "..." },
        "locale": "en-US",
-       "userAgent": "Moltzer/0.1.0"
+       "userAgent": "Moltz/0.1.0"
      }
    }
    ```
@@ -138,9 +138,9 @@ Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot
 
 ---
 
-## 2. Moltzer's Current Implementation
+## 2. Moltz's Current Implementation
 
-### What Moltzer Sends (INCORRECT)
+### What Moltz Sends (INCORRECT)
 
 **Request format:**
 ```json
@@ -156,7 +156,7 @@ Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot
 - No connect handshake
 - No `idempotencyKey` in chat.send
 
-### What Moltzer Expects (INCORRECT)
+### What Moltz Expects (INCORRECT)
 
 **Response format expected:**
 ```json
@@ -182,7 +182,7 @@ Moltzer's WebSocket implementation has several protocol mismatches with Clawdbot
 
 ## 3. Gap Analysis
 
-| Issue | Moltzer Current | Clawdbot Expected | Severity |
+| Issue | Moltz Current | Clawdbot Expected | Severity |
 |-------|--------------|-------------------|----------|
 | Request type field | Missing | `"type": "req"` | 🔴 CRITICAL |
 | Connect handshake | Not performed | Required | 🔴 CRITICAL |

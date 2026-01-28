@@ -1,6 +1,6 @@
-# Moltzer Architecture
+﻿# Moltz Architecture
 
-This document provides a comprehensive overview of Moltzer's system architecture, design decisions, and technical implementation.
+This document provides a comprehensive overview of Moltz's system architecture, design decisions, and technical implementation.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ This document provides a comprehensive overview of Moltzer's system architecture
 
 ## High-Level Overview
 
-Moltzer is a **native desktop application** built with Tauri v2, combining:
+Moltz is a **native desktop application** built with Tauri v2, combining:
 - **Frontend:** React 18 + TypeScript for the UI
 - **Backend:** Rust for native capabilities and WebSocket communication
 - **Storage:** IndexedDB for local data persistence
@@ -26,7 +26,7 @@ Moltzer is a **native desktop application** built with Tauri v2, combining:
 
 ```
 ┌─────────────────────────────────────────┐
-│         Moltzer Desktop App             │
+│         Moltz Desktop App             │
 ├─────────────────────────────────────────┤
 │  React UI (TypeScript)                  │
 │  ├─ Components (ChatView, Sidebar...)   │

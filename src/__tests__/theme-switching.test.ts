@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Theme Switching Tests
  *
  * Verifies that theme changes are applied correctly to the DOM,
@@ -148,7 +148,7 @@ describe("Theme Switching", () => {
 
       // Verify theme was saved
       const savedCalls = localStorageMock.setItem.mock.calls.filter(
-        (call: [string, string]) => call[0] === "moltzer-settings",
+        (call: [string, string]) => call[0] === "Moltz-settings",
       );
       expect(savedCalls.length).toBeGreaterThan(0);
 
@@ -157,7 +157,7 @@ describe("Theme Switching", () => {
     });
 
     it("should restore theme from localStorage", async () => {
-      localStorageStore["moltzer-settings"] = JSON.stringify({
+      localStorageStore["Moltz-settings"] = JSON.stringify({
         theme: "light",
         gatewayUrl: "ws://test:8080",
       });

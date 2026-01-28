@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { cn } from "../../../lib/utils";
 
 interface GatewayExplainerStepProps {
@@ -54,7 +54,7 @@ export function GatewayExplainerStep({
           </div>
           <h2 className="text-4xl font-bold mb-3">What's a Gateway?</h2>
           <p className="text-lg text-muted-foreground">
-            Think of it as Moltzer's connection to your world
+            Think of it as Moltz's connection to your world
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export function GatewayExplainerStep({
                   Connects Everything
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Gateway lets Moltzer talk to your calendar, email, files, and
+                  Gateway lets Moltz talk to your calendar, email, files, and
                   more—all while keeping your credentials secure on your
                   computer.
                 </p>

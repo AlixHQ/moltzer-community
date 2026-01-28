@@ -1,6 +1,6 @@
-# Development Guide
+﻿# Development Guide
 
-Complete guide to setting up your development environment and building Moltzer from source.
+Complete guide to setting up your development environment and building Moltz from source.
 
 ## Table of Contents
 
@@ -494,11 +494,11 @@ Edit `src-tauri/tauri.conf.json`:
     "beforeBuildCommand": "npm run build"
   },
   "package": {
-    "productName": "Moltzer",
+    "productName": "Moltz",
     "version": "1.0.0"
   },
   "bundle": {
-    "identifier": "com.moltzer.client",
+    "identifier": "com.Moltz.client",
     "icon": [
       "icons/icon.icns",
       "icons/icon.ico",
@@ -580,8 +580,8 @@ npm run tauri build
 
 3. **Ask for help:**
    - [GitHub Discussions](https://github.com/dokterdok/molt-client/discussions)
-   - [Discord](https://discord.gg/moltzer) (if available)
-   - Email: dev@moltzer.dev
+   - [Discord](https://discord.gg/Moltz) (if available)
+   - Email: dev@Moltz.dev
 
 ---
 
@@ -650,4 +650,4 @@ npm run build
 ---
 
 **Last Updated:** 2024-01-15  
-**Target Audience:** Developers contributing to Moltzer
+**Target Audience:** Developers contributing to Moltz

@@ -1,8 +1,8 @@
-﻿# Analytics & Telemetry Design for Moltzer
+﻿# Analytics & Telemetry Design for Moltz
 
 ## Executive Summary
 
-This document specifies a **privacy-first analytics system** for Moltzer that respects the app's core philosophy of keeping user data local and private, while providing actionable insights for product improvement.
+This document specifies a **privacy-first analytics system** for Moltz that respects the app's core philosophy of keeping user data local and private, while providing actionable insights for product improvement.
 
 **Key principles:**
 - 🔒 **Opt-in by default** — Analytics disabled until user explicitly enables
@@ -133,7 +133,7 @@ Understand usage patterns for product decisions.
 │                    Analytics Preferences                     │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  Moltzer doesn't track anything by default. You can help      │
+│  Moltz doesn't track anything by default. You can help      │
 │  improve the app by sharing anonymous usage data.          │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐   │
@@ -249,11 +249,11 @@ Understand usage patterns for product decisions.
 Displayed in Settings → Privacy:
 
 ```markdown
-## What Moltzer Collects (When Analytics Enabled)
+## What Moltz Collects (When Analytics Enabled)
 
 ### Basic Analytics
 - Which features you use (not how you use them)
-- How often you use Moltzer (daily/weekly/monthly)
+- How often you use Moltz (daily/weekly/monthly)
 - Your platform (macOS/Windows/Linux)
 
 ### What We DON'T Collect
@@ -343,7 +343,7 @@ to you as an individual.
 - Newer company (less proven)
 - Data stored on their servers (US/EU regions)
 
-**Verdict:** Best fit for Moltzer. Purpose-built for privacy-respecting desktop app analytics.
+**Verdict:** Best fit for Moltz. Purpose-built for privacy-respecting desktop app analytics.
 
 ### 3.5 Custom Minimal Solution
 
@@ -385,7 +385,7 @@ to you as an individual.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Moltzer ANALYTICS DASHBOARD                          Last 30 days ▼  │
+│  Moltz ANALYTICS DASHBOARD                          Last 30 days ▼  │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐           │
@@ -655,8 +655,8 @@ function getModelFamily(model: string): string {
 import { randomBytes, createHash } from 'crypto';
 
 class AnonymousIdManager {
-  private storageKey = 'moltzer_analytics_id';
-  private rotationKey = 'moltzer_analytics_rotation';
+  private storageKey = 'Moltz_analytics_id';
+  private rotationKey = 'Moltz_analytics_rotation';
   
   async getOrCreateId(): Promise<string> {
     // Check if rotation needed (monthly)
@@ -738,7 +738,7 @@ pub fn run() {
 import { trackEvent } from '@aptabase/tauri';
 
 // Analytics wrapper with consent check
-class MoltzerAnalytics {
+class MoltzAnalytics {
   private enabled = false;
   
   async init() {
@@ -787,7 +787,7 @@ class MoltzerAnalytics {
 }
 
 // Export singleton
-export const analytics = new MoltzerAnalytics();
+export const analytics = new MoltzAnalytics();
 ```
 
 ### 6.2 Integration Points
@@ -853,7 +853,7 @@ function AnalyticsSettings() {
       <h3>Analytics & Privacy</h3>
       
       <p className="text-sm text-muted-foreground">
-        Moltzer doesn't track anything by default. You can help 
+        Moltz doesn't track anything by default. You can help 
         improve the app by sharing anonymous usage data.
       </p>
       
@@ -938,7 +938,7 @@ function hashStack(stack?: string): string {
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                         Moltzer client                               │
+│                         Moltz client                               │
 │  ┌──────────────┐                                                │
 │  │   Event      │                                                │
 │  │   Occurs     │                                                │
@@ -1048,13 +1048,13 @@ function hashStack(stack?: string): string {
 ## Appendix A: Privacy Policy Template
 
 ```markdown
-# Moltzer Privacy Policy
+# Moltz Privacy Policy
 
 Last updated: [DATE]
 
 ## Summary
 
-Moltzer is designed with privacy as a core principle:
+Moltz is designed with privacy as a core principle:
 - All conversations are stored locally on your device
 - Conversations are encrypted with keys only you control
 - Analytics are disabled by default
@@ -1095,7 +1095,7 @@ Analytics data is retained for 90 days, then automatically deleted.
 
 ## Contact
 
-Questions about privacy? Email privacy@moltzer.dev
+Questions about privacy? Email privacy@Moltz.dev
 ```
 
 ---

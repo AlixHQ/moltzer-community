@@ -1,5 +1,5 @@
-/**
- * Utility functions for Moltzer Client
+﻿/**
+ * Utility functions for Moltz Client
  */
 
 import { type ClassValue, clsx } from "clsx";

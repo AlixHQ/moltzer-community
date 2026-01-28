@@ -137,11 +137,11 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup, hasUpdateAvailable 
             <span
               className="text-2xl select-none"
               role="img"
-              aria-label="Moltzer logo"
+              aria-label="Moltz logo"
             >
               🦞
             </span>
-            <span className="font-semibold text-lg select-none">Moltzer</span>
+            <span className="font-semibold text-lg select-none">Moltz</span>
           </div>
           <div
             className="flex items-center gap-1.5 ml-auto"

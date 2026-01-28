@@ -27,7 +27,7 @@
 
 **Bad:**
 - First screen is a setup wizard, not a "wow" moment
-- "Welcome to Moltzer" - but *what is Moltzer?* Not immediately clear
+- "Welcome to Moltz" - but *what is Moltz?* Not immediately clear
 - Three generic icons (📧📅💬) don't convey what makes this special
 - The gradient lobster shadow is a nice touch, but the emoji feels unfinished
 
@@ -63,7 +63,7 @@ If I had 30 seconds to impress someone, what would I show?
 
 **What's MISSING that would make someone say "I need this":**
 
-- 🎯 **No demo of what makes Moltzer *different* from ChatGPT**
+- 🎯 **No demo of what makes Moltz *different* from ChatGPT**
 - 🎯 **No showcase of "agentic" capabilities** (the welcome screen hints at calendar/email but it's vapor)
 - 🎯 **No killer feature visible in first 30 seconds**
 - 🎯 **No "magic" moment that couldn't happen elsewhere**
@@ -80,7 +80,7 @@ The WelcomeView promises:
 🏠 Control my smart home
 ```
 
-But clicking these just... sends a message. **There's no magic.** The magic depends entirely on the Gateway/backend. Moltzer itself is just a fancy chat wrapper.
+But clicking these just... sends a message. **There's no magic.** The magic depends entirely on the Gateway/backend. Moltz itself is just a fancy chat wrapper.
 
 **Jobs would say:** "You're showing me a chat app. I already have 17 chat apps. What can this do that nothing else can?"
 
@@ -125,7 +125,7 @@ code({ node, inline, className, children, ...props }: any) {
 
 ```typescript
 // Token leaking to localStorage during onboarding
-localStorage.setItem('Moltzer-onboarding-progress', JSON.stringify({
+localStorage.setItem('Moltz-onboarding-progress', JSON.stringify({
   gatewayToken: trimmedToken,  // OOPS - meant for keychain only!
 }));
 ```
@@ -171,7 +171,7 @@ pub async fn get_models(...) -> Result<Vec<ModelInfo>, String> {
 
 ## 4. The Story
 
-### What is Moltzer? (5 words)
+### What is Moltz? (5 words)
 
 **Current positioning:** "A native desktop client for Clawdbot"
 

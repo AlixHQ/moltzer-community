@@ -1,7 +1,7 @@
 {
-  "name": "moltzer-client",
+  "name": "moltz-client",
   "version": "1.0.0",
-  "description": "Moltzer — Native cross-platform desktop AI chat client. Use any AI model (Claude, GPT, Gemini, local) from a fast, encrypted desktop app.",
+  "description": "Moltz — Native cross-platform desktop AI chat client. Use any AI model (Claude, GPT, Gemini, local) from a fast, encrypted desktop app.",
   "type": "module",
   "scripts": {
     "dev": "vite",

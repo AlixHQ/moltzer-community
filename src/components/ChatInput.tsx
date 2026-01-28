@@ -361,7 +361,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
               ? "Sending message..."
               : disabled
                 ? "Connect to Gateway to send messages..."
-                : "Message Moltzer..."
+                : "Message Moltz..."
           }
           rows={1}
           aria-label="Type your message"

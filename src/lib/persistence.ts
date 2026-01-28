@@ -1,5 +1,5 @@
-/**
- * Persistence layer for Moltzer Client
+﻿/**
+ * Persistence layer for Moltz Client
  *
  * Integrates:
  * - IndexedDB storage via Dexie (lazy-loaded for fast startup)

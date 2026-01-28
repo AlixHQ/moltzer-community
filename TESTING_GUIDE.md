@@ -1,4 +1,4 @@
-# Testing Guide: macOS + Tailscale Fix
+﻿# Testing Guide: macOS + Tailscale Fix
 
 ## Pre-requisites
 
@@ -51,7 +51,7 @@ npm run tauri build
 
 ### 2. Install and test:
 
-- macOS: Open `src-tauri/target/release/bundle/dmg/Moltzer_1.0.0_aarch64.dmg` (or x64)
+- macOS: Open `src-tauri/target/release/bundle/dmg/Moltz_1.0.0_aarch64.dmg` (or x64)
 - Install the app
 - Launch and verify connection
 
@@ -220,6 +220,6 @@ If you encounter problems, include:
 
 ---
 
-**Questions?** Contact: moltzer-pm or moltzer-engineer
+**Questions?** Contact: Moltz-pm or Moltz-engineer
 
 **Last Updated**: 2025-01-23

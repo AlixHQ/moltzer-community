@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Sidebar Component Tests
  *
  * Tests the sidebar navigation including:
@@ -409,12 +409,12 @@ describe("Sidebar", () => {
     });
   });
 
-  describe("Moltzer branding", () => {
-    it("should show Moltzer logo and name", () => {
+  describe("Moltz branding", () => {
+    it("should show Moltz logo and name", () => {
       render(<Sidebar onToggle={mockOnToggle} />);
 
-      expect(screen.getByLabelText("Moltzer logo")).toBeInTheDocument();
-      expect(screen.getByText("Moltzer")).toBeInTheDocument();
+      expect(screen.getByLabelText("Moltz logo")).toBeInTheDocument();
+      expect(screen.getByText("Moltz")).toBeInTheDocument();
     });
   });
 });

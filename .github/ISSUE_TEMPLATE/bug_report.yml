@@ -1,4 +1,4 @@
-name: 🐛 Bug Report
+﻿name: 🐛 Bug Report
 description: Report a bug or unexpected behavior
 title: "[Bug]: "
 labels: ["bug", "needs-triage"]
@@ -61,8 +61,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Moltzer Version
-      description: What version of Moltzer are you using? (Help → About)
+      label: Moltz Version
+      description: What version of Moltz are you using? (Help → About)
       placeholder: "1.0.0"
     validations:
       required: true

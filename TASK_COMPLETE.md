@@ -1,4 +1,4 @@
-# ✅ TASK COMPLETE: macOS + Tailscale Connection Fix
+﻿# ✅ TASK COMPLETE: macOS + Tailscale Connection Fix
 
 **Mission**: Fix critical P0 issue preventing macOS users with Tailscale from logging in
 
@@ -201,7 +201,7 @@ FIX_SUMMARY.md                  - Executive summary
 
 ## Handoff Notes
 
-### For moltzer-pm (PM):
+### For Moltz-pm (PM):
 
 - **Code is ready** for deployment
 - **Documentation complete** for testing team
@@ -251,7 +251,7 @@ The critical P0 issue is **fixed and ready for testing**. The implementation is:
 
 ---
 
-**Engineer**: Subagent (moltzer-engineer)  
+**Engineer**: Subagent (Moltz-engineer)  
 **Date**: 2025-01-23  
 **Duration**: ~2 hours (analysis + implementation + testing + docs)  
 **Commits**: de4847f, 0334492  

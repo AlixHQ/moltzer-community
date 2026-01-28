@@ -1,4 +1,4 @@
-# ?? Moltzer Growth Strategy
+ï»¿# ?? Moltz Growth Strategy
 
 **Document Version:** 1.0  
 **Last Updated:** 2025-01-27  
@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-Moltzer is a native desktop client for Clawdbot with a clear differentiator: **lightweight, private, yours**. This document outlines viral growth features, launch strategy, and prioritized implementation roadmap.
+Moltz is a native desktop client for Clawdbot with a clear differentiator: **lightweight, private, yours**. This document outlines viral growth features, launch strategy, and prioritized implementation roadmap.
 
-**Core Challenge:** Moltzer requires Clawdbot Gateway to function—this limits viral spread to Clawdbot users (a niche) unless we create broader appeal or reduce the Gateway dependency for discovery/trial.
+**Core Challenge:** Moltz requires Clawdbot Gateway to functionï¿½this limits viral spread to Clawdbot users (a niche) unless we create broader appeal or reduce the Gateway dependency for discovery/trial.
 
 **Growth Philosophy:** Don't chase vanity metrics. Build genuine value that makes users want to share.
 
@@ -32,7 +32,7 @@ Moltzer is a native desktop client for Clawdbot with a clear differentiator: **l
 
 ## 1. Positioning & Target Audience
 
-### Who Moltzer is For
+### Who Moltz is For
 
 | Segment | Size | Likelihood to Share | Acquisition Channel |
 |---------|------|---------------------|---------------------|
@@ -44,10 +44,10 @@ Moltzer is a native desktop client for Clawdbot with a clear differentiator: **l
 
 ### Core Value Propositions (in order of resonance)
 
-1. **"10MB vs 300MB"** — The Electron killer angle
-2. **"Your data never leaves your device"** — Privacy story
-3. **"ChatGPT UI, but for your own AI"** — Familiarity + ownership
-4. **"Native performance, native feel"** — Tauri showcase
+1. **"10MB vs 300MB"** ï¿½ The Electron killer angle
+2. **"Your data never leaves your device"** ï¿½ Privacy story
+3. **"ChatGPT UI, but for your own AI"** ï¿½ Familiarity + ownership
+4. **"Native performance, native feel"** ï¿½ Tauri showcase
 
 ### What Makes People Tweet About Apps?
 
@@ -58,7 +58,7 @@ Research shows people share apps when they:
 - Get unexpectedly delighted (surprise factor)
 - Join a tribe (identity signaling)
 
-**Moltzer's strongest angle:** "Look how small/fast this is" (developer flex)
+**Moltz's strongest angle:** "Look how small/fast this is" (developer flex)
 
 ---
 
@@ -75,7 +75,7 @@ Research shows people share apps when they:
 | **Fits Positioning?** | ?? Tension with privacy |
 
 **Why it's complex:**
-- Moltzer is local-first with E2E encryption
+- Moltz is local-first with E2E encryption
 - Sharing requires either:
   a) Hosting service (contradicts "local-first")
   b) Self-hosted sharing (requires user setup)
@@ -84,8 +84,8 @@ Research shows people share apps when they:
 **Recommendation:** Defer to v2.0. Focus on export features first.
 
 **Alternative: Local Sharing**
-- Generate encrypted .Moltzer file
-- Recipient opens in Moltzer
+- Generate encrypted .Moltz file
+- Recipient opens in Moltz
 - No server needed
 - Preserves privacy positioning
 
@@ -112,35 +112,35 @@ Research shows people share apps when they:
 - Auto-crop to fit Twitter/Instagram ratios
 - Beautiful dark/light themed cards
 - Syntax highlighting in images
-- Optional "Made with Moltzer" watermark
+- Optional "Made with Moltz" watermark
 - Copy to clipboard / Save as PNG
 ```
 
 **Design mockup:**
 ```
 +---------------------------------+
-¦  ?? Moltzer                        ¦
-+---------------------------------¦
-¦  Me: How do I reverse a linked  ¦
-¦      list in Rust?              ¦
-¦                                 ¦
-¦  Claude: Here's an elegant      ¦
-¦  solution using iterators:      ¦
-¦                                 ¦
-¦  +-------------------------+   ¦
-¦  ¦ fn reverse<T>(head: ...) ¦   ¦
-¦  ¦   let mut prev = None;   ¦   ¦
-¦  ¦   // ...                 ¦   ¦
-¦  +-------------------------+   ¦
-¦                                 ¦
-¦         -----------------       ¦
-¦         Made with Moltzer          ¦
+ï¿½  ?? Moltz                        ï¿½
++---------------------------------ï¿½
+ï¿½  Me: How do I reverse a linked  ï¿½
+ï¿½      list in Rust?              ï¿½
+ï¿½                                 ï¿½
+ï¿½  Claude: Here's an elegant      ï¿½
+ï¿½  solution using iterators:      ï¿½
+ï¿½                                 ï¿½
+ï¿½  +-------------------------+   ï¿½
+ï¿½  ï¿½ fn reverse<T>(head: ...) ï¿½   ï¿½
+ï¿½  ï¿½   let mut prev = None;   ï¿½   ï¿½
+ï¿½  ï¿½   // ...                 ï¿½   ï¿½
+ï¿½  +-------------------------+   ï¿½
+ï¿½                                 ï¿½
+ï¿½         -----------------       ï¿½
+ï¿½         Made with Moltz          ï¿½
 +---------------------------------+
 ```
 
-**Priority:** ?? **HIGH** — Ship in v1.1
+**Priority:** ?? **HIGH** ï¿½ Ship in v1.1
 
-### 2.3 "Made with Moltzer" Watermark
+### 2.3 "Made with Moltz" Watermark
 
 **Description:** Optional branding on exported images/shared content.
 
@@ -153,7 +153,7 @@ Research shows people share apps when they:
 **Options:**
 - On by default, can be disabled
 - Small, tasteful logo in corner
-- Links to Moltzer.dev when clicked (in supported contexts)
+- Links to Moltz.dev when clicked (in supported contexts)
 
 **Key insight:** Don't make it obnoxious. Subtle = classy = tech cred.
 
@@ -163,24 +163,24 @@ Research shows people share apps when they:
 
 ### 3.1 Usage Stats in App
 
-**Description:** Show aggregate Moltzer usage ("Moltzer users have sent X messages").
+**Description:** Show aggregate Moltz usage ("Moltz users have sent X messages").
 
 | Aspect | Assessment |
 |--------|------------|
 | **Implementation Complexity** | ?? High |
 | **Growth Potential** | ?? Low-Medium |
-| **Fits Positioning?** | ? No — contradicts privacy |
+| **Fits Positioning?** | ? No ï¿½ contradicts privacy |
 
 **Problems:**
 - Requires telemetry (breaks privacy promise)
 - Local-first means no central server to count
 - Feels like vanity metrics
 
-**Recommendation:** Skip entirely. This contradicts Moltzer's core positioning.
+**Recommendation:** Skip entirely. This contradicts Moltz's core positioning.
 
 ### 3.2 Community Showcase
 
-**Description:** Curated gallery of impressive Moltzer conversations/use cases.
+**Description:** Curated gallery of impressive Moltz conversations/use cases.
 
 | Aspect | Assessment |
 |--------|------------|
@@ -190,7 +190,7 @@ Research shows people share apps when they:
 
 **Implementation:**
 - Users submit screenshots/exported images
-- Curated showcase on moltzer.dev
+- Curated showcase on Moltz.dev
 - Categories: "Code", "Writing", "Research", "Creative"
 - Link to tweet/post where shared
 
@@ -200,7 +200,7 @@ Research shows people share apps when they:
 - Shows real use cases
 - Low implementation cost
 
-**Priority:** ?? Medium — Do after export-as-image ships
+**Priority:** ?? Medium ï¿½ Do after export-as-image ships
 
 ### 3.3 GitHub Stars / Download Count
 
@@ -215,10 +215,10 @@ Research shows people share apps when they:
 **Where to show:**
 - GitHub repo prominently
 - README badges (already have some)
-- Landing page (moltzer.dev)
+- Landing page (Moltz.dev)
 - About dialog in app
 
-**Priority:** ?? HIGH — Easy win, do immediately
+**Priority:** ?? HIGH ï¿½ Easy win, do immediately
 
 ---
 
@@ -234,12 +234,12 @@ Research shows people share apps when they:
 |-----------|--------|----------------|
 | **Early feature access** | Exclusivity | Beta channel for referrers |
 | **Name in credits** | Recognition | Contributors.md, About dialog |
-| **Discord/community role** | Status | "Moltzer Ambassador" role |
+| **Discord/community role** | Status | "Moltz Ambassador" role |
 | **Custom themes** | Personalization | Unlock theme packs |
 | **Swag** (at scale) | Physical | Stickers, t-shirts |
 
 **Recommendation:** Start with recognition-based incentives:
-- "Moltzer Ambassadors" who bring 3+ users get special Discord role
+- "Moltz Ambassadors" who bring 3+ users get special Discord role
 - Top contributors get name in app credits
 - Save swag for when there's budget
 
@@ -253,7 +253,7 @@ Research shows people share apps when they:
 | **Growth Potential** | ?? Medium |
 | **Fits Positioning?** | ?? Feels consumer-y |
 
-**Problem:** Moltzer targets developers. "Invite friends" flows feel like consumer apps (Dropbox, Robinhood). Developers invite via:
+**Problem:** Moltz targets developers. "Invite friends" flows feel like consumer apps (Dropbox, Robinhood). Developers invite via:
 - Tweeting about tools
 - Slack/Discord recommendations
 - GitHub stars
@@ -262,7 +262,7 @@ Research shows people share apps when they:
 **Better approach:** Make sharing natural, not forced.
 
 **Instead of "Invite Friends" button:**
-- One-click tweet: "Been using @MoltzerClient - 10MB native AI chat. Way better than Electron bloat."
+- One-click tweet: "Been using @MoltzClient - 10MB native AI chat. Way better than Electron bloat."
 - Easy screenshot/export (covered above)
 - Shareable config files for team setup
 
@@ -280,7 +280,7 @@ Research shows people share apps when they:
 | **Growth Potential** | ?? High if executed |
 | **Fits Positioning?** | ?? Requires major architecture change |
 
-**Problem:** Moltzer is fundamentally single-user, local-first. Team features would require:
+**Problem:** Moltz is fundamentally single-user, local-first. Team features would require:
 - Backend infrastructure
 - User accounts
 - Shared state management
@@ -302,12 +302,12 @@ Research shows people share apps when they:
 **Why this works:**
 - No backend needed (GitHub repo of .json files)
 - Users contribute prompts, get recognition
-- Import prompts from others = discover Moltzer
-- "Made with Moltzer" in prompt metadata
+- Import prompts from others = discover Moltz
+- "Made with Moltz" in prompt metadata
 
 **Implementation:**
 ```
-1. Official repo: github.com/Moltzer/prompts
+1. Official repo: github.com/Moltz/prompts
 2. In-app "Browse Prompts" (fetches from repo)
 3. One-click import
 4. Submit your own via PR
@@ -322,19 +322,19 @@ Research shows people share apps when they:
 - System Design
 - SQL Generator
 
-**Priority:** ?? Medium — Good for v1.2
+**Priority:** ?? Medium ï¿½ Good for v1.2
 
 ### 5.3 Clawdbot Gateway Network
 
-**Observation:** Every Moltzer user needs a Clawdbot Gateway. This is a constraint AND an opportunity.
+**Observation:** Every Moltz user needs a Clawdbot Gateway. This is a constraint AND an opportunity.
 
-**Opportunity:** If Clawdbot grows, Moltzer grows automatically as the "official" desktop client.
+**Opportunity:** If Clawdbot grows, Moltz grows automatically as the "official" desktop client.
 
 **Action items:**
 - Deep integration with Clawdbot team
 - Featured in Clawdbot docs as recommended client
 - Co-marketing efforts
-- Bundled installer option (Moltzer + Gateway)
+- Bundled installer option (Moltz + Gateway)
 
 ---
 
@@ -344,7 +344,7 @@ Research shows people share apps when they:
 
 Research on viral dev tool tweets:
 
-| Trigger | Example | Moltzer Angle |
+| Trigger | Example | Moltz Angle |
 |---------|---------|------------|
 | **Size comparison** | "This replaces 10 tools" | "10MB vs 300MB Electron" |
 | **Speed flex** | "Built X in Y hours" | "50MB RAM vs 500MB" |
@@ -355,25 +355,25 @@ Research on viral dev tool tweets:
 **High-potential tweets:**
 ```
 "Electron apps: 300MB, 500MB RAM
-Moltzer: 10MB, 50MB RAM
+Moltz: 10MB, 50MB RAM
 
 Same features. Native performance.
 
 This is what Tauri makes possible."
 
-[screenshot of Moltzer UI]
+[screenshot of Moltz UI]
 ```
 
 ```
 "My new ChatGPT replacement setup:
 - Clawdbot (self-hosted gateway)
-- Moltzer (10MB native client)
+- Moltz (10MB native client)
 - Claude API key
 
 Own your AI conversations. ??"
 ```
 
-### 6.2 "Moltzer Tip of the Day"
+### 6.2 "Moltz Tip of the Day"
 
 **Description:** Daily tips/tricks shared on social.
 
@@ -408,7 +408,7 @@ Own your AI conversations. ??"
 
 **High-impact comparisons:**
 ```
-| Metric | ChatGPT Desktop | Slack | Moltzer |
+| Metric | ChatGPT Desktop | Slack | Moltz |
 |--------|-----------------|-------|------|
 | Binary size | ~500MB | ~300MB | 9MB |
 | RAM (idle) | ~400MB | ~300MB | 45MB |
@@ -434,9 +434,9 @@ Own your AI conversations. ??"
 - [ ] get_models actually fetches from Gateway
 - [ ] localStorage token leak fixed
 - [ ] File attachment UI removed or working
-- [ ] Landing page live (moltzer.dev)
+- [ ] Landing page live (Moltz.dev)
 - [ ] README polished with GIFs
-- [ ] Social accounts created (@MoltzerClient)
+- [ ] Social accounts created (@MoltzClient)
 - [ ] Discord/community ready
 
 ### 7.2 Product Hunt Launch
@@ -460,9 +460,9 @@ Own your AI conversations. ??"
 
 **Product Hunt description:**
 ```
-?? Moltzer - Native AI Chat Client
+?? Moltz - Native AI Chat Client
 
-Tired of Electron bloat? Moltzer is a 10MB native desktop app 
+Tired of Electron bloat? Moltz is a 10MB native desktop app 
 for chatting with Claude, GPT, and other AI models.
 
 ? 10x smaller than Electron apps
@@ -481,16 +481,16 @@ Open source: github.com/dokterdok/molt-client
 **Target:** Front page, 100+ points
 
 **Title options (A/B test mentally):**
-- "Show HN: Moltzer – 10MB native ChatGPT-style client built with Tauri"
+- "Show HN: Moltz ï¿½ 10MB native ChatGPT-style client built with Tauri"
 - "Show HN: I built a native AI chat client that's 30x smaller than Electron apps"
-- "Show HN: Moltzer – Privacy-first desktop client for Claude/GPT"
+- "Show HN: Moltz ï¿½ Privacy-first desktop client for Claude/GPT"
 
 **Post body:**
 ```
-Hey HN, I built Moltzer because I was frustrated with Electron-based 
+Hey HN, I built Moltz because I was frustrated with Electron-based 
 AI clients eating 500MB+ of RAM.
 
-Moltzer is a native desktop client for AI chat (Claude, GPT, etc.) 
+Moltz is a native desktop client for AI chat (Claude, GPT, etc.) 
 that connects to your own gateway. It's built with Tauri, resulting 
 in a ~10MB binary that uses ~50MB RAM.
 
@@ -540,11 +540,11 @@ Would love feedback, especially on:
 
 ### 7.5 Twitter/X Strategy
 
-**Account:** @MoltzerClient
+**Account:** @MoltzClient
 
 **Launch tweets (thread):**
 ```
-1/ Introducing Moltzer ??
+1/ Introducing Moltz ??
 
 A native AI chat client that's 30x smaller than Electron apps.
 
@@ -558,7 +558,7 @@ ChatGPT's desktop app: 500MB
 Slack: 300MB  
 VSCode: 300MB
 
-My whole Moltzer installation: 10MB
+My whole Moltz installation: 10MB
 
 Tauri makes this possible.
 
@@ -605,7 +605,7 @@ fast, native apps. ??
 | Fix all failing tests | ?? Critical | 2-3 days | Required |
 | Verify Gateway protocol | ?? Critical | 1 day | Required |
 | Fix localStorage token leak | ?? Critical | 1 hour | Security |
-| Landing page (moltzer.dev) | ?? Critical | 2-3 days | Required |
+| Landing page (Moltz.dev) | ?? Critical | 2-3 days | Required |
 | README with GIFs | ?? Critical | 1 day | First impressions |
 | Social accounts setup | ?? High | 2 hours | Required |
 
@@ -614,7 +614,7 @@ fast, native apps. ??
 | Feature | Priority | Effort | Impact |
 |---------|----------|--------|--------|
 | Export as image | ?? Critical | 3-4 days | High viral potential |
-| "Made with Moltzer" watermark | ?? Easy | 2 hours | Free marketing |
+| "Made with Moltz" watermark | ?? Easy | 2 hours | Free marketing |
 | One-click tweet button | ?? Easy | 1 day | Reduce sharing friction |
 | Keyboard shortcut overlay | ?? Medium | 1 day | Power user delight |
 
@@ -662,13 +662,13 @@ fast, native apps. ??
 
 ### North Star Metric
 
-**"Users who recommend Moltzer unprompted"**
+**"Users who recommend Moltz unprompted"**
 
 We can't track this directly, but indicators include:
 - Organic Twitter mentions
 - Reddit posts we didn't create
 - GitHub issues from new users
-- "How did you hear about Moltzer?" in Discord
+- "How did you hear about Moltz?" in Discord
 
 ---
 
@@ -700,17 +700,17 @@ Discovery (HN/PH/Reddit/Twitter)
     Download & Try
          ?
     +---------+
-    ¦  Good?  ¦
+    ï¿½  Good?  ï¿½
     +---------+
-     Yes ¦ No ? Feedback/Churn
+     Yes ï¿½ No ? Feedback/Churn
          ?
    Use regularly
          ?
     +---------+
-    ¦ Delight ¦
-    ¦ moment? ¦
+    ï¿½ Delight ï¿½
+    ï¿½ moment? ï¿½
     +---------+
-     Yes ¦ No ? Silent retention
+     Yes ï¿½ No ? Silent retention
          ?
    Share (tweet/screenshot)
          ?
@@ -719,7 +719,7 @@ Discovery (HN/PH/Reddit/Twitter)
       [Loop]
 ```
 
-**Key insight:** The viral loop has a bottleneck—Clawdbot Gateway requirement. Users can't casually try Moltzer.
+**Key insight:** The viral loop has a bottleneckï¿½Clawdbot Gateway requirement. Users can't casually try Moltz.
 
 **Solution for v2.0:** Demo mode with limited free tier or sandbox Gateway.
 
@@ -727,7 +727,7 @@ Discovery (HN/PH/Reddit/Twitter)
 
 ## Appendix C: Competitive Landscape
 
-| Product | Positioning | Moltzer Advantage |
+| Product | Positioning | Moltz Advantage |
 |---------|-------------|----------------|
 | ChatGPT Desktop | Official OpenAI | Works with any provider, local-first |
 | Claude.ai | Web-based | Native performance, offline capable |
@@ -736,17 +736,17 @@ Discovery (HN/PH/Reddit/Twitter)
 | Jan.ai | Local LLMs | Gateway flexibility, encryption |
 | Msty | Local/API both | Tauri (smaller), Clawdbot integration |
 
-**Moltzer's moat:** Native performance + privacy + Clawdbot ecosystem
+**Moltz's moat:** Native performance + privacy + Clawdbot ecosystem
 
 ---
 
 ## Summary: Top 5 Actions
 
-1. **Ship export-as-image** (v1.1) — Highest viral potential, medium effort
-2. **Nail the launches** (PH + HN + Reddit) — One-time effort, massive impact
-3. **Build prompt library** (v1.2) — Community flywheel
-4. **Add demo mode** (v2.0) — Remove trial friction
-5. **Consistent content** (ongoing) — Tips, benchmarks, user showcases
+1. **Ship export-as-image** (v1.1) ï¿½ Highest viral potential, medium effort
+2. **Nail the launches** (PH + HN + Reddit) ï¿½ One-time effort, massive impact
+3. **Build prompt library** (v1.2) ï¿½ Community flywheel
+4. **Add demo mode** (v2.0) ï¿½ Remove trial friction
+5. **Consistent content** (ongoing) ï¿½ Tips, benchmarks, user showcases
 
 ---
 
