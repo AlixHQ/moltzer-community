@@ -185,7 +185,6 @@ export default function App() {
   }, [settings.theme]);
 
   // Keyboard shortcut for sidebar toggle and help
-  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl + \ to toggle sidebar
