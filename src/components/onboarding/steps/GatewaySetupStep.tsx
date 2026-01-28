@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useState, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { motion, AnimatePresence } from "framer-motion";
 import { useStore, type ModelInfo } from "../../../stores/store";
 import { cn } from "../../../lib/utils";
 import { Spinner } from "../../ui/spinner";
@@ -641,16 +642,21 @@ export function GatewaySetupStep({
             )}
           >
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="gateway-url-input" className="block text-sm font-medium mb-2">
                 Gateway URL
               </label>
               <input
+                id="gateway-url-input"
                 type="text"
                 value={gatewayUrl}
                 onChange={(e) => onGatewayUrlChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="ws://localhost:18789"
                 autoFocus
+                aria-label="Gateway URL"
+                aria-required="true"
+                aria-invalid={connectionState === "error"}
+                aria-describedby={connectionState === "error" ? "gateway-error-message" : undefined}
                 className={cn(
                   "w-full px-4 py-3 rounded-lg border bg-muted/30 focus:outline-none focus:ring-2 transition-all",
                   connectionState === "error"
@@ -661,7 +667,7 @@ export function GatewaySetupStep({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="gateway-token-input" className="block text-sm font-medium mb-2">
                 Authentication Token{" "}
                 <span className="text-muted-foreground font-normal">
                   (optional)
@@ -671,8 +677,8 @@ export function GatewaySetupStep({
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        className="ml-2 text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors"
-                        aria-label="Token info"
+                        className="ml-2 text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-background rounded"
+                        aria-label="Information about authentication token"
                       >
                         What's this?
                       </button>
@@ -682,7 +688,7 @@ export function GatewaySetupStep({
                         🔑 Authentication Token
                       </p>
                       <p className="text-muted-foreground mb-3">
-                        Most Moltbot Gateways require a token to connect. If you
+                        Some Gateways require a token for security. If you
                         get a 401/403 error, you need this.
                       </p>
                       <p className="font-medium mb-1">Where to find it:</p>
@@ -710,18 +716,31 @@ export function GatewaySetupStep({
                 </TooltipProvider>
               </label>
               <input
+                id="gateway-token-input"
                 type="password"
                 value={gatewayToken}
                 onChange={(e) => onGatewayTokenChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Leave blank if not required"
+                aria-label="Authentication token (optional)"
+                aria-required="false"
                 className="w-full px-4 py-3 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
               />
             </div>
 
             {/* Error message with actionable fixes */}
-            {connectionState === "error" && errorMessage && (
-              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 animate-in fade-in slide-in-from-top-2 duration-300 space-y-3 max-h-64 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              {connectionState === "error" && errorMessage && (
+                <motion.div
+                  id="gateway-error-message"
+                  role="alert"
+                  aria-live="assertive"
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 space-y-3 max-h-64 overflow-y-auto"
+                >
                 <div className="flex items-start gap-3">
                   <svg
                     className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
@@ -854,10 +873,11 @@ export function GatewaySetupStep({
                     </div>
                   </div>
                 )}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <button
+            <motion.button
               onClick={() => {
                 if (connectionState === "testing") {
                   // Cancel the test
@@ -870,43 +890,96 @@ export function GatewaySetupStep({
               disabled={!gatewayUrl.trim() && connectionState !== "testing"}
               onMouseEnter={() => setIsButtonHovered(true)}
               onMouseLeave={() => setIsButtonHovered(false)}
+              whileHover={connectionState !== "testing" ? { scale: 1.02, y: -2 } : undefined}
+              whileTap={connectionState !== "testing" ? { scale: 0.98, y: 0 } : undefined}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "w-full px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200",
+                "w-full px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
                 connectionState === "testing"
                   ? isButtonHovered
-                    ? "bg-red-500 text-white cursor-pointer hover:bg-red-600"
-                    : "bg-muted text-muted-foreground cursor-pointer"
-                  : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0",
+                    ? "bg-red-500 text-white cursor-pointer hover:bg-red-600 focus:ring-red-500"
+                    : "bg-muted text-muted-foreground cursor-pointer focus:ring-muted"
+                  : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 focus:ring-blue-500",
+                (!gatewayUrl.trim() && connectionState !== "testing") && "opacity-50 cursor-not-allowed"
               )}
+              aria-live="polite"
+              aria-label={connectionState === "testing" 
+                ? (isButtonHovered ? "Cancel connection test" : "Testing connection...")
+                : "Test Gateway connection"
+              }
             >
-              {connectionState === "testing" ? (
-                isButtonHovered ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+              <AnimatePresence mode="wait">
+                {connectionState === "testing" ? (
+                  isButtonHovered ? (
+                    <motion.span 
+                      key="cancel"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex items-center justify-center gap-2"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                    Cancel
-                  </span>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      Cancel
+                    </motion.span>
+                  ) : (
+                    <motion.span 
+                      key="testing"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                      </motion.div>
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        Testing Connection...
+                      </motion.span>
+                    </motion.span>
+                  )
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Spinner size="sm" />
-                    Testing Connection...
-                  </span>
-                )
-              ) : (
-                "Test Connection"
-              )}
-            </button>
+                  <motion.span
+                    key="test"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    Test Connection
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
 
             {/* Keyboard hint */}
             <p className="text-center text-xs text-muted-foreground">
