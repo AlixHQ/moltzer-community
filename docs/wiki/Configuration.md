@@ -30,17 +30,12 @@ Controls the app appearance:
 ---
 
 #### Language
-**Options:** English (more coming soon)  
+**Options:** English  
 **Default:** English
 
-UI language. Translations in progress for:
-- French
-- German
-- Spanish
-- Japanese
-- Chinese (Simplified)
+UI language. Additional languages are on the roadmap—see [Roadmap](./Roadmap.md).
 
-**Want to help translate?** See [Contributing](./Contributing.md#translations)
+**Want to help translate?** We'd love community contributions! See [Contributing](./Contributing.md)
 
 ---
 
@@ -247,7 +242,7 @@ Saves all conversations and settings to JSON file.
 ```json
 {
   "version": "1.0.0",
-  "exportDate": "2026-01-28T12:00:00Z",
+  "exportDate": "2025-01-28T12:00:00Z",
   "conversations": [ ... ],
   "messages": [ ... ],
   "settings": { ... }
@@ -348,14 +343,9 @@ Reduces resource usage:
 **Options:** Individual toggles  
 **Default:** Off
 
-Opt into experimental features:
+Opt into experimental features as they become available. Currently available beta features will appear here with toggle switches.
 
-- [ ] Activity progress indicators
-- [ ] Model selection
-- [ ] Voice input
-- [ ] (More as they become available)
-
-**⚠️ Warning:** Beta features may be unstable.
+**⚠️ Warning:** Beta features may be unstable or change without notice. Report issues on GitHub.
 
 ---
 
@@ -630,4 +620,4 @@ df -h
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025

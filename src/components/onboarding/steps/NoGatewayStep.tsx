@@ -27,7 +27,7 @@ export function NoGatewayStep({
   );
 
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100);
+    const visibilityTimer = setTimeout(() => setIsVisible(true), 100);
 
     // Detect platform
     const userAgent = navigator.userAgent.toLowerCase();
@@ -38,6 +38,8 @@ export function NoGatewayStep({
     } else {
       setPlatform("windows");
     }
+
+    return () => clearTimeout(visibilityTimer);
   }, []);
 
   const handleCopyCommand = async () => {

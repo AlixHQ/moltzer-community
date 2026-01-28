@@ -82,6 +82,16 @@ export function ExportDialog({
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const copiedTimerRef = useRef<number | undefined>();
+
+  // Cleanup copied timer on unmount
+  useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current !== undefined) {
+        clearTimeout(copiedTimerRef.current);
+      }
+    };
+  }, []);
 
   if (!open) return null;
 
@@ -142,7 +152,10 @@ export function ExportDialog({
 
       await navigator.clipboard.writeText(content);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copiedTimerRef.current !== undefined) {
+        clearTimeout(copiedTimerRef.current);
+      }
+      copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
     } catch (err: unknown) {
       console.error("Copy failed:", err);
       setError(

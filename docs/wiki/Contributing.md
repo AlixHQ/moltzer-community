@@ -133,10 +133,10 @@ Help make Moltz accessible to more people!
 **Translation process:**
 1. Create `locales/<lang>.json`
 2. Translate all strings from `locales/en.json`
-3. Test in app
-4. Submit PR
+3. Test in app to ensure all UI text displays correctly
+4. Submit PR with screenshots showing translated UI
 
-**See:** [Translation Guide](./Translation-Guide.md) (coming soon)
+**Note:** Detailed translation documentation coming soon. For now, feel free to open an issue to discuss translation contributions.
 
 ---
 
@@ -456,7 +456,7 @@ If applicable, add screenshots.
 **Environment:**
 - OS: [e.g., macOS 13.5]
 - Moltz Version: [e.g., 1.0.0]
-- Gateway Version: [e.g., 2026.1.28]
+- Gateway Version: [e.g., 2025.1.28]
 
 **Additional context**
 Any other context about the problem.
@@ -595,4 +595,5 @@ Your contributions make Moltz better for everyone. We appreciate your time and e
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025
+

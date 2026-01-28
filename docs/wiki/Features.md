@@ -28,7 +28,7 @@ Complete list of Moltz features with implementation status.
 | Export as Markdown | ✅ | Save conversations to .md files | 1.0.0 |
 | Conversation folders | 📋 | Organize conversations | TBD |
 | Conversation tags | 📋 | Tag for categorization | TBD |
-| Shared conversations | 📋 | Team collaboration (Team Mode) | Q2 2026 |
+| Shared conversations | 📋 | Team collaboration (Team Mode) | Q2 2025 |
 
 ---
 
@@ -48,8 +48,8 @@ Complete list of Moltz features with implementation status.
 | File attachments | ✅ | Images, PDFs, code files (10 MB limit) | 1.0.0 |
 | Image preview | ✅ | Inline image display | 1.0.0 |
 | Message reactions | 📋 | React to messages with emoji | TBD |
-| Voice input | 📋 | Speech-to-text | Q2 2026 |
-| Voice output | 📋 | Text-to-speech for responses | Q2 2026 |
+| Voice input | 📋 | Speech-to-text | Q2 2025 |
+| Voice output | 📋 | Text-to-speech for responses | Q2 2025 |
 | Image attachments in responses | 📋 | AI-generated images | TBD |
 
 ---
@@ -101,8 +101,8 @@ Complete list of Moltz features with implementation status.
 | macOS Keychain integration | ✅ | Secure token storage | 1.0.0 |
 | Windows Credential Manager | ✅ | Secure token storage | 1.0.0 |
 | Linux Secret Service | ✅ | Secure token storage | 1.0.0 |
-| Deep linking | 📋 | moltz:// URL scheme | Q1 2026 |
-| Share extension | 📋 | macOS/iOS share sheet | Q2 2026 |
+| Deep linking | 📋 | moltz:// URL scheme | Q1 2025 |
+| Share extension | 📋 | macOS/iOS share sheet | Q2 2025 |
 | Spotlight/Windows Search | 📋 | Index conversations | TBD |
 
 ---
@@ -116,10 +116,10 @@ Complete list of Moltz features with implementation status.
 | System keychain integration | ✅ | Secure key storage | 1.0.0 |
 | TLS required for remote | ✅ | Enforced wss:// for remote Gateway | 1.0.0 |
 | Export all data | ✅ | JSON export for backup | 1.0.0 |
-| Import data | 📋 | Restore from backup | Q1 2026 |
-| Cloud sync | 📋 | Sync across devices | Q2 2026 |
-| End-to-end encryption (team) | 📋 | Zero-knowledge sync | Q3 2026 |
-| GDPR compliance tools | 📋 | Data deletion, export | Q2 2026 |
+| Import data | 📋 | Restore from backup | Q1 2025 |
+| Cloud sync | 📋 | Sync across devices | Q2 2025 |
+| End-to-end encryption (team) | 📋 | Zero-knowledge sync | Q3 2025 |
+| GDPR compliance tools | 📋 | Data deletion, export | Q2 2025 |
 
 ---
 
@@ -132,9 +132,9 @@ Complete list of Moltz features with implementation status.
 | Connection status indicator | ✅ | Visual connection state | 1.0.0 |
 | Connection test | ✅ | Verify before saving | 1.0.0 |
 | Version compatibility check | ✅ | Protocol version validation | 1.0.0 |
-| Activity indicators | 🚧 | Show tool execution progress | Q1 2026 |
-| Multiple Gateway profiles | 📋 | Switch between Gateways | Q2 2026 |
-| Gateway discovery | 📋 | Auto-detect local Gateway | Q1 2026 |
+| Activity indicators | 🚧 | Show tool execution progress | Q1 2025 |
+| Multiple Gateway profiles | 📋 | Switch between Gateways | Q2 2025 |
+| Gateway discovery | 📋 | Auto-detect local Gateway | Q1 2025 |
 | Tailscale optimization | ✅ | IPv4-only for Tailscale | 1.0.0 |
 
 ---
@@ -144,14 +144,14 @@ Complete list of Moltz features with implementation status.
 | Feature | Status | Description | Version |
 |---------|--------|-------------|---------|
 | Streaming responses | ✅ | Real-time text generation | 1.0.0 |
-| Model selection | 📋 | Switch AI models | Q1 2026 |
-| System prompts | 📋 | Custom per-conversation instructions | Q1 2026 |
-| Temperature control | 📋 | Adjust response creativity | Q1 2026 |
-| Max tokens control | 📋 | Limit response length | Q1 2026 |
+| Model selection | 📋 | Switch AI models | Q1 2025 |
+| System prompts | 📋 | Custom per-conversation instructions | Q1 2025 |
+| Temperature control | 📋 | Adjust response creativity | Q1 2025 |
+| Max tokens control | 📋 | Limit response length | Q1 2025 |
 | Stop sequences | 📋 | Custom stopping points | TBD |
-| Function calling | 📋 | Tool execution display | Q1 2026 |
+| Function calling | 📋 | Tool execution display | Q1 2025 |
 | Multi-turn context | ✅ | Full conversation history | 1.0.0 |
-| Token usage tracking | 📋 | Cost estimation | Q2 2026 |
+| Token usage tracking | 📋 | Cost estimation | Q2 2025 |
 | Conversation branching | 📋 | Explore alternative paths | TBD |
 
 ---
@@ -190,8 +190,8 @@ Complete list of Moltz features with implementation status.
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-| iOS | 💡 | Proposed Q3 2026 |
-| Android | 💡 | Proposed Q3 2026 |
+| iOS | 💡 | Proposed Q3 2025 |
+| Android | 💡 | Proposed Q3 2025 |
 
 ---
 
@@ -205,7 +205,7 @@ Complete list of Moltz features with implementation status.
 | Settings | ✅ | Cmd/Ctrl+, | 1.0.0 |
 | Toggle sidebar | ✅ | Cmd/Ctrl+\ | 1.0.0 |
 | Navigation shortcuts | ✅ | Cmd/Ctrl+[ and ] | 1.0.0 |
-| Customizable shortcuts | 📋 | User-defined bindings | Q2 2026 |
+| Customizable shortcuts | 📋 | User-defined bindings | Q2 2025 |
 | Vim mode | 💡 | Vim-style navigation | TBD |
 
 ---
@@ -220,7 +220,7 @@ Complete list of Moltz features with implementation status.
 | Reduced motion | ✅ | Respects OS preference | 1.0.0 |
 | High contrast | ✅ | Improved visibility | 1.0.0 |
 | Font size scaling | ✅ | 12-20px range | 1.0.0 |
-| Screen reader optimization | 📋 | Enhanced announcements | Q2 2026 |
+| Screen reader optimization | 📋 | Enhanced announcements | Q2 2025 |
 | Voice control support | 📋 | macOS Voice Control | TBD |
 
 ---
@@ -231,14 +231,14 @@ These features require **Moltz Backend** (Team Mode):
 
 | Feature | Status | Description | Version |
 |---------|--------|-------------|---------|
-| Organization workspaces | 📋 | Multi-tenant support | Q2 2026 |
-| Role-based access control | 📋 | Owner, Admin, Member, Guest | Q2 2026 |
-| Shared conversation rooms | 📋 | Team collaboration | Q2 2026 |
-| Audit logs | 📋 | Compliance tracking | Q2 2026 |
-| Usage analytics | 📋 | Organization insights | Q2 2026 |
-| Single Sign-On (SSO) | 📋 | SAML, OAuth | Q3 2026 |
-| Custom branding | 📋 | White-label options | Q3 2026 |
-| Dedicated deployment | 📋 | On-premise installations | Q3 2026 |
+| Organization workspaces | 📋 | Multi-tenant support | Q2 2025 |
+| Role-based access control | 📋 | Owner, Admin, Member, Guest | Q2 2025 |
+| Shared conversation rooms | 📋 | Team collaboration | Q2 2025 |
+| Audit logs | 📋 | Compliance tracking | Q2 2025 |
+| Usage analytics | 📋 | Organization insights | Q2 2025 |
+| Single Sign-On (SSO) | 📋 | SAML, OAuth | Q3 2025 |
+| Custom branding | 📋 | White-label options | Q3 2025 |
+| Dedicated deployment | 📋 | On-premise installations | Q3 2025 |
 
 ---
 
@@ -273,10 +273,10 @@ These features require **Moltz Backend** (Team Mode):
 
 | Feature | Status | Description | Version |
 |---------|--------|-------------|---------|
-| Local usage stats | 📋 | Messages sent, tokens used | Q2 2026 |
-| Conversation insights | 📋 | Topics, trends | Q2 2026 |
-| Model comparison | 📋 | Compare model performance | Q2 2026 |
-| Export statistics | 📋 | CSV export | Q2 2026 |
+| Local usage stats | 📋 | Messages sent, tokens used | Q2 2025 |
+| Conversation insights | 📋 | Topics, trends | Q2 2025 |
+| Model comparison | 📋 | Compare model performance | Q2 2025 |
+| Export statistics | 📋 | CSV export | Q2 2025 |
 
 **Privacy:** All analytics are local-only. No data sent to external servers.
 
@@ -302,4 +302,5 @@ Popular requests get prioritized!
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025
+

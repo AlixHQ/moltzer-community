@@ -514,7 +514,7 @@ wireshark -i lo0 -f "tcp port 18789"
 
 **2. Update CHANGELOG.md:**
 ```markdown
-## [1.1.0] - 2026-02-01
+## [1.1.0] - 2025-02-01
 
 ### Added
 - New feature X
@@ -551,8 +551,8 @@ git push origin main --tags
 # Build locally
 npm run tauri build
 
-# Sign (macOS/Windows)
-# See docs/SETUP_SIGNING.md
+# Note: Code signing setup varies by platform
+# Refer to Tauri documentation for signing instructions
 
 # Upload to GitHub Releases
 gh release create v1.1.0 \
@@ -574,7 +574,7 @@ gh release create v1.1.0 \
 {
   "version": "1.1.0",
   "notes": "New features and bug fixes",
-  "pub_date": "2026-02-01T00:00:00Z",
+  "pub_date": "2025-02-01T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
       "signature": "...",
@@ -584,7 +584,7 @@ gh release create v1.1.0 \
 }
 ```
 
-**See:** [docs/UPDATER.md](../../docs/UPDATER.md)
+**Note:** Detailed updater documentation coming soon.
 
 ---
 
@@ -712,8 +712,8 @@ npm install
 
 - **[Contributing](./Contributing.md)** — Contribution guidelines
 - **[Architecture](./Architecture.md)** — System architecture
-- **[Testing Guide](../../TESTING_GUIDE.md)** — Detailed testing instructions
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025
+

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - 2026-01-28
+## [1.0.0] - 2025-01-28
 
 **Initial Release** 🎉
 
@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| [1.0.0](#100---2026-01-28) | 2026-01-28 | Initial release |
+| [1.0.0](#100---2025-01-28) | 2025-01-28 | Initial release |
 
 ---
 
@@ -127,7 +127,7 @@ Moltz automatically checks for updates every 24 hours:
 
 ## Detailed Changelogs
 
-### [1.0.0] - 2026-01-28
+### [1.0.0] - 2025-01-28
 
 #### Frontend (React)
 
@@ -240,7 +240,7 @@ No deprecations in this release.
 - Content sanitization for XSS protection
 - Code signing for trusted distribution
 
-**Security Audit:** Completed January 2026 (see [Security.md](./Security.md))
+**Security Audit:** Completed January 2025 (see [Security.md](./Security.md))
 
 ---
 
@@ -342,8 +342,8 @@ Stay informed about new releases:
 
 - **[Roadmap](./Roadmap.md)** — Planned features
 - **[Features](./Features.md)** — Current feature status
-- **[Migration Guides](./Migration-Guide.md)** — Upgrade instructions (coming soon)
 
 ---
 
-**Last updated:** January 28, 2026
+**Last updated:** January 28, 2025
+

@@ -37,12 +37,12 @@ Complete guide to using Moltz effectively for AI conversations.
 
 1. Type your message in the input field at the bottom
 2. Press `Enter` to send (or click the Send button)
-3. Watch the AI response stream in real-time
+3. Watch the AI response stream in real-time—you'll see it typing character by character
 
-**Tips:**
-- Use `Shift+Enter` to add a new line without sending
-- Edit your last message with `↑` arrow key
-- Cancel streaming response with `Esc`
+**Pro tips:**
+- **Multi-line messages:** `Shift+Enter` adds a new line without sending
+- **Quick edits:** `↑` arrow key edits your last message instantly
+- **Stop generation:** Hit `Esc` if the AI is going off track
 
 ---
 
@@ -461,24 +461,7 @@ The AI knows it's JavaScript and responds accordingly.
 
 ---
 
-### 4. System Prompts (Coming Soon)
-
-Set a custom system prompt per conversation:
-
-1. Create new conversation
-2. Settings → System Prompt
-3. Enter custom instructions
-4. Save
-
-**Example:**
-```
-You are a Python expert. Always prefer Pythonic solutions.
-Include type hints in all code examples.
-```
-
----
-
-### 5. Pinning Important Conversations
+### 4. Pinning Important Conversations
 
 Keep frequently-used conversations accessible:
 
@@ -490,7 +473,7 @@ Keep frequently-used conversations accessible:
 
 ---
 
-### 6. Export for Documentation
+### 5. Export for Documentation
 
 Generate documentation from AI conversations:
 
@@ -499,27 +482,7 @@ Generate documentation from AI conversations:
 3. Copy into your project's docs folder
 4. Edit as needed
 
----
-
-### 7. Fast Model Switching (Coming Soon)
-
-Switch AI models mid-conversation:
-
-1. Click model badge (top-right)
-2. Select different model
-3. Continue conversation with new model
-
-**Use case:** Start with fast model (GPT-4o), switch to smart model (Claude Opus) for complex questions.
-
----
-
-### 8. Conversation Templates (Coming Soon)
-
-Save frequently-used prompts as templates:
-
-- "Code review checklist"
-- "Meeting summary format"
-- "Debug session structure"
+**Pro tip:** Use this to create README files, API docs, or tutorial content. The AI can write in your project's style if you give it examples.
 
 ---
 

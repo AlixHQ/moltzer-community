@@ -15,7 +15,7 @@ export function GatewayExplainerStep({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100);
+    const visibilityTimer = setTimeout(() => setIsVisible(true), 100);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
@@ -24,7 +24,10 @@ export function GatewayExplainerStep({
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(visibilityTimer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onNext]);
 
   return (

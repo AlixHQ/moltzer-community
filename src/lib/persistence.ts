@@ -376,7 +376,8 @@ export async function getStorageStats(): Promise<{
     const messageCount = await db.messages.count();
 
     // Estimate storage (rough calculation)
-    const estimatedSize = ((messageCount * 500) / 1024).toFixed(2) + " KB";
+    const sizeKB = (messageCount * 500) / 1024;
+    const estimatedSize = sizeKB === 0 ? "0 KB" : sizeKB.toFixed(2) + " KB";
 
     return {
       conversationCount,

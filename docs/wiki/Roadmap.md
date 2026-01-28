@@ -19,7 +19,7 @@ Moltz aims to be the best native AI chat experience:
 
 ## Current Version: 1.0.0
 
-**Status:** ✅ Released (January 2026)
+**Status:** ✅ Released (January 2025)
 
 ### Core Features
 - ✅ Native desktop app (Tauri + React)
@@ -37,7 +37,7 @@ Moltz aims to be the best native AI chat experience:
 
 ---
 
-## Q1 2026 (Current Quarter)
+## Q1 2025 (Current Quarter)
 
 **Focus:** Polish, Stability, Performance
 
@@ -53,7 +53,7 @@ Show real-time progress during AI operations:
 - Extended thinking steps
 - Sub-agent activity
 
-**Design:** See [SPEC_activity_progress.md](../../SPEC_activity_progress.md)
+**Design:** Implementation details being finalized.
 
 ---
 
@@ -119,7 +119,7 @@ Automatically detect local Gateway:
 
 ---
 
-## Q2 2026 (April - June)
+## Q2 2025 (April - June)
 
 **Focus:** Team Features, Cloud Sync, Mobile
 
@@ -192,7 +192,7 @@ Companion mobile apps:
 
 ---
 
-## Q3 2026 (July - September)
+## Q3 2025 (July - September)
 
 **Focus:** Enterprise, Security, Integrations
 
@@ -249,7 +249,7 @@ Customize for organizations:
 
 ---
 
-## Q4 2026 (October - December)
+## Q4 2025 (October - December)
 
 **Focus:** Advanced Features, AI Capabilities
 
@@ -420,8 +420,8 @@ This roadmap is updated quarterly and reflects our best estimates. Plans may cha
 - Resource availability
 - Market conditions
 
-**Last updated:** January 2026  
-**Next update:** April 2026
+**Last updated:** January 2025  
+**Next update:** April 2025
 
 ---
 
@@ -434,3 +434,4 @@ This roadmap is updated quarterly and reflects our best estimates. Plans may cha
 ---
 
 **Questions about the roadmap?** Ask in [Discussions](https://github.com/AlixHQ/moltz/discussions)!
+

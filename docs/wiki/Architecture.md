@@ -2,6 +2,8 @@
 
 This document describes the technical architecture of Moltz, including system components, data flow, and design decisions.
 
+**Note:** This documentation includes Mermaid diagrams. View on GitHub or in a Mermaid-compatible markdown viewer for the best experience.
+
 ---
 
 ## Table of Contents
@@ -527,7 +529,7 @@ All messages are JSON over WebSocket:
 }
 ```
 
-**See:** [Gateway Protocol Specification](./API-Reference.md#gateway-protocol)
+**Note:** Detailed protocol specification coming soon in API Reference documentation.
 
 ---
 
@@ -791,7 +793,7 @@ graph TB
 - Audit logs for compliance
 - Usage analytics
 
-**ETA:** Q2 2026
+**ETA:** Q2 2025
 
 ---
 
@@ -812,11 +814,11 @@ graph TB
 
 ## Related Documentation
 
-- **[API Reference](./API-Reference.md)** — Gateway protocol details
 - **[Developer Guide](./Developer-Guide.md)** — Building and debugging
 - **[Security](./Security.md)** — Security audit findings
 - **[Performance](./Performance.md)** — Optimization details
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025
+

@@ -52,7 +52,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
   const features = useMemo(() => getFeatures(), []);
 
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100);
+    const visibilityTimer = setTimeout(() => setIsVisible(true), 100);
 
     // Auto-cycle through features
     const interval = setInterval(() => {
@@ -68,6 +68,7 @@ export function FeatureTourStep({ onComplete, onSkip }: FeatureTourStepProps) {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      clearTimeout(visibilityTimer);
       clearInterval(interval);
       window.removeEventListener("keydown", handleKeyDown);
     };

@@ -39,10 +39,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      xs: "px-2 py-1 text-xs h-7",
-      sm: "px-3 py-1.5 text-sm h-8",
-      md: "px-4 py-2 text-base h-10",
-      lg: "px-6 py-3 text-lg h-12",
+      xs: "px-2 py-1 text-xs h-9 min-h-[36px]", // Increased from h-7 for better accessibility
+      sm: "px-3 py-2 text-sm h-11 min-h-[44px]", // Meet 44px touch target minimum (WCAG 2.5.5)
+      md: "px-4 py-2.5 text-base h-11 min-h-[44px]", // Meet 44px touch target minimum
+      lg: "px-6 py-3 text-lg h-12 min-h-[48px]",
     };
 
     return (

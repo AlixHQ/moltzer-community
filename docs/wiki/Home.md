@@ -6,14 +6,17 @@
 
 ## Welcome to Moltz
 
-Moltz is a **native desktop AI chat application** that brings the familiar ChatGPT/Claude.ai experience to your computer as a fast, secure, and feature-rich desktop app. Built with Tauri, React, and Rust, Moltz offers:
+Moltz is a **native desktop AI chat application** that brings the familiar ChatGPT/Claude.ai experience to your computer—but faster, more private, and actually built for desktop use.
 
-- **Familiar Interface** — Same chat experience you know from web AI tools
-- **Native Performance** — Real desktop app, not a browser wrapper
-- **Local Storage** — Encrypted conversations stored on your device
-- **Any AI Model** — Claude, GPT, Gemini, or local models via Clawdbot Gateway
-- **Global Hotkey** — Summon it instantly from anywhere
-- **Offline Access** — Read past conversations without internet
+Think of it as your AI assistant that lives on your machine, not in a browser tab. Built with Tauri, React, and Rust.
+
+**Why Moltz?**
+- **⚡ Native Speed** — Real desktop app, not a glorified browser wrapper
+- **🔒 Your Data** — Conversations encrypted and stored locally on your device
+- **🎯 Any Model** — Claude, GPT, Gemini, or local models via Clawdbot Gateway
+- **⌨️ Global Hotkey** — Hit a key combo, Moltz appears instantly
+- **✈️ Offline Mode** — Read and search past conversations without internet
+- **😌 Familiar UX** — Same chat experience you already know
 
 ---
 
@@ -74,11 +77,11 @@ This wiki is maintained by the Moltz team and community contributors. If you fin
 
 | Platform | Requirements |
 |----------|-------------|
-| **macOS** | macOS 11 (Big Sur) or later, Apple Silicon or Intel |
-| **Windows** | Windows 10/11 (64-bit) |
-| **Linux** | Ubuntu 20.04+, Debian 11+, or equivalent |
+| **macOS** | macOS 11 (Big Sur) or later • Apple Silicon or Intel • 4GB RAM • 200MB disk space |
+| **Windows** | Windows 10/11 (64-bit) • 4GB RAM • 200MB disk space |
+| **Linux** | Ubuntu 20.04+ / Debian 11+ / equivalent • 4GB RAM • 200MB disk space |
 
-**Clawdbot Gateway:** Required — [Installation Guide](https://github.com/clawdbot/clawdbot)
+**Clawdbot Gateway:** Required for AI model access — [Installation Guide](https://github.com/clawdbot/clawdbot)
 
 ---
 

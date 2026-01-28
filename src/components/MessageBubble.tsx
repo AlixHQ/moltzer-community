@@ -194,7 +194,7 @@ export const MessageBubble = memo(function MessageBubble({
               <div className="flex items-center gap-2 mt-2 justify-end">
                 <button
                   onClick={handleCancelEdit}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 >
                   <X className="w-4 h-4" />
                   Cancel
@@ -203,7 +203,7 @@ export const MessageBubble = memo(function MessageBubble({
                   onClick={handleSaveEdit}
                   disabled={!editContent.trim()}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
+                    "flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-sm rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                     editContent.trim()
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "bg-muted text-muted-foreground cursor-not-allowed",
@@ -268,7 +268,7 @@ export const MessageBubble = memo(function MessageBubble({
           >
             <button
               onClick={copyMessage}
-              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               title="Copy message"
               aria-label="Copy message to clipboard"
             >
@@ -278,7 +278,7 @@ export const MessageBubble = memo(function MessageBubble({
             {isUser && onEdit && (
               <button
                 onClick={handleStartEdit}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 title="Edit message (will resend)"
                 aria-label="Edit message"
               >
@@ -289,7 +289,7 @@ export const MessageBubble = memo(function MessageBubble({
             {!isUser && isLastAssistantMessage && onRegenerate && (
               <button
                 onClick={handleRegenerate}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visual:ring-2 focus-visible:ring-primary/50"
                 title="Regenerate response"
                 aria-label="Regenerate response"
               >

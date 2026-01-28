@@ -668,7 +668,7 @@ export function SettingsDialog({
                       }
                     }}
                     className={cn(
-                      "flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex-1 px-4 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                       formData.theme === theme
                         ? "bg-primary text-primary-foreground"
                         : "border border-border hover:bg-muted",
@@ -686,13 +686,13 @@ export function SettingsDialog({
         <div className="flex justify-end gap-3 px-4 sm:px-6 py-4 border-t border-border bg-muted/30 flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-muted transition-colors"
+            className="px-4 py-2 min-h-[44px] rounded-lg text-sm font-medium border border-border hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="px-4 py-2 min-h-[44px] rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
           >
             Save Changes
           </button>

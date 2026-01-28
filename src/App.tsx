@@ -4,7 +4,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { register, unregister } from "@tauri-apps/plugin-global-shortcut";
 import { Window } from "@tauri-apps/api/window";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
-import { UpdateNotification } from "./components/UpdateNotification";
 import { useStore, type ModelInfo } from "./stores/store";
 import { cn } from "./lib/utils";
 import { ToastContainer, useToast } from "./components/ui/toast";
@@ -27,6 +26,12 @@ const ChatView = lazy(() =>
 const WelcomeView = lazy(() =>
   import("./components/WelcomeView").then((module) => ({
     default: module.WelcomeView,
+  }))
+);
+// PERF: Lazy load UpdateNotification (uses framer-motion, ~50KB) - only shows when update available
+const UpdateNotification = lazy(() =>
+  import("./components/UpdateNotification").then((module) => ({
+    default: module.UpdateNotification,
   }))
 );
 
@@ -676,7 +681,9 @@ export default function App() {
   return (
     <>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <UpdateNotification onUpdateDismissed={() => setHasUpdateDismissed(true)} />
+      <Suspense fallback={null}>
+        <UpdateNotification onUpdateDismissed={() => setHasUpdateDismissed(true)} />
+      </Suspense>
       {/* Skip to main content link for keyboard navigation */}
       <a
         href="#main-content"
@@ -791,7 +798,7 @@ export default function App() {
             >
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                 title={
                   sidebarOpen ? "Hide sidebar (⌘\\)" : "Show sidebar (⌘\\)"
                 }

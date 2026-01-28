@@ -11,7 +11,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
 
   useEffect(() => {
     // Trigger entrance animation
-    setTimeout(() => setIsVisible(true), 100);
+    const visibilityTimer = setTimeout(() => setIsVisible(true), 100);
 
     // Auto-advance on Enter
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -21,7 +21,10 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(visibilityTimer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onNext]);
 
   return (

@@ -341,7 +341,7 @@ export function GatewaySetupStep({
     isMountedRef.current = true;
     isCancelledRef.current = false;
 
-    setTimeout(() => {
+    const visibilityTimer = setTimeout(() => {
       if (isMountedRef.current) {
         setIsVisible(true);
       }
@@ -354,6 +354,7 @@ export function GatewaySetupStep({
     // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
+      clearTimeout(visibilityTimer);
     };
   }, [autoDetectGateway]);
 

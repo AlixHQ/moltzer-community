@@ -322,7 +322,7 @@ const virtualizer = useVirtualizer({
 
 ## Audit Findings
 
-**Audit Date:** January 2026  
+**Audit Date:** January 2025  
 **Auditor:** Performance Specialist Agent  
 **Verdict:** ⚠️ Moderate issues found, fixes implemented  
 
@@ -507,19 +507,19 @@ const { a, b } = useStore(
 
 ## Performance Roadmap
 
-### Q1 2026
+### Q1 2025
 
 - [ ] Implement performance mode (reduced animations)
 - [ ] Add memory leak detection
 - [ ] Optimize large attachment handling
 
-### Q2 2026
+### Q2 2025
 
 - [ ] IndexedDB to SQLite migration (for users with 100K+ messages)
 - [ ] Web Worker for heavy computations
 - [ ] Service Worker for offline support
 
-### Q3 2026
+### Q3 2025
 
 - [ ] GPU-accelerated rendering (experimental)
 - [ ] Advanced virtualization (variable heights)
@@ -617,5 +617,6 @@ import { Profiler } from 'react';
 
 ---
 
-**Last updated:** January 2026  
-**Next benchmark:** Q2 2026
+**Last updated:** January 2025  
+**Next benchmark:** Q2 2025
+

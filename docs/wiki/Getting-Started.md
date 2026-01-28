@@ -43,8 +43,14 @@ For detailed instructions, see the [official Clawdbot documentation](https://git
 
 **First Launch:** macOS will ask permission to run the app. Click "Open" when prompted.
 
-#### Code Signing Note
-Early releases may show "unidentified developer" warnings. This is normal for new apps. Right-click → Open to bypass.
+#### ⚠️ "Unidentified Developer" Warning?
+Early releases aren't code-signed yet, so macOS will complain. This is normal for new open-source apps.
+
+**To open anyway:**
+1. Right-click the Moltz app in Applications
+2. Click "Open"
+3. Click "Open" again in the dialog
+4. You only need to do this once
 
 ---
 
@@ -61,7 +67,13 @@ Early releases may show "unidentified developer" warnings. This is normal for ne
 2. Follow the installation wizard
 3. Launch Moltz from the Start Menu or Desktop shortcut
 
-**Windows Defender:** May show SmartScreen warning on first run. Click "More info" → "Run anyway"
+#### 🛡️ Windows SmartScreen Warning?
+Windows may block the installer since we're a new publisher without expensive certificates.
+
+**To install anyway:**
+1. Click "More info" in the SmartScreen popup
+2. Click "Run anyway" button
+3. This is safe—our code is open-source and auditable
 
 ---
 
@@ -118,11 +130,15 @@ Enter your Clawdbot Gateway connection details:
 
 **Finding Your Token:**
 ```bash
-# In your Gateway terminal
+# Show your current token
 clawdbot token show
 ```
 
-Or check `~/.config/clawdbot/config.json`
+Or find it manually in the Gateway config file:
+- **macOS/Linux:** `~/.config/clawdbot/config.json`
+- **Windows:** `%USERPROFILE%\.config\clawdbot\config.json`
+
+Look for the `"token"` field in the JSON file.
 
 #### Step 3: Test Connection
 Moltz will verify the connection to your Gateway. You should see:
@@ -267,7 +283,8 @@ Your Moltz version is incompatible with your Gateway version.
 
 **Solution:**
 - Update both to latest versions
-- Or use compatible versions (check [Compatibility Matrix](./API-Reference.md#version-compatibility))
+- Moltz 1.x requires Gateway 1.x or higher
+- Check your versions: `clawdbot --version` and Moltz → About
 
 ---
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, JSX } from "react";
+import { useState, useEffect, useCallback, useRef, JSX } from "react";
 import { WelcomeStep } from "./steps/WelcomeStep";
 import { DetectionStep } from "./steps/DetectionStep";
 import { NoGatewayStep } from "./steps/NoGatewayStep";
@@ -41,6 +41,16 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     import.meta.env.VITE_DEFAULT_GATEWAY_URL || "ws://localhost:18789",
   );
   const [gatewayToken, setGatewayToken] = useState("");
+  const transitionTimerRef = useRef<number | undefined>();
+
+  // Cleanup transition timer on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current !== undefined) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
 
   // Restore progress on mount - but NEVER skip welcome screen
   useEffect(() => {
@@ -67,7 +77,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   // Stable transition function
   const transitionTo = useCallback((nextStep: OnboardingStep) => {
     setIsAnimating(true);
-    setTimeout(() => {
+    if (transitionTimerRef.current !== undefined) {
+      clearTimeout(transitionTimerRef.current);
+    }
+    transitionTimerRef.current = window.setTimeout(() => {
       setCurrentStep(nextStep);
       setIsAnimating(false);
     }, 150);

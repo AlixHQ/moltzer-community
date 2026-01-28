@@ -96,6 +96,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const errorTimerRef = useRef<number | undefined>();
 
   // Auto-focus on mount
   useEffect(() => {
@@ -104,14 +105,25 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
     }
   }, [disabled]);
 
+  // Cleanup error timer on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimerRef.current !== undefined) {
+        clearTimeout(errorTimerRef.current);
+      }
+    };
+  }, []);
+
   // Listen for quick input messages
   useEffect(() => {
+    let submitTimer: number | undefined;
+
     const handleQuickInputMessage = (e: CustomEvent<{ message: string }>) => {
       const { message: quickMessage } = e.detail;
       if (quickMessage) {
         setMessage(quickMessage);
         // Auto-submit after a short delay
-        setTimeout(() => {
+        submitTimer = window.setTimeout(() => {
           onSend(quickMessage, []);
         }, 150);
       }
@@ -122,6 +134,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       handleQuickInputMessage as unknown as (e: Event) => void,
     );
     return () => {
+      if (submitTimer !== undefined) clearTimeout(submitTimer);
       window.removeEventListener(
         "quickinput:setmessage",
         handleQuickInputMessage as unknown as (e: Event) => void,
@@ -240,7 +253,10 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       if (errors.length > 0) {
         setFileError(errors.join("; "));
         // Auto-dismiss after 5 seconds
-        setTimeout(() => setFileError(null), 5000);
+        if (errorTimerRef.current !== undefined) {
+          clearTimeout(errorTimerRef.current);
+        }
+        errorTimerRef.current = window.setTimeout(() => setFileError(null), 5000);
       }
 
       if (newAttachments.length > 0) {
@@ -274,10 +290,10 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           <span className="flex-1">{fileError}</span>
           <button
             onClick={() => setFileError(null)}
-            className="p-0.5 hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
             aria-label="Dismiss error message"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -305,10 +321,10 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
               <span className="truncate max-w-[150px]">{file.filename}</span>
               <button
                 onClick={() => removeAttachment(i)}
-                className="p-0.5 text-muted-foreground hover:text-foreground hover:bg-background rounded transition-colors"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
                 aria-label={`Remove ${file.filename}`}
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ))}
@@ -330,7 +346,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           onClick={handleAttach}
           disabled={disabled || isLoadingFiles}
           className={cn(
-            "p-3 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0",
+            "p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors flex-shrink-0",
             (disabled || isLoadingFiles) && "cursor-not-allowed",
           )}
           title="Attach files (images, documents, code)"
@@ -388,7 +404,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           onClick={handleSend}
           disabled={!canSend}
           className={cn(
-            "p-3 rounded-xl m-1 transition-all duration-200 flex-shrink-0",
+            "p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl m-1 transition-all duration-200 flex-shrink-0",
             canSend
               ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md active:scale-95"
               : "text-muted-foreground cursor-not-allowed",

@@ -162,8 +162,8 @@ npm update -g clawdbot
 ```
 
 **Version Compatibility:**
-- Moltz 1.0.x ↔ Gateway 2026.1.x ✅
-- Check [Version Compatibility Matrix](./API-Reference.md#version-compatibility)
+- Moltz 1.0.x requires Gateway 1.x or higher
+- Both client and Gateway should be updated to latest versions
 
 ---
 
@@ -574,7 +574,7 @@ What actually happened.
 ### Environment
 - OS: macOS 13.5
 - Moltz Version: 1.0.0
-- Gateway Version: 2026.1.28
+- Gateway Version: 2025.1.28
 
 ### Logs
 Paste relevant logs here.
@@ -652,4 +652,5 @@ rm -rf ~/.config/com.moltz.client/
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** January 2025
+

@@ -522,7 +522,7 @@ function ConversationItem({
             e.stopPropagation();
             onPin();
           }}
-          className="p-1 hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
           title={
             conversation.isPinned ? "Unpin conversation" : "Pin conversation"
           }
@@ -532,7 +532,7 @@ function ConversationItem({
         >
           <Pin
             className={cn(
-              "w-3.5 h-3.5",
+              "w-4 h-4",
               conversation.isPinned
                 ? "text-orange-500 fill-current"
                 : "text-muted-foreground",
@@ -544,12 +544,12 @@ function ConversationItem({
             e.stopPropagation();
             setShowMenu(true);
           }}
-          className="p-1 hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
           aria-label="More options"
           aria-expanded={showMenu}
           aria-haspopup="menu"
         >
-          <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+          <MoreVertical className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
 

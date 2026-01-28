@@ -13,7 +13,7 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
   >([]);
 
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100);
+    const visibilityTimer = setTimeout(() => setIsVisible(true), 100);
 
     // Generate confetti particles
     const particles = Array.from({ length: 30 }, (_, i) => ({
@@ -32,7 +32,10 @@ export function SuccessStep({ onNext, onSkip }: SuccessStepProps) {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(visibilityTimer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onSkip]);
 
   return (

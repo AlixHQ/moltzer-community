@@ -134,7 +134,7 @@ export function DetectionStep({
     isCancelledRef.current = false;
     // Don't reset hasRunRef here - it prevents double execution
 
-    setTimeout(() => {
+    const visibilityTimer = setTimeout(() => {
       if (isMountedRef.current) {
         setIsVisible(true);
       }
@@ -148,6 +148,7 @@ export function DetectionStep({
     // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
+      clearTimeout(visibilityTimer);
     };
   }, [autoDetectGateway]);
 

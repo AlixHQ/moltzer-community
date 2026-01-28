@@ -87,7 +87,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
               </span>
               <button
                 onClick={() => onCopyCode(code)}
-                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2 py-1"
+                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-3 py-2 min-h-[44px]"
                 aria-label={
                   copiedCode === code
                     ? "Code copied"
@@ -96,12 +96,12 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
               >
                 {copiedCode === code ? (
                   <>
-                    <Check className="w-3.5 h-3.5" strokeWidth={2} />
+                    <Check className="w-4 h-4" strokeWidth={2} />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5" strokeWidth={2} />
+                    <Copy className="w-4 h-4" strokeWidth={2} />
                     Copy
                   </>
                 )}

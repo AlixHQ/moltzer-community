@@ -229,7 +229,7 @@ Tauri app uses strict CSP:
 
 ## Audit Summary
 
-**Audit Date:** January 2026  
+**Audit Date:** January 2025  
 **Auditor:** Security Specialist Agent  
 **Scope:** Full codebase security review  
 
@@ -273,7 +273,7 @@ Tauri app uses strict CSP:
 
 #### 6-12. Various Input Validation Issues
 **Status:** ✅ Fixed in 1.0.0  
-**Details:** See [Full Security Audit Report](../../moltz_security_audit.md)
+**Details:** Minor input validation improvements across form fields and API endpoints.
 
 ### Low-Severity Issues
 
@@ -344,8 +344,8 @@ We appreciate responsible disclosure and may offer bounties for significant find
 
 For team/enterprise deployments:
 
-- 📋 SOC 2 Type II (planned Q3 2026)
-- 📋 HIPAA compliance (planned Q4 2026)
+- 📋 SOC 2 Type II (planned Q3 2025)
+- 📋 HIPAA compliance (planned Q4 2025)
 - 📋 Audit logging (Team Mode)
 - 📋 Access control (Team Mode)
 
@@ -353,19 +353,19 @@ For team/enterprise deployments:
 
 ## Security Roadmap
 
-### Q1 2026
+### Q1 2025
 
 - [ ] Security bug bounty program
 - [ ] Penetration testing
 - [ ] Automated dependency scanning
 
-### Q2 2026
+### Q2 2025
 
 - [ ] Hardware security key support (YubiKey)
 - [ ] Biometric authentication (macOS Touch ID, Windows Hello)
 - [ ] Enhanced audit logging
 
-### Q3 2026
+### Q3 2025
 
 - [ ] SOC 2 Type II certification
 - [ ] Zero-knowledge cloud sync
@@ -478,5 +478,6 @@ Yes. The full source code is available on [GitHub](https://github.com/AlixHQ/mol
 
 ---
 
-**Last updated:** January 2026  
-**Next audit:** Q2 2026
+**Last updated:** January 2025  
+**Next audit:** Q2 2025
+

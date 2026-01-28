@@ -32,10 +32,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   // Focus input when dialog opens
   useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const focusTimer = setTimeout(() => inputRef.current?.focus(), 100);
       setQuery("");
       setResults([]);
       setSelectedIndex(0);
+      return () => clearTimeout(focusTimer);
     }
   }, [open]);
 
