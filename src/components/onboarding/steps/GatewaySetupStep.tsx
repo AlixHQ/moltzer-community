@@ -534,29 +534,30 @@ export function GatewaySetupStep({
               <label className="block text-sm font-medium mb-2">
                 Authentication Token{" "}
                 <span className="text-muted-foreground font-normal">(optional)</span>
-                <TooltipProvider>
+                <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-xs rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+                        className="ml-2 text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors"
                         aria-label="Token info"
                       >
-                        ?
+                        What's this?
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs">
-                      <p className="font-medium mb-1">When do I need this?</p>
-                      <p className="text-muted-foreground mb-2">
-                        Required if your Gateway has authentication enabled (most setups do).
+                    <TooltipContent side="top" className="max-w-sm p-4">
+                      <p className="font-semibold mb-2">🔑 Authentication Token</p>
+                      <p className="text-muted-foreground mb-3">
+                        Most Moltbot Gateways require a token to connect. If you get a 401/403 error, you need this.
                       </p>
-                      <p className="font-medium mb-1">Where do I find it?</p>
-                      <p className="text-muted-foreground">
-                        Check your Gateway config file or ask your admin. Run{" "}
-                        <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                          clawdbot gateway status
-                        </code>{" "}
-                        to see if auth is enabled.
+                      <p className="font-medium mb-1">Where to find it:</p>
+                      <ul className="text-sm text-muted-foreground space-y-1 mb-3">
+                        <li>• Run <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">clawdbot gateway status</code></li>
+                        <li>• Check your <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">clawdbot.json</code> config</li>
+                        <li>• Ask your Gateway admin</li>
+                      </ul>
+                      <p className="text-xs text-muted-foreground/70">
+                        The token is stored securely in your system keychain.
                       </p>
                     </TooltipContent>
                   </Tooltip>

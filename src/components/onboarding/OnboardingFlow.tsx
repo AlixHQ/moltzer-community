@@ -40,20 +40,18 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   );
   const [gatewayToken, setGatewayToken] = useState("");
 
-  // Restore progress on mount
+  // Restore progress on mount - but NEVER skip welcome screen
   useEffect(() => {
     const savedProgress = localStorage.getItem('moltzer-onboarding-progress');
     if (savedProgress) {
       try {
         const progress: OnboardingProgress = JSON.parse(savedProgress);
-        // If saved within last 24 hours, restore
+        // If saved within last 24 hours, restore URL but NOT step
+        // User should always see welcome screen first
         if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
           if (progress.gatewayUrl) setGatewayUrl(progress.gatewayUrl);
           // Token is NOT restored from localStorage - it's in keychain
-          // Start at detection if we have partial progress
-          if (progress.step === 'setup-started' || progress.step === 'detection-failed') {
-            setCurrentStep('detection');
-          }
+          // NOTE: We no longer auto-advance to detection - always start at welcome
         }
       } catch (err) {
         console.error('[OnboardingFlow] Failed to restore onboarding progress:', err);
