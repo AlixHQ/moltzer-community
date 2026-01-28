@@ -903,6 +903,9 @@ async fn connect_internal(
     // Start streaming timeout monitor
     start_stream_timeout_monitor(app.clone(), active_runs.clone()).await;
 
+    // CRITICAL-1: Start cleanup task for expired pending requests
+    start_pending_requests_cleanup(pending_requests.clone()).await;
+
     Ok(ConnectResult {
         success: true,
         used_url,
@@ -1127,6 +1130,27 @@ async fn start_stream_timeout_monitor(
     });
 }
 
+/// CRITICAL-1: Cleanup task for expired pending requests
+async fn start_pending_requests_cleanup(
+    pending_requests: Arc<Mutex<HashMap<String, PendingRequest>>>,
+) {
+    tokio::spawn(async move {
+        let cleanup_interval = Duration::from_secs(30);
+        
+        loop {
+            tokio::time::sleep(cleanup_interval).await;
+            
+            let mut pending = pending_requests.lock().await;
+            let now = Instant::now();
+            
+            // Remove requests older than their timeout + 1 minute grace period
+            pending.retain(|_, req| {
+                now.duration_since(req.created_at) < req.timeout + Duration::from_secs(60)
+            });
+        }
+    });
+}
+
 /// Start reconnection loop with exponential backoff
 async fn start_reconnection_loop(app: AppHandle, state: Arc<GatewayStateInner>) {
     tokio::spawn(async move {
@@ -1284,6 +1308,7 @@ pub async fn disconnect(state: State<'_, GatewayState>) -> Result<(), String> {
     *state.inner.sender.lock().await = None;
     *state.inner.connection_state.write().await = ConnectionState::Disconnected;
     *state.inner.pending_requests.lock().await = HashMap::new();
+    *state.inner.active_runs.lock().await = HashMap::new(); // CRITICAL-2: Clear active runs on disconnect
     state.inner.health_metrics.lock().await.reset();
     Ok(())
 }
@@ -1350,6 +1375,13 @@ pub async fn send_message(
     // If reconnecting, queue the message
     if matches!(connection_state, ConnectionState::Reconnecting { .. }) {
         let mut queue = state.inner.message_queue.lock().await;
+        
+        // CRITICAL-3: Enforce max queue size (drop oldest messages)
+        const MAX_QUEUE_SIZE: usize = 100;
+        while queue.len() >= MAX_QUEUE_SIZE {
+            queue.pop_front();
+        }
+        
         queue.push_back(QueuedMessage::new(request_id.clone(), json));
         return Ok(request_id);
     }

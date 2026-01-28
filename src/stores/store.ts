@@ -170,11 +170,24 @@ const generateId = () => crypto.randomUUID();
 let persistTimer: number | undefined;
 const debouncedPersist = (fn: () => void, delay = 500) => {
   if (persistTimer) clearTimeout(persistTimer);
-  persistTimer = window.setTimeout(fn, delay);
+  persistTimer = window.setTimeout(() => {
+    persistTimer = undefined; // Clear ref after execution
+    fn();
+  }, delay);
 };
 
+// CRITICAL-6: Clear timer on page unload to prevent memory leak
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (persistTimer) {
+      clearTimeout(persistTimer);
+      persistTimer = undefined;
+    }
+  });
+}
+
 /**
- * Persistence queue — serializes write operations per conversation
+ * Persistence queue - serializes write operations per conversation
  * to avoid race conditions between create and immediate updates.
  */
 const persistenceQueue: Map<string, Promise<void>> = new Map();
