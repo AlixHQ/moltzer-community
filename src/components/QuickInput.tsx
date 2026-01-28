@@ -31,6 +31,11 @@ export function QuickInput() {
     };
   }, [currentWindow]);
 
+  const handleClose = async () => {
+    setInput("");
+    await currentWindow.hide();
+  };
+
   // Handle escape to close
   useEffect(() => {
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
@@ -40,12 +45,8 @@ export function QuickInput() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const handleClose = async () => {
-    setInput("");
-    await currentWindow.hide();
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWindow]);
 
   const handleSubmit = async () => {
     if (!input.trim()) return;

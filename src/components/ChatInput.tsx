@@ -110,9 +110,9 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       }
     };
 
-    window.addEventListener("quickinput:setmessage", handleQuickInputMessage as EventListener);
+    window.addEventListener("quickinput:setmessage", handleQuickInputMessage as unknown as (e: Event) => void);
     return () => {
-      window.removeEventListener("quickinput:setmessage", handleQuickInputMessage as EventListener);
+      window.removeEventListener("quickinput:setmessage", handleQuickInputMessage as unknown as (e: Event) => void);
     };
   }, [onSend]);
 
