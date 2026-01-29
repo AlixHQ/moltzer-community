@@ -53,7 +53,7 @@ describe("Keychain", () => {
 
   describe("getGatewayToken", () => {
     it("should return the stored token", async () => {
-      keychainStore["com.Moltz.client:gateway_token"] = "my-secret-token";
+      keychainStore["com.moltz.client:gateway_token"] = "my-secret-token";
 
       const token = await getGatewayToken();
       expect(token).toBe("my-secret-token");
