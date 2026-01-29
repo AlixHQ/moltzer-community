@@ -176,6 +176,85 @@ export const CodeBlock = memo(function CodeBlock({
     setShowPreview((prev) => !prev);
   }, []);
 
+  // Run JavaScript/TypeScript code in a sandboxed environment
+  const handleRunCode = useCallback(async () => {
+    setIsRunning(true);
+    setExecutionResult(null);
+    
+    try {
+      // Capture console output
+      const logs: string[] = [];
+      
+      const captureConsole = {
+        log: (...args: unknown[]) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')),
+        error: (...args: unknown[]) => logs.push(`❌ ${args.map(String).join(' ')}`),
+        warn: (...args: unknown[]) => logs.push(`⚠️ ${args.map(String).join(' ')}`),
+        info: (...args: unknown[]) => logs.push(args.map(String).join(' ')),
+      };
+      
+      // Execute in isolated scope using AsyncFunction for await support
+      const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+      const fn = new AsyncFunction('console', code);
+      
+      const startTime = performance.now();
+      const result = await Promise.race([
+        fn(captureConsole),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Execution timeout (5s)')), 5000)
+        ),
+      ]);
+      const duration = Math.round(performance.now() - startTime);
+      
+      // Build output
+      let output = logs.join('\n');
+      if (result !== undefined) {
+        const resultStr = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
+        output += (output ? '\n' : '') + `→ ${resultStr}`;
+      }
+      output += `\n\n✓ Completed in ${duration}ms`;
+      
+      setExecutionResult({ success: true, output: output || '(no output)' });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setExecutionResult({
+        success: false,
+        output: '',
+        error: `${error.name}: ${error.message}`,
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  }, [code]);
+
+  // Generate CodeSandbox URL
+  const openInCodeSandbox = useCallback(() => {
+    const ext = language.toLowerCase();
+    const isTypeScript = ['ts', 'typescript', 'tsx'].includes(ext);
+    const isReact = ['jsx', 'tsx'].includes(ext);
+    
+    // Determine main file name
+    const mainFile = filename || (isReact ? (isTypeScript ? 'App.tsx' : 'App.jsx') : (isTypeScript ? 'index.ts' : 'index.js'));
+    
+    const files: Record<string, { content: string }> = {
+      [mainFile]: { content: code },
+      'package.json': {
+        content: JSON.stringify({
+          name: 'code-sandbox',
+          main: mainFile,
+          dependencies: isReact ? { react: 'latest', 'react-dom': 'latest' } : {},
+          devDependencies: isTypeScript ? { typescript: 'latest' } : {},
+        }, null, 2),
+      },
+    };
+    
+    // Use CodeSandbox define API
+    const parameters = btoa(unescape(encodeURIComponent(JSON.stringify({ files }))))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+    window.open(`https://codesandbox.io/api/v1/sandboxes/define?parameters=${parameters}`, '_blank');
+  }, [code, language, filename]);
+
   // Generate safe HTML for preview
   const previewHtml = useMemo(() => {
     if (!canPreview) return "";
@@ -206,10 +285,18 @@ ${code}
     <div className="relative group/code my-4 -mx-4 sm:mx-0">
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 dark:bg-zinc-800 rounded-t-lg border border-b-0 border-zinc-700">
-        {/* Language label */}
-        <span className="text-xs text-zinc-400 font-mono font-medium">
-          {displayLanguage}
-        </span>
+        {/* Language label + filename */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-400 font-mono font-medium">
+            {displayLanguage}
+          </span>
+          {filename && (
+            <span className="flex items-center gap-1 text-xs text-zinc-300 font-mono bg-zinc-700/50 px-2 py-0.5 rounded">
+              <FileCode className="w-3 h-3" />
+              {filename}
+            </span>
+          )}
+        </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-1">
@@ -268,6 +355,42 @@ ${code}
             </button>
           )}
 
+          {/* Run button (for JS/TS) */}
+          {canRun && (
+            <button
+              onClick={handleRunCode}
+              disabled={isRunning}
+              className={cn(
+                "flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50",
+                isRunning
+                  ? "text-yellow-400 bg-zinc-700 cursor-wait"
+                  : executionResult?.success
+                    ? "text-green-400 hover:bg-zinc-700/50"
+                    : executionResult?.error
+                      ? "text-red-400 hover:bg-zinc-700/50"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50"
+              )}
+              title={isRunning ? "Running..." : "Run code"}
+              aria-label={isRunning ? "Running code" : "Run code"}
+            >
+              <Play className={cn("w-3.5 h-3.5", isRunning && "animate-pulse")} strokeWidth={2} />
+              <span className="hidden sm:inline">{isRunning ? "Running..." : "Run"}</span>
+            </button>
+          )}
+
+          {/* Open in CodeSandbox */}
+          {canRun && (
+            <button
+              onClick={openInCodeSandbox}
+              className="flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              title="Open in CodeSandbox"
+              aria-label="Open in CodeSandbox"
+            >
+              <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+              <span className="hidden sm:inline">Sandbox</span>
+            </button>
+          )}
+
           {/* Copy button */}
           <button
             onClick={handleCopy}
@@ -299,7 +422,7 @@ ${code}
         className={cn(
           "!mt-0 !rounded-t-none !bg-zinc-900 dark:!bg-zinc-800 !border !border-t-0 !border-zinc-700",
           wrapLines ? "" : "overflow-x-auto",
-          showPreview && canPreview ? "" : "rounded-b-lg"
+          (showPreview && canPreview) || executionResult ? "" : "rounded-b-lg"
         )}
       >
         <pre
