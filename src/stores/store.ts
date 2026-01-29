@@ -304,9 +304,18 @@ export const useStore = create<Store>()((set, get) => ({
   },
 
   updateConversation: (id, updates) => {
+    // Sanitize and truncate title if provided
+    const sanitizedUpdates = { ...updates };
+    if (sanitizedUpdates.title) {
+      sanitizedUpdates.title = sanitizedUpdates.title
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 100); // Max 100 chars for manual titles
+    }
+    
     set((state) => ({
       conversations: state.conversations.map((c) =>
-        c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c,
+        c.id === id ? { ...c, ...sanitizedUpdates, updatedAt: new Date() } : c,
       ),
     }));
 
@@ -357,10 +366,11 @@ export const useStore = create<Store>()((set, get) => ({
               messages: [...c.messages, message],
               updatedAt: new Date(),
               // Auto-generate title from first user message (only if still default "New Chat")
+              // Enforce max 60 chars to prevent UI overflow
               title:
                 c.messages.length === 0 && messageData.role === "user" && c.title === "New Chat"
-                  ? messageData.content.slice(0, 40) +
-                    (messageData.content.length > 40 ? "..." : "")
+                  ? messageData.content.replace(/\s+/g, ' ').trim().slice(0, 60) +
+                    (messageData.content.length > 60 ? "..." : "")
                   : c.title,
             }
           : c,

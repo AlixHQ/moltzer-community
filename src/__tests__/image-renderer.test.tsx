@@ -94,7 +94,9 @@ describe("ImageRenderer", () => {
       const img = screen.getByRole("img");
 
       // Simulate error
-      img.dispatchEvent(new Event("error", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("error", { bubbles: true }));
+      });
 
       await waitFor(() => {
         expect(screen.getByText("Failed to load image")).toBeInTheDocument();
@@ -105,7 +107,9 @@ describe("ImageRenderer", () => {
       render(<ImageRenderer src="https://example.com/broken.png" />);
 
       const img = screen.getByRole("img");
-      img.dispatchEvent(new Event("error", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("error", { bubbles: true }));
+      });
 
       await waitFor(() => {
         expect(img).toHaveClass("hidden");
@@ -121,7 +125,9 @@ describe("ImageRenderer", () => {
       const img = screen.getByRole("img");
       
       // Load the image first
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       await waitFor(async () => {
         const container = img.parentElement;
@@ -140,7 +146,9 @@ describe("ImageRenderer", () => {
       render(<ImageRenderer src="https://example.com/image.png" />);
 
       const img = screen.getByRole("img");
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       await waitFor(async () => {
         const container = img.parentElement;
@@ -165,7 +173,9 @@ describe("ImageRenderer", () => {
       render(<ImageRenderer src="https://example.com/image.png" />);
 
       const img = screen.getByRole("img");
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       await waitFor(async () => {
         const container = img.parentElement;
@@ -194,7 +204,9 @@ describe("ImageRenderer", () => {
       render(<ImageRenderer src="https://example.com/image.png" />);
 
       const img = screen.getByRole("img");
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       // Wait for load state to update then click image to open lightbox
       await waitFor(() => {
