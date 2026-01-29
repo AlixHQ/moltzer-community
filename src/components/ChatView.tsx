@@ -382,7 +382,10 @@ export function ChatView() {
       // Mark user message as sent (no longer pending)
       markMessageSent(currentConversation.id, userMessage.id);
     } catch (err: unknown) {
-      console.error("Failed to send message:", err);
+      logError(err instanceof Error ? err : String(err), "ChatView.handleSendMessage", {
+        conversationId: currentConversation.id,
+        hasAttachments: attachments.length > 0,
+      });
       const friendly = translateError(err instanceof Error ? err : String(err));
       const errorMsg = String(err).replace("Error: ", "");
       
