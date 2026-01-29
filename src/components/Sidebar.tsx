@@ -6,7 +6,7 @@
   useRef,
   useMemo,
 } from "react";
-import { useStore, Conversation } from "../stores/store";
+import { useStore, Conversation, shallow } from "../stores/store";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { EmptyState } from "./ui/empty-state";
 import { ConversationSkeleton } from "./ui/skeleton";
@@ -57,6 +57,7 @@ export function Sidebar({
   forceShowSettings,
   onSettingsClosed,
 }: SidebarProps) {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     conversations,
     conversationsLoading,
@@ -66,7 +67,19 @@ export function Sidebar({
     deleteConversation,
     pinConversation,
     connected,
-  } = useStore();
+  } = useStore(
+    (state) => ({
+      conversations: state.conversations,
+      conversationsLoading: state.conversationsLoading,
+      currentConversationId: state.currentConversationId,
+      createConversation: state.createConversation,
+      selectConversation: state.selectConversation,
+      deleteConversation: state.deleteConversation,
+      pinConversation: state.pinConversation,
+      connected: state.connected,
+    }),
+    shallow
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);

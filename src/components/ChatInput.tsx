@@ -2,6 +2,7 @@ import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { cn } from "../lib/utils";
+import { translateError } from "../lib/errors";
 import { Spinner } from "./ui/spinner";
 import {
   Paperclip,
@@ -10,6 +11,7 @@ import {
   FileText,
   Image as ImageIcon,
   AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 
 // Attachment with base64 data ready to send
@@ -390,7 +392,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           className={cn(
             "p-3 rounded-xl m-1 transition-all duration-200 flex-shrink-0",
             canSend
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md active:scale-95"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md hover:scale-105 active:scale-95"
               : "text-muted-foreground cursor-not-allowed",
           )}
           title="Send message (Enter)"

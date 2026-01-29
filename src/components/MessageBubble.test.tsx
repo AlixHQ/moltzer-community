@@ -206,7 +206,7 @@ describe("MessageBubble", () => {
 
       const { container } = render(<MessageBubble message={message} />);
 
-      const cursor = container.querySelector(".animate-pulse");
+      const cursor = container.querySelector(".animate-cursor-blink");
       expect(cursor).toBeInTheDocument();
     });
 

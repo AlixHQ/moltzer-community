@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useStore } from "../stores/store";
+import { useStore, shallow } from "../stores/store";
 import { ChatInput, PreparedAttachment } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import { ConfirmDialog } from "./ui/confirm-dialog";
@@ -17,6 +17,7 @@ import {
 import { Button } from "./ui/button";
 
 export function ChatView() {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     currentConversation,
     addMessage,
@@ -30,7 +31,23 @@ export function ChatView() {
     markMessageSent,
     markMessageFailed,
     markMessageQueued,
-  } = useStore();
+  } = useStore(
+    (state) => ({
+      currentConversation: state.currentConversation,
+      addMessage: state.addMessage,
+      updateMessage: state.updateMessage,
+      deleteMessagesAfter: state.deleteMessagesAfter,
+      deleteMessage: state.deleteMessage,
+      connected: state.connected,
+      settings: state.settings,
+      completeCurrentMessage: state.completeCurrentMessage,
+      currentStreamingMessageId: state.currentStreamingMessageId,
+      markMessageSent: state.markMessageSent,
+      markMessageFailed: state.markMessageFailed,
+      markMessageQueued: state.markMessageQueued,
+    }),
+    shallow
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);

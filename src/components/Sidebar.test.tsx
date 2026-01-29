@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sidebar Component Tests
  *
  * Tests the sidebar navigation including:
@@ -193,7 +193,7 @@ describe("Sidebar", () => {
 
       render(<Sidebar onToggle={mockOnToggle} />);
 
-      const filterInput = screen.getByLabelText("Filter conversations");
+      const filterInput = screen.getByPlaceholderText("Filter conversations...");
       await user.type(filterInput, "TypeScript");
 
       expect(screen.getByText("TypeScript Tutorial")).toBeInTheDocument();
@@ -221,7 +221,7 @@ describe("Sidebar", () => {
 
       render(<Sidebar onToggle={mockOnToggle} />);
 
-      const filterInput = screen.getByLabelText("Filter conversations");
+      const filterInput = screen.getByPlaceholderText("Filter conversations...");
       await user.type(filterInput, "quantum");
 
       expect(screen.getByText("Chat 1")).toBeInTheDocument();
@@ -235,7 +235,7 @@ describe("Sidebar", () => {
 
       render(<Sidebar onToggle={mockOnToggle} />);
 
-      const filterInput = screen.getByLabelText("Filter conversations");
+      const filterInput = screen.getByPlaceholderText("Filter conversations...");
       await user.type(filterInput, "xyznonexistent");
 
       expect(screen.getByText("No matches")).toBeInTheDocument();
@@ -252,7 +252,7 @@ describe("Sidebar", () => {
       render(<Sidebar onToggle={mockOnToggle} />);
 
       // Type and then clear filter
-      const filterInput = screen.getByLabelText("Filter conversations");
+      const filterInput = screen.getByPlaceholderText("Filter conversations...");
       await user.type(filterInput, "First");
       expect(screen.queryByText("Second")).not.toBeInTheDocument();
 
