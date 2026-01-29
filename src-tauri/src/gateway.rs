@@ -207,6 +207,8 @@ struct ConnectParams {
     #[serde(rename = "maxProtocol")]
     max_protocol: i32,
     client: ClientInfo,
+    role: String,
+    scopes: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     caps: Vec<String>,
     auth: AuthInfo,
@@ -1004,6 +1006,8 @@ async fn handle_validated_frame(
                                     platform: get_platform(),
                                     mode: "cli".to_string(), // Must be "webchat", "cli", "ui", "backend", "probe", or "test"
                                 },
+                                role: "operator".to_string(),
+                                scopes: vec!["operator.read".to_string(), "operator.write".to_string()],
                                 caps: vec![], // Optional, skipped if empty
                                 auth: AuthInfo {
                                     token: token.to_string(),
@@ -1630,6 +1634,8 @@ mod tests {
                 platform: "windows".to_string(),
                 mode: "cli".to_string(),
             },
+            role: "operator".to_string(),
+            scopes: vec!["operator.read".to_string(), "operator.write".to_string()],
             caps: vec![],
             auth: AuthInfo {
                 token: "test-token".to_string(),
@@ -1642,6 +1648,8 @@ mod tests {
         assert!(json.contains("minProtocol"));
         assert!(json.contains("maxProtocol"));
         assert!(json.contains("clawdbot-control-ui"));
+        assert!(json.contains("operator"));
+        assert!(json.contains("operator.read"));
     }
 
     #[tokio::test]
