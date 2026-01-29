@@ -153,14 +153,6 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         />
       );
     },
-    p({ children, ...props }: ParagraphProps) {
-      // Check if paragraph contains only an image
-      // If so, render without the <p> wrapper to avoid invalid DOM nesting
-      if (isValidElement(children) && children.type === ImageRenderer) {
-        return <>{children}</>;
-      }
-      return <p {...props}>{children}</p>;
-    },
     table({ children, ...props }: TableProps) {
       return (
         <div className="overflow-x-auto my-4 rounded-lg border border-border">

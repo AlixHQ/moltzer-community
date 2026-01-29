@@ -68,16 +68,30 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
 
   // Search across all messages (including encrypted data in IndexedDB)
   const performSearch = useCallback(async (searchQuery: string) => {
-    if (!searchQuery.trim()) {
+    const trimmed = searchQuery.trim();
+    
+    if (!trimmed) {
       setResults([]);
       return;
+    }
+
+    // Prevent excessively long search queries (could cause performance issues)
+    if (trimmed.length > 500) {
+      console.warn("Search query too long, truncating to 500 chars");
+      searchQuery = trimmed.slice(0, 500);
     }
 
     setIsSearching(true);
 
     try {
       // Search encrypted messages in IndexedDB
-      const messages = await searchPersistedMessages(searchQuery);
+      const allMessages = await searchPersistedMessages(searchQuery);
+      
+      // Store total count before limiting (for display)
+      setTotalMatches(allMessages.length);
+      
+      // Limit to first 100 results for performance (show total in UI)
+      const messages = allMessages.slice(0, 100);
 
       const searchResults: SearchResult[] = messages.map((msg) => {
         // Extract a snippet around the match - optimized
@@ -339,9 +353,9 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                       • {roleFilter === "user" ? "Your messages" : "Moltz replies"}
                     </span>
                   )}
-                  {totalMatches > 50 && (
+                  {totalMatches > 100 && (
                     <span className="text-orange-500 ml-2">
-                      (showing top 50 of {totalMatches})
+                      (showing top 100 of {totalMatches})
                     </span>
                   )}
                 </div>
