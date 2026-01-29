@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { searchPersistedMessages } from "../lib/persistence";
 import { EmptyState } from "./ui/empty-state";
 import { MessageSquare, Frown } from "lucide-react";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface SearchDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useFocusTrap(open);
 
   // Focus input when dialog opens
   useEffect(() => {
@@ -132,10 +134,17 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onClose();
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close dialog"
       />
 
       {/* Dialog */}
       <div
+        ref={dialogRef as React.RefObject<HTMLDivElement>}
         role="dialog"
         aria-modal="true"
         aria-labelledby="search-dialog-title"
