@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useStore, ModelInfo } from "../stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "../lib/utils";
 import {
@@ -11,6 +12,7 @@ import {
 import { Switch } from "./ui/switch";
 import { Skeleton } from "./ui/skeleton";
 import { useToast } from "./ui/toast";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -57,6 +59,7 @@ export function SettingsDialog({
   onClose,
   onRerunSetup,
 }: SettingsDialogProps) {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     settings,
     updateSettings,
@@ -66,7 +69,18 @@ export function SettingsDialog({
     setAvailableModels,
     modelsLoading,
     setModelsLoading,
-  } = useStore();
+  } = useStore(
+    useShallow((state) => ({
+      settings: state.settings,
+      updateSettings: state.updateSettings,
+      connected: state.connected,
+      setConnected: state.setConnected,
+      availableModels: state.availableModels,
+      setAvailableModels: state.setAvailableModels,
+      modelsLoading: state.modelsLoading,
+      setModelsLoading: state.setModelsLoading,
+    }))
+  );
   const { showSuccess, showError: showToastError } = useToast();
   const [formData, setFormData] = useState(settings);
   const [connectionStatus, setConnectionStatus] = useState<
@@ -76,6 +90,7 @@ export function SettingsDialog({
   const [protocolNotice, setProtocolNotice] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const dialogRef = useFocusTrap(open);
 
   // Only sync form data when dialog opens, not when settings reference changes
   // This prevents reverting edits when the store updates during typing
@@ -124,7 +139,9 @@ export function SettingsDialog({
     if (open && connected) {
       fetchModels();
     }
-  }, [open, connected, fetchModels]);
+    // fetchModels is a stable callback and shouldn't trigger re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, connected]);
 
   // Validate URL and suggest wss:// for non-localhost
   const validateUrl = (url: string): string | null => {
@@ -275,10 +292,17 @@ export function SettingsDialog({
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onClose();
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close settings"
       />
 
       {/* Dialog */}
       <div
+        ref={dialogRef as React.RefObject<HTMLDivElement>}
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-dialog-title"
@@ -316,7 +340,7 @@ export function SettingsDialog({
           {/* Connection Section */}
           <section>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Gateway Connection
+              Connection
             </h3>
             <div className="space-y-4">
               <div>
@@ -324,14 +348,14 @@ export function SettingsDialog({
                   htmlFor="gateway-url"
                   className="block text-sm font-medium mb-1.5"
                 >
-                  Gateway URL
+                  Connection Address
                 </label>
                 <input
                   id="gateway-url"
                   type="text"
                   value={formData.gatewayUrl}
                   onChange={(e) => handleUrlChange(e.target.value)}
-                  placeholder="ws://localhost:18789"
+                  placeholder="localhost:18789"
                   aria-describedby={urlError ? "gateway-url-error" : undefined}
                   aria-invalid={urlError ? "true" : undefined}
                   className={cn(
@@ -356,9 +380,9 @@ export function SettingsDialog({
                   htmlFor="gateway-token"
                   className="block text-sm font-medium mb-1.5"
                 >
-                  Authentication Token{" "}
+                  Security Password{" "}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    (usually not needed)
                   </span>
                   <TooltipProvider>
                     <Tooltip>
@@ -366,7 +390,7 @@ export function SettingsDialog({
                         <button
                           type="button"
                           className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-xs rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
-                          aria-label="Token info"
+                          aria-label="Password info"
                         >
                           ?
                         </button>
@@ -374,16 +398,11 @@ export function SettingsDialog({
                       <TooltipContent side="top" className="max-w-xs">
                         <p className="font-medium mb-1">When do I need this?</p>
                         <p className="text-muted-foreground mb-2">
-                          Required if your Gateway has authentication enabled
-                          (most setups do).
+                          Only if you specifically set up password protection. Most people don't need this.
                         </p>
-                        <p className="font-medium mb-1">Where do I find it?</p>
+                        <p className="font-medium mb-1">Leave blank unless:</p>
                         <p className="text-muted-foreground">
-                          Check your Gateway config file or ask your admin. Run{" "}
-                          <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                            clawdbot gateway status
-                          </code>{" "}
-                          to see if auth is enabled.
+                          You get an "authentication failed" error or someone gave you a password for this setup.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -397,7 +416,7 @@ export function SettingsDialog({
                     onChange={(e) =>
                       setFormData({ ...formData, gatewayToken: e.target.value })
                     }
-                    placeholder="Stored securely in OS keychain"
+                    placeholder="Leave blank (most people don't need this)"
                     aria-describedby="gateway-token-hint"
                     className="w-full px-3 py-2 pr-10 rounded-xl border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
                   />

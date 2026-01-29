@@ -2,6 +2,7 @@ import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { cn } from "../lib/utils";
+import { translateError } from "../lib/errors";
 import { Spinner } from "./ui/spinner";
 import {
   Paperclip,
@@ -10,6 +11,7 @@ import {
   FileText,
   Image as ImageIcon,
   AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 
 // Attachment with base64 data ready to send
@@ -87,15 +89,17 @@ interface ChatInputProps {
   onSend: (content: string, attachments: PreparedAttachment[]) => void;
   disabled?: boolean;
   isSending?: boolean;
+  inputRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
-export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, isSending, inputRef: externalRef }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<PreparedAttachment[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = externalRef || internalRef;
 
   // Auto-focus on mount
   useEffect(() => {
@@ -239,8 +243,8 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
       if (errors.length > 0) {
         setFileError(errors.join("; "));
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => setFileError(null), 5000);
+        // Auto-dismiss after 8 seconds for file errors
+        setTimeout(() => setFileError(null), 8000);
       }
 
       if (newAttachments.length > 0) {
@@ -248,7 +252,9 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       }
     } catch (err) {
       console.error("Failed to open file dialog:", err);
-      setFileError("Failed to open file picker");
+      const friendly = translateError(err instanceof Error ? err : String(err));
+      setFileError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? ' ' + friendly.suggestion : ''}`);
+      setTimeout(() => setFileError(null), 8000);
     } finally {
       setIsLoadingFiles(false);
     }
@@ -271,7 +277,16 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           aria-live="polite"
         >
           <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-          <span className="flex-1">{fileError}</span>
+          <span className="flex-1 whitespace-pre-line">{fileError}</span>
+          <button
+            onClick={handleAttach}
+            className="p-1 hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50 flex items-center gap-1 text-xs"
+            aria-label="Try attaching files again"
+            disabled={disabled || isLoadingFiles}
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span className="sr-only">Retry</span>
+          </button>
           <button
             onClick={() => setFileError(null)}
             className="p-0.5 hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
@@ -284,11 +299,12 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
       {/* Attachments preview */}
       {attachments.length > 0 && (
-        <div className="flex gap-2 mb-3 flex-wrap animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="flex gap-2 mb-3 flex-wrap">
           {attachments.map((file, i) => (
             <div
               key={file.id}
-              className="relative flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border/50 rounded-xl text-sm group hover:bg-muted transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border/50 rounded-xl text-sm group hover:bg-muted transition-colors animate-in fade-in slide-in-from-bottom-2 duration-200"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               {/* Image preview or file icon */}
               {file.previewUrl ? (
@@ -358,9 +374,9 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           disabled={disabled}
           placeholder={
             isSending
-              ? "Sending message..."
+              ? "Sending..."
               : disabled
-                ? "Connect to Gateway to send messages..."
+                ? "Not connected yet (check Settings to connect)"
                 : "Message Moltz..."
           }
           rows={1}
@@ -390,7 +406,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           className={cn(
             "p-3 rounded-xl m-1 transition-all duration-200 flex-shrink-0",
             canSend
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md active:scale-95"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md hover:scale-105 active:scale-95"
               : "text-muted-foreground cursor-not-allowed",
           )}
           title="Send message (Enter)"

@@ -27,15 +27,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const variants = {
       primary:
-        "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm hover:shadow-md hover-lift relative overflow-hidden",
+        "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm hover:shadow-md hover:scale-[1.02] hover-lift relative overflow-hidden",
       secondary:
-        "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70 hover-lift relative overflow-hidden",
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70 hover:scale-[1.02] hover-lift relative overflow-hidden",
       ghost:
-        "text-foreground hover:bg-muted/50 active:bg-muted relative overflow-hidden",
+        "text-foreground hover:bg-muted/50 active:bg-muted hover:scale-[1.02] relative overflow-hidden",
       destructive:
-        "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 hover-lift relative overflow-hidden",
+        "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 hover:scale-[1.02] hover-lift relative overflow-hidden",
       outline:
-        "border border-border bg-background hover:bg-muted/50 active:bg-muted text-foreground hover-lift relative overflow-hidden",
+        "border border-border bg-background hover:bg-muted/50 active:bg-muted text-foreground hover:scale-[1.02] hover-lift relative overflow-hidden",
     };
 
     const sizes = {

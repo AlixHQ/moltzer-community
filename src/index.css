@@ -235,6 +235,18 @@ code {
   }
 }
 
+/* P1: Smooth blinking cursor for streaming (0.8s cycle) */
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes message-fade-in {
   0% {
     opacity: 0;
@@ -281,6 +293,11 @@ code {
 /* Streaming message border pulse (P1: 1.0s duration) */
 .animate-streaming-pulse {
   animation: streaming-pulse 1s ease-in-out infinite;
+}
+
+/* P1: Blinking cursor animation (0.8s for responsiveness) */
+.animate-cursor-blink {
+  animation: cursor-blink 0.8s step-end infinite;
 }
 
 /* Message fade-in with spring curve (P1: 250ms with spring) */
@@ -444,6 +461,12 @@ html {
   .animate-streaming-pulse {
     animation: none !important;
     border-color: hsl(var(--primary) / 0.5) !important;
+  }
+
+  /* Disable cursor blink for reduced motion */
+  .animate-cursor-blink {
+    animation: none !important;
+    opacity: 1 !important;
   }
 }
 

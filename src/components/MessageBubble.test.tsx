@@ -16,7 +16,7 @@ describe("MessageBubble", () => {
   });
 
   describe("rendering", () => {
-    it("should render user message", () => {
+    it("should render user message", async () => {
       const message: Message = {
         id: "1",
         role: "user",
@@ -27,10 +27,12 @@ describe("MessageBubble", () => {
       render(<MessageBubble message={message} />);
 
       expect(screen.getByText("You")).toBeInTheDocument();
-      expect(screen.getByText("Hello, Moltz!")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("Hello, Moltz!")).toBeInTheDocument();
+      });
     });
 
-    it("should render assistant message", () => {
+    it("should render assistant message", async () => {
       const message: Message = {
         id: "2",
         role: "assistant",
@@ -41,9 +43,11 @@ describe("MessageBubble", () => {
       render(<MessageBubble message={message} />);
 
       expect(screen.getByText("Moltz")).toBeInTheDocument();
-      expect(
-        screen.getByText(/Hello! How can I help you?/),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Hello! How can I help you?/),
+        ).toBeInTheDocument();
+      });
     });
 
     it("should show correct avatar for user", () => {
@@ -105,7 +109,7 @@ describe("MessageBubble", () => {
   });
 
   describe("markdown rendering", () => {
-    it("should render bold text", () => {
+    it("should render bold text", async () => {
       const message: Message = {
         id: "1",
         role: "assistant",
@@ -115,11 +119,13 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      const boldText = screen.getByText("bold");
-      expect(boldText.tagName).toBe("STRONG");
+      await waitFor(() => {
+        const boldText = screen.getByText("bold");
+        expect(boldText.tagName).toBe("STRONG");
+      });
     });
 
-    it("should render inline code", () => {
+    it("should render inline code", async () => {
       const message: Message = {
         id: "1",
         role: "assistant",
@@ -129,11 +135,13 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      const code = screen.getByText("console.log()");
-      expect(code.tagName).toBe("CODE");
+      await waitFor(() => {
+        const code = screen.getByText("console.log()");
+        expect(code.tagName).toBe("CODE");
+      });
     });
 
-    it("should render code blocks with syntax highlighting", () => {
+    it("should render code blocks with syntax highlighting", async () => {
       const message: Message = {
         id: "1",
         role: "assistant",
@@ -143,12 +151,14 @@ describe("MessageBubble", () => {
 
       const { container } = render(<MessageBubble message={message} />);
 
-      expect(screen.getByText("javascript")).toBeInTheDocument();
-      expect(container.querySelector("pre")).toBeInTheDocument();
-      expect(container.querySelector("code")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("javascript")).toBeInTheDocument();
+        expect(container.querySelector("pre")).toBeInTheDocument();
+        expect(container.querySelector("code")).toBeInTheDocument();
+      });
     });
 
-    it("should render links with target blank", () => {
+    it("should render links with target blank", async () => {
       const message: Message = {
         id: "1",
         role: "assistant",
@@ -158,13 +168,15 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      const link = screen.getByRole("link", { name: /this link/i });
-      expect(link).toHaveAttribute("href", "https://example.com");
-      expect(link).toHaveAttribute("target", "_blank");
-      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      await waitFor(() => {
+        const link = screen.getByRole("link", { name: /this link/i });
+        expect(link).toHaveAttribute("href", "https://example.com");
+        expect(link).toHaveAttribute("target", "_blank");
+        expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      });
     });
 
-    it("should render lists", () => {
+    it("should render lists", async () => {
       const message: Message = {
         id: "1",
         role: "assistant",
@@ -174,9 +186,11 @@ describe("MessageBubble", () => {
 
       const { container } = render(<MessageBubble message={message} />);
 
-      const list = container.querySelector("ul");
-      expect(list).toBeInTheDocument();
-      expect(list?.children.length).toBe(3);
+      await waitFor(() => {
+        const list = container.querySelector("ul");
+        expect(list).toBeInTheDocument();
+        expect(list?.children.length).toBe(3);
+      });
     });
   });
 
@@ -206,7 +220,7 @@ describe("MessageBubble", () => {
 
       const { container } = render(<MessageBubble message={message} />);
 
-      const cursor = container.querySelector(".animate-pulse");
+      const cursor = container.querySelector(".animate-cursor-blink");
       expect(cursor).toBeInTheDocument();
     });
 
@@ -254,7 +268,8 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      const copyButton = screen.getByLabelText(/Copy code to clipboard/i);
+      // Wait for markdown to load before looking for copy button
+      const copyButton = await screen.findByLabelText(/Copy code to clipboard/i);
       fireEvent.click(copyButton);
 
       await waitFor(() => {
@@ -274,7 +289,8 @@ describe("MessageBubble", () => {
 
       render(<MessageBubble message={message} />);
 
-      const copyButton = screen.getByLabelText(/Copy code to clipboard/i);
+      // Wait for markdown to load before looking for copy button
+      const copyButton = await screen.findByLabelText(/Copy code to clipboard/i);
       fireEvent.click(copyButton);
 
       await waitFor(() => {

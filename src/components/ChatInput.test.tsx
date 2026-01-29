@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChatInput } from "./ChatInput";
@@ -47,7 +47,7 @@ describe("ChatInput", () => {
     it("should disable input when disabled prop is true", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
 
-      const input = screen.getByPlaceholderText(/Connect to Gateway/i);
+      const input = screen.getByPlaceholderText(/Not connected yet/i);
       expect(input).toBeDisabled();
     });
 
@@ -55,7 +55,7 @@ describe("ChatInput", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
 
       expect(
-        screen.getByPlaceholderText("Connect to Gateway to send messages..."),
+        screen.getByPlaceholderText("Not connected yet (check Settings to connect)"),
       ).toBeInTheDocument();
     });
 
@@ -79,7 +79,7 @@ describe("ChatInput", () => {
       render(<ChatInput onSend={mockOnSend} isSending={true} />);
 
       expect(
-        screen.getByPlaceholderText("Sending message..."),
+        screen.getByPlaceholderText("Sending..."),
       ).toBeInTheDocument();
     });
 
@@ -199,7 +199,7 @@ describe("ChatInput", () => {
     it("should not auto-focus when disabled", () => {
       render(<ChatInput onSend={mockOnSend} disabled={true} />);
 
-      const input = screen.getByPlaceholderText(/Connect to Gateway/i);
+      const input = screen.getByPlaceholderText(/Not connected yet/i);
       expect(input).not.toHaveFocus();
     });
   });
@@ -290,7 +290,7 @@ describe("ChatInput", () => {
       render(<ChatInput onSend={mockOnSend} />);
 
       const input = screen.getByPlaceholderText("Message Moltz...");
-      await user.type(input, "你好 🌍 Привет");
+      await user.type(input, "?? ?? ??????");
       await user.keyboard("{Enter}");
 
       expect(mockOnSend).toHaveBeenCalled();
@@ -299,7 +299,7 @@ describe("ChatInput", () => {
     it("should handle emoji input", async () => {
       render(<ChatInput onSend={mockOnSend} />);
 
-      const emojiText = "😀 😃 😄 😁";
+      const emojiText = "?? ?? ?? ??";
       const input = screen.getByPlaceholderText(
         "Message Moltz...",
       ) as HTMLTextAreaElement;

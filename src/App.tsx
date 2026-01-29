@@ -6,6 +6,7 @@ import { Window } from "@tauri-apps/api/window";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import { UpdateNotification } from "./components/UpdateNotification";
 import { useStore, type ModelInfo } from "./stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "./lib/utils";
 import { ToastContainer, useToast } from "./components/ui/toast";
 import { Spinner } from "./components/ui/spinner";
@@ -73,7 +74,10 @@ export default function App() {
     null,
   );
   const [hasUpdateDismissed, setHasUpdateDismissed] = useState(false);
+  const [errorDismissed, setErrorDismissed] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { toasts, dismissToast, showError, showSuccess } = useToast();
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     currentConversation,
     connected,
@@ -81,7 +85,20 @@ export default function App() {
     appendToCurrentMessage,
     completeCurrentMessage,
     settings,
-  } = useStore();
+    retryQueuedMessages,
+    getQueuedMessagesCount,
+  } = useStore(
+    useShallow((state) => ({
+      currentConversation: state.currentConversation,
+      connected: state.connected,
+      setConnected: state.setConnected,
+      appendToCurrentMessage: state.appendToCurrentMessage,
+      completeCurrentMessage: state.completeCurrentMessage,
+      settings: state.settings,
+      retryQueuedMessages: state.retryQueuedMessages,
+      getQueuedMessagesCount: state.getQueuedMessagesCount,
+    }))
+  );
 
   // Refs for tracking state across async operations
   const isMountedRef = useRef(true);
@@ -337,6 +354,22 @@ export default function App() {
         setCancelConnection(null);
         connectingFlag = false;
 
+        // Detect auth errors and auto-open settings
+        const lowerError = errorMessage.toLowerCase();
+        if (
+          lowerError.includes("unauthorized") ||
+          lowerError.includes("authentication") ||
+          lowerError.includes("token") ||
+          lowerError.includes("forbidden")
+        ) {
+          // Auth error - open settings after a brief delay
+          setTimeout(() => {
+            if (isMountedRef.current) {
+              setShowSettings(true);
+            }
+          }, 1500);
+        }
+
         // Calculate delay using exponential backoff: 5s → 10s → 30s → 60s (capped)
         const backoffIndex = Math.min(attempts - 1, BACKOFF_DELAYS.length - 1);
         const delaySeconds = BACKOFF_DELAYS[backoffIndex];
@@ -408,6 +441,7 @@ export default function App() {
         setRetryCountdown(null);
         setRetryNowFn(null);
         disconnectAttempts = 0;
+        
         // Fetch models on connection (non-blocking)
         invoke<ModelInfo[]>("get_models")
           .then((models) => {
@@ -418,6 +452,13 @@ export default function App() {
           .catch((err) => {
             console.error("Failed to fetch models:", err);
           });
+
+        // Retry queued messages after successful reconnection
+        try {
+          await retryQueuedMessages();
+        } catch (err) {
+          console.error("Failed to retry queued messages:", err);
+        }
       }),
       listen("gateway:disconnected", () => {
         if (!eventListenerMounted) return;
@@ -445,6 +486,7 @@ export default function App() {
           setRetryCountdown(null);
           setIsConnecting(true);
           setConnectionError(null);
+          setErrorDismissed(false); // Reset so user can see new errors
 
           try {
             const result = await invoke<ConnectResult>("connect", {
@@ -533,6 +575,48 @@ export default function App() {
       }>("gateway:complete", (event) => {
         if (!eventListenerMounted) return;
         completeCurrentMessage(event.payload?.usage);
+      }),
+      // P1: Handle streaming errors and timeouts gracefully
+      listen<{ runId: string; timeoutSecs: number }>("gateway:stream_timeout", (event) => {
+        if (!eventListenerMounted) return;
+        console.error("Stream timeout:", event.payload);
+        // Complete the current message with error indication
+        const { currentConversation, currentStreamingMessageId } = useStore.getState();
+        if (currentConversation && currentStreamingMessageId) {
+          const message = currentConversation.messages.find(
+            m => m.id === currentStreamingMessageId
+          );
+          if (message) {
+            // Append timeout notice to the message
+            appendToCurrentMessage(
+              `\n\n⚠️ *Stream timed out after ${event.payload.timeoutSecs} seconds*`
+            );
+          }
+        }
+        completeCurrentMessage();
+        showError("Response timed out. The model may be experiencing issues.");
+      }),
+      listen<string>("gateway:error", (event) => {
+        if (!eventListenerMounted) return;
+        console.error("Gateway error during streaming:", event.payload);
+        // Complete current message if streaming
+        const { currentStreamingMessageId } = useStore.getState();
+        if (currentStreamingMessageId) {
+          appendToCurrentMessage(
+            `\n\n⚠️ *Error: ${event.payload}*`
+          );
+          completeCurrentMessage();
+        }
+        showError(event.payload);
+      }),
+      listen("gateway:aborted", () => {
+        if (!eventListenerMounted) return;
+        // Stream aborted by user - silent cleanup
+        // Complete current message cleanly
+        const { currentStreamingMessageId } = useStore.getState();
+        if (currentStreamingMessageId) {
+          completeCurrentMessage();
+        }
       }),
       // Listen for quick input submissions
       listen<{ message: string }>("quickinput:submit", (event) => {
@@ -634,6 +718,8 @@ export default function App() {
     settings.gatewayToken,
     showOnboarding,
     showSuccess,
+    retryQueuedMessages,
+    showError,
   ]);
 
   // Preload heavy components during onboarding for smooth transition
@@ -700,12 +786,14 @@ export default function App() {
         )}
 
         {/* Sidebar */}
-        <div
+        <aside
           className={cn(
             "border-r border-border transition-all duration-300 ease-in-out flex-shrink-0",
             "fixed lg:relative inset-y-0 left-0 z-30 lg:z-auto",
             sidebarOpen ? "w-64" : "w-0 -translate-x-full lg:translate-x-0",
           )}
+          role="complementary"
+          aria-label="Conversation history and settings"
         >
           <div
             id="sidebar"
@@ -713,8 +801,6 @@ export default function App() {
               "w-64 h-full transition-opacity duration-200 bg-background",
               sidebarOpen ? "opacity-100" : "opacity-0 lg:opacity-0",
             )}
-            role="navigation"
-            aria-label="Conversation sidebar"
           >
             <Suspense
               fallback={
@@ -727,10 +813,12 @@ export default function App() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
                 onRerunSetup={handleRerunSetup}
                 hasUpdateAvailable={hasUpdateDismissed}
+                forceShowSettings={showSettings}
+                onSettingsClosed={() => setShowSettings(false)}
               />
             </Suspense>
           </div>
-        </div>
+        </aside>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0">
@@ -748,18 +836,34 @@ export default function App() {
                   <span className="relative inline-flex w-2 h-2 rounded-full bg-amber-500" />
                 </span>
                 <span className="font-medium flex-shrink-0">Offline Mode</span>
-                {retryCountdown !== null ? (
-                  <>
-                    <span className="hidden sm:inline truncate">
-                      — Retry in {retryCountdown}s
-                    </span>
-                    <span className="sm:hidden">— {retryCountdown}s</span>
-                  </>
-                ) : connectionError ? (
-                  <span className="hidden sm:inline truncate text-xs">
-                    — {getErrorTitle(connectionError)}
-                  </span>
-                ) : null}
+                {(() => {
+                  const queuedCount = getQueuedMessagesCount();
+                  if (queuedCount > 0) {
+                    return (
+                      <span className="hidden sm:inline truncate">
+                        — {queuedCount} message{queuedCount > 1 ? 's' : ''} queued
+                      </span>
+                    );
+                  }
+                  if (retryCountdown !== null) {
+                    return (
+                      <>
+                        <span className="hidden sm:inline truncate">
+                          — Retry in {retryCountdown}s
+                        </span>
+                        <span className="sm:hidden">— {retryCountdown}s</span>
+                      </>
+                    );
+                  }
+                  if (connectionError) {
+                    return (
+                      <span className="hidden sm:inline truncate text-xs">
+                        — {getErrorTitle(connectionError)}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {retryNowFn && (
@@ -930,6 +1034,10 @@ export default function App() {
                   <p className="text-xs text-muted-foreground">
                     Decrypting data...
                   </p>
+                  {/* Screen reader announcement */}
+                  <div role="status" aria-live="polite" className="sr-only">
+                    Loading your conversations, please wait
+                  </div>
                 </div>
               </div>
             )}
@@ -945,6 +1053,10 @@ export default function App() {
                   <p className="text-xs text-muted-foreground mb-4">
                     Please wait...
                   </p>
+                  {/* Screen reader announcement */}
+                  <div role="status" aria-live="polite" className="sr-only">
+                    Connecting to Gateway, please wait
+                  </div>
                   {cancelConnection && (
                     <button
                       onClick={cancelConnection}
@@ -957,28 +1069,58 @@ export default function App() {
               </div>
             )}
 
-            {/* Connection error overlay */}
+            {/* Connection error overlay - dismissible */}
             {!isLoadingData &&
               !isConnecting &&
               connectionError &&
               reconnectAttempts === 1 &&
+              !errorDismissed &&
               (() => {
                 const friendlyError = translateError(connectionError);
+                const isAuthError = 
+                  connectionError.toLowerCase().includes("unauthorized") ||
+                  connectionError.toLowerCase().includes("authentication") ||
+                  connectionError.toLowerCase().includes("token") ||
+                  connectionError.toLowerCase().includes("forbidden");
+                
                 return (
                   <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-40 animate-in fade-in duration-300">
-                    <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+                    {/* Close button */}
+                    <button
+                      onClick={() => setErrorDismissed(true)}
+                      className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
+                      title="Dismiss and continue offline"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <div className={cn(
+                      "w-16 h-16 rounded-full flex items-center justify-center mb-2",
+                      isAuthError ? "bg-amber-500/10" : "bg-destructive/10"
+                    )}>
                       <svg
-                        className="w-8 h-8 text-destructive"
+                        className={cn("w-8 h-8", isAuthError ? "text-amber-600 dark:text-amber-400" : "text-destructive")}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
+                        {isAuthError ? (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                          />
+                        ) : (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        )}
                       </svg>
                     </div>
                     <div className="text-center max-w-md px-4">
@@ -994,7 +1136,18 @@ export default function App() {
                         </p>
                       )}
                       <div className="flex gap-2 justify-center mt-4">
-                        {retryNowFn && (
+                        {isAuthError && (
+                          <button
+                            onClick={() => {
+                              setErrorDismissed(true);
+                              setShowSettings(true);
+                            }}
+                            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                          >
+                            Open Settings
+                          </button>
+                        )}
+                        {retryNowFn && !isAuthError && (
                           <button
                             onClick={retryNowFn}
                             className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
@@ -1003,10 +1156,7 @@ export default function App() {
                           </button>
                         )}
                         <button
-                          onClick={() => {
-                            setConnectionError(null);
-                            setIsConnecting(false);
-                          }}
+                          onClick={() => setErrorDismissed(true)}
                           className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
                         >
                           Continue Offline

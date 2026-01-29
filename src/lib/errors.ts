@@ -24,17 +24,17 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("econnrefused")
   ) {
     return {
-      title: "Can't reach Gateway",
-      message: "The Gateway isn't responding.",
-      suggestion: "Make sure the Gateway is running and the URL is correct.",
+      title: "Can't connect",
+      message: "Nothing is responding at that address.",
+      suggestion: "Make sure Moltz is running on your computer. Check Settings to update the connection.",
     };
   }
 
   if (lowerError.includes("timeout") || lowerError.includes("timed out")) {
     return {
-      title: "Connection timed out",
-      message: "The Gateway is taking too long to respond.",
-      suggestion: "Check your network connection or try again in a moment.",
+      title: "Taking too long",
+      message: "The connection is timing out.",
+      suggestion: "Check your connection settings or try again in a moment.",
     };
   }
 
@@ -44,9 +44,9 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("wss://")
   ) {
     return {
-      title: "Connection issue",
-      message: "Couldn't establish a WebSocket connection.",
-      suggestion: "Verify the Gateway URL starts with ws:// or wss://",
+      title: "Connection problem",
+      message: "Can't establish the connection.",
+      suggestion: "Check your connection settings.",
     };
   }
 
@@ -56,9 +56,9 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("enotfound")
   ) {
     return {
-      title: "Gateway not found",
-      message: "The Gateway address couldn't be resolved.",
-      suggestion: "Check the Gateway URL for typos.",
+      title: "Address not found",
+      message: "Can't find that address.",
+      suggestion: "Double-check the address in Settings for typos.",
     };
   }
 
@@ -81,17 +81,17 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("invalid token")
   ) {
     return {
-      title: "Authentication failed",
-      message: "The Gateway didn't accept your credentials.",
-      suggestion: "Check your Gateway token in Settings.",
+      title: "Wrong password",
+      message: "The security password isn't correct.",
+      suggestion: "Check your password in Settings, or try without a password if you didn't set one up.",
     };
   }
 
   if (lowerError.includes("forbidden") || lowerError.includes("403")) {
     return {
       title: "Access denied",
-      message: "You don't have permission to access this Gateway.",
-      suggestion: "Contact the Gateway administrator.",
+      message: "You don't have permission to connect.",
+      suggestion: "Check your security password or contact whoever set this up.",
     };
   }
 
@@ -138,6 +138,43 @@ export function translateError(error: string | Error): UserFriendlyError {
     };
   }
 
+  // File system errors
+  if (
+    lowerError.includes("permission denied") ||
+    lowerError.includes("eacces")
+  ) {
+    return {
+      title: "Permission denied",
+      message: "Don't have permission to access this file or folder.",
+      suggestion: "Check file permissions or try a different location.",
+    };
+  }
+
+  if (lowerError.includes("no such file") || lowerError.includes("enoent")) {
+    return {
+      title: "File not found",
+      message: "The file or folder doesn't exist.",
+      suggestion: "Check the file path and try again.",
+    };
+  }
+
+  if (lowerError.includes("disk") || lowerError.includes("enospc")) {
+    return {
+      title: "Out of space",
+      message: "Not enough disk space available.",
+      suggestion: "Free up some space and try again.",
+    };
+  }
+
+  // Clipboard errors
+  if (lowerError.includes("clipboard")) {
+    return {
+      title: "Clipboard error",
+      message: "Couldn't access the clipboard.",
+      suggestion: "Try copying again or check clipboard permissions.",
+    };
+  }
+
   // Cancelled
   if (
     lowerError.includes("cancelled") ||
@@ -155,7 +192,7 @@ export function translateError(error: string | Error): UserFriendlyError {
   return {
     title: "Something went wrong",
     message: errorString.split("\n")[0].slice(0, 100), // First line, max 100 chars
-    suggestion: "Try again or check Settings.",
+    suggestion: "Try again or check Settings if this keeps happening.",
   };
 }
 
@@ -175,4 +212,26 @@ export function formatErrorForDisplay(error: string | Error): string {
  */
 export function getErrorTitle(error: string | Error): string {
   return translateError(error).title;
+}
+
+/**
+ * Log error with context for debugging
+ * Logs the full technical error while showing user-friendly messages in UI
+ */
+export function logError(
+  error: string | Error,
+  context?: string,
+  additionalData?: Record<string, unknown>
+): void {
+  const prefix = context ? `[${context}]` : "";
+  console.error(`${prefix} Error:`, error);
+  
+  if (additionalData && Object.keys(additionalData).length > 0) {
+    console.error(`${prefix} Additional context:`, additionalData);
+  }
+  
+  // Also log the stack trace if available
+  if (error instanceof Error && error.stack) {
+    console.error(`${prefix} Stack trace:`, error.stack);
+  }
 }

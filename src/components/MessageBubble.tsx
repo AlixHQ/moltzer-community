@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, KeyboardEvent, memo } from "react";
+import { useState, useRef, useEffect, KeyboardEvent, memo, lazy, Suspense } from "react";
 import { Message, Attachment } from "../stores/store";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -14,7 +14,14 @@ import {
   FileText,
 } from "lucide-react";
 import { ImageRenderer } from "./ImageRenderer";
-import { MarkdownRenderer } from "./MarkdownRenderer";
+import { Spinner } from "./ui/spinner";
+
+// PERF: Lazy load MarkdownRenderer to defer the 340 kB markdown chunk
+const MarkdownRenderer = lazy(() =>
+  import("./MarkdownRenderer").then((module) => ({
+    default: module.MarkdownRenderer,
+  }))
+);
 
 interface MessageBubbleProps {
   message: Message;
@@ -97,7 +104,10 @@ export const MessageBubble = memo(function MessageBubble({
 
   return (
     <div
-      className={cn("group flex gap-3", isUser && "flex-row-reverse")}
+      className={cn(
+        "group flex gap-3 animate-message-in",
+        isUser && "flex-row-reverse"
+      )}
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
       role="article"
@@ -128,10 +138,28 @@ export const MessageBubble = memo(function MessageBubble({
           <span className="text-sm font-medium">
             {isUser ? "You" : "Moltz"}
           </span>
-          {message.isPending && (
+          {message.isPending && !message.sendStatus && (
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground animate-pulse" />
               Sending...
+            </span>
+          )}
+          {message.sendStatus === "sending" && (
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="inline-block w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+              Sending...
+            </span>
+          )}
+          {message.sendStatus === "queued" && (
+            <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1" title="Message will be sent when reconnected">
+              <span className="inline-block w-1 h-1 rounded-full bg-amber-500" />
+              Queued
+            </span>
+          )}
+          {message.sendStatus === "failed" && (
+            <span className="text-xs text-destructive flex items-center gap-1" title={message.sendError || "Failed to send"}>
+              <span className="inline-block w-1 h-1 rounded-full bg-destructive" />
+              Failed
             </span>
           )}
           <span
@@ -239,16 +267,32 @@ export const MessageBubble = memo(function MessageBubble({
           ) : message.isStreaming && !message.content ? (
             <TypingIndicator />
           ) : (
-            <MarkdownRenderer
-              content={message.content}
-              copiedCode={copiedCode}
-              onCopyCode={copyToClipboard}
-            />
+            <Suspense
+              fallback={
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                  <Spinner size="sm" />
+                  Loading...
+                </div>
+              }
+            >
+              <MarkdownRenderer
+                content={message.content}
+                copiedCode={copiedCode}
+                onCopyCode={copyToClipboard}
+              />
+            </Suspense>
           )}
 
-          {/* Streaming cursor */}
+          {/* Streaming cursor - P1: smooth blink */}
           {message.isStreaming && message.content && (
-            <span className="inline-block w-2 h-4 bg-primary/50 animate-pulse ml-0.5" />
+            <span className="inline-block w-[2px] h-4 bg-primary animate-cursor-blink ml-0.5" />
+          )}
+
+          {/* Screen reader announcement for streaming status */}
+          {!isUser && (
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+              {message.isStreaming ? "Assistant is typing" : "Response complete"}
+            </div>
           )}
         </div>
 
@@ -336,14 +380,13 @@ export const MessageBubble = memo(function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1.5 py-2 px-1">
+    <div className="flex items-center gap-1.5 py-2 px-1 animate-in fade-in duration-200">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-2 h-2 rounded-full bg-primary/60 animate-bounce"
+          className="w-2 h-2 rounded-full bg-primary/60 typing-dot"
           style={{
-            animationDelay: `${i * 0.15}s`,
-            animationDuration: "0.6s",
+            animationDelay: `${i * 0.2}s`,
           }}
           aria-hidden="true"
         />

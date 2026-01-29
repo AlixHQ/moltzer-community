@@ -145,7 +145,7 @@ function ToastItem({
       </div>
       <button
         onClick={handleDismiss}
-        className="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+        className="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -mt-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
         aria-label="Dismiss notification"
       >
         <svg
@@ -153,6 +153,7 @@ function ToastItem({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"

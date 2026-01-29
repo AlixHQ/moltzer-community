@@ -46,7 +46,7 @@ describe("SettingsDialog", () => {
     it("should render all sections", () => {
       render(<SettingsDialog open={true} onClose={mockOnClose} />);
 
-      expect(screen.getByText("Gateway Connection")).toBeInTheDocument();
+      expect(screen.getByText("Connection")).toBeInTheDocument();
       expect(screen.getByText("Chat Settings")).toBeInTheDocument();
       expect(screen.getByText("Appearance")).toBeInTheDocument();
     });
@@ -118,9 +118,7 @@ describe("SettingsDialog", () => {
     it("should display token as password by default", () => {
       render(<SettingsDialog open={true} onClose={mockOnClose} />);
 
-      const input = screen.getByPlaceholderText(
-        /Stored securely in OS keychain/,
-      );
+      const input = screen.getByPlaceholderText(/Leave blank/);
       expect(input).toHaveAttribute("type", "password");
     });
 
@@ -128,9 +126,7 @@ describe("SettingsDialog", () => {
       const user = userEvent.setup();
       render(<SettingsDialog open={true} onClose={mockOnClose} />);
 
-      const input = screen.getByPlaceholderText(
-        /Stored securely in OS keychain/,
-      );
+      const input = screen.getByPlaceholderText(/Leave blank/);
       const toggleButton = screen.getByLabelText("Show token");
 
       expect(input).toHaveAttribute("type", "password");
@@ -147,9 +143,7 @@ describe("SettingsDialog", () => {
       const user = userEvent.setup();
       render(<SettingsDialog open={true} onClose={mockOnClose} />);
 
-      const input = screen.getByPlaceholderText(
-        /Stored securely in OS keychain/,
-      );
+      const input = screen.getByPlaceholderText(/Leave blank/);
       await user.type(input, "test-token-123");
 
       expect(input).toHaveValue("test-token-123");

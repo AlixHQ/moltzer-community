@@ -1,16 +1,26 @@
 ﻿import { useStore } from "../stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "../lib/utils";
 import { Plus, AlertTriangle, Cpu } from "lucide-react";
 import { Button } from "./ui/button";
 
 export function WelcomeView() {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     createConversation,
     addMessage,
     connected,
     settings,
     availableModels,
-  } = useStore();
+  } = useStore(
+    useShallow((state) => ({
+      createConversation: state.createConversation,
+      addMessage: state.addMessage,
+      connected: state.connected,
+      settings: state.settings,
+      availableModels: state.availableModels,
+    }))
+  );
 
   // Moltz-specific suggestions showcasing agentic capabilities
   const suggestions = [
@@ -78,14 +88,17 @@ export function WelcomeView() {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 animate-in fade-in duration-500">
       <div className="max-w-3xl w-full text-center">
+        {/* Semantic heading for screen readers */}
+        <h1 className="sr-only">Moltz AI Assistant - Welcome</h1>
+        
         {/* Logo */}
         <div className="mb-8 animate-in zoom-in-50 duration-500">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 shadow-xl shadow-orange-500/20 mb-6 transform hover:scale-105 transition-transform">
-            <span className="text-5xl drop-shadow-lg">🦞</span>
+            <span className="text-5xl drop-shadow-lg" role="img" aria-label="Moltz lobster mascot">🦞</span>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent mb-3">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent mb-3" aria-hidden="true">
             Moltz
-          </h1>
+          </h2>
           <p className="text-lg text-muted-foreground">
             Your AI that actually{" "}
             <span className="font-medium text-foreground">does things</span>
@@ -97,15 +110,13 @@ export function WelcomeView() {
           <div className="mb-8 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400">
               <AlertTriangle className="w-5 h-5" strokeWidth={2} />
-              <span className="font-medium">Offline Mode</span>
+              <span className="font-medium">Not Connected Yet</span>
             </div>
             <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1 text-center">
-              You can browse saved conversations, but sending messages requires
-              a connection.
+              You can browse saved chats, but you'll need to connect before you can chat with Moltz.
             </p>
             <p className="text-xs text-amber-600/60 dark:text-amber-400/60 mt-2 text-center">
-              Check Settings (⌘,) to configure your Gateway or click Retry
-              above.
+              Open Settings (⌘,) to set up your connection.
             </p>
           </div>
         )}
@@ -123,6 +134,7 @@ export function WelcomeView() {
 
         {/* Suggestions */}
         <div className="mb-8">
+          <h3 className="sr-only">Suggested actions</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Try asking me to...
           </p>

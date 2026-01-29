@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { AlertTriangle } from "lucide-react";
+import { useFocusTrap } from "../../lib/useFocusTrap";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -21,6 +23,27 @@ export function ConfirmDialog({
   confirmText = "Confirm",
   confirmVariant = "primary",
 }: ConfirmDialogProps) {
+  const dialogRef = useFocusTrap(open);
+
+  // Handle Escape and Enter keys
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onConfirm();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose, onConfirm]);
+
   if (!open) return null;
 
   return (
@@ -29,10 +52,17 @@ export function ConfirmDialog({
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onClose();
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close confirmation dialog"
       />
 
       {/* Dialog */}
       <div
+        ref={dialogRef as React.RefObject<HTMLDivElement>}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"

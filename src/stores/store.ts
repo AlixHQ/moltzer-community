@@ -32,6 +32,15 @@ export interface TokenUsage {
 }
 
 /**
+ * Message send status for user feedback
+ */
+export type MessageSendStatus = 
+  | "sending"      // Being sent to Gateway
+  | "sent"         // Confirmed by Gateway
+  | "queued"       // Queued for retry (disconnected)
+  | "failed";      // Failed to send
+
+/**
  * Single message in a conversation
  */
 export interface Message {
@@ -47,6 +56,12 @@ export interface Message {
   modelUsed?: string;
   /** Token usage for this message (assistant messages only) */
   usage?: TokenUsage;
+  /** Send status for user feedback (user messages only) */
+  sendStatus?: MessageSendStatus;
+  /** Retry count for queued messages */
+  retryCount?: number;
+  /** Error message if send failed */
+  sendError?: string;
 }
 
 /**
@@ -149,6 +164,10 @@ interface Store {
     content: string,
   ) => void;
   markMessageSent: (conversationId: string, messageId: string) => void;
+  markMessageFailed: (conversationId: string, messageId: string, error: string) => void;
+  markMessageQueued: (conversationId: string, messageId: string) => void;
+  retryQueuedMessages: () => Promise<void>;
+  getQueuedMessagesCount: () => number;
   deleteMessage: (conversationId: string, messageId: string) => void;
   deleteMessagesAfter: (conversationId: string, messageId: string) => void;
   appendToCurrentMessage: (content: string) => void;
@@ -322,6 +341,10 @@ export const useStore = create<Store>()((set, get) => ({
       ...messageData,
       id: generateId(),
       timestamp: new Date(),
+      // Initialize sendStatus for user messages
+      sendStatus: messageData.role === "user" && messageData.isPending 
+        ? "sending" 
+        : messageData.sendStatus,
     };
 
     set((state) => ({
@@ -400,7 +423,9 @@ export const useStore = create<Store>()((set, get) => ({
           ? {
               ...c,
               messages: c.messages.map((m) =>
-                m.id === messageId ? { ...m, isPending: false } : m,
+                m.id === messageId 
+                  ? { ...m, isPending: false, sendStatus: "sent" as MessageSendStatus, sendError: undefined } 
+                  : m,
               ),
             }
           : c,
@@ -417,12 +442,140 @@ export const useStore = create<Store>()((set, get) => ({
         return persistMessage(conversationId, {
           ...message,
           isPending: false,
+          sendStatus: "sent",
+          sendError: undefined,
         }).catch((err) => {
           console.error("Failed to persist message sent status:", err);
         });
       }
       return Promise.resolve();
     });
+  },
+
+  markMessageFailed: (conversationId, messageId, error) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === messageId 
+                  ? { ...m, isPending: false, sendStatus: "failed" as MessageSendStatus, sendError: error } 
+                  : m,
+              ),
+            }
+          : c,
+      ),
+    }));
+
+    // Persist error state
+    enqueuePersistence(conversationId, () => {
+      const conversation = get().conversations.find(
+        (c) => c.id === conversationId,
+      );
+      const message = conversation?.messages.find((m) => m.id === messageId);
+      if (message) {
+        return persistMessage(conversationId, message).catch((err) => {
+          console.error("Failed to persist message error state:", err);
+        });
+      }
+      return Promise.resolve();
+    });
+  },
+
+  markMessageQueued: (conversationId, messageId) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: c.messages.map((m) =>
+                m.id === messageId 
+                  ? { 
+                      ...m, 
+                      sendStatus: "queued" as MessageSendStatus, 
+                      retryCount: (m.retryCount || 0) + 1,
+                      sendError: undefined 
+                    } 
+                  : m,
+              ),
+            }
+          : c,
+      ),
+    }));
+  },
+
+  retryQueuedMessages: async () => {
+    const { conversations, connected } = get();
+    
+    if (!connected) {
+      // Not connected yet - will retry when connection established
+      return;
+    }
+
+    // Find all queued messages across all conversations
+    for (const conv of conversations) {
+      const queuedMessages = conv.messages.filter(
+        (m) => m.sendStatus === "queued" && m.role === "user"
+      );
+
+      for (const msg of queuedMessages) {
+        // Skip if too many retries (max 3)
+        if ((msg.retryCount || 0) > 3) {
+          get().markMessageFailed(conv.id, msg.id, "Max retries exceeded");
+          continue;
+        }
+
+        try {
+          // Mark as sending
+          set((state) => ({
+            conversations: state.conversations.map((c) =>
+              c.id === conv.id
+                ? {
+                    ...c,
+                    messages: c.messages.map((m) =>
+                      m.id === msg.id 
+                        ? { ...m, sendStatus: "sending" as MessageSendStatus } 
+                        : m,
+                    ),
+                  }
+                : c,
+            ),
+          }));
+
+          // Retry sending (using the same invoke as ChatView)
+          const { invoke } = await import("@tauri-apps/api/core");
+          await invoke("send_message", {
+            params: {
+              message: msg.content,
+              session_key: conv.id,
+              model: conv.model || get().settings.defaultModel,
+              thinking: conv.thinkingEnabled ? "low" : null,
+              attachments: msg.attachments?.map((a) => ({
+                id: a.id,
+                filename: a.filename,
+                mimeType: a.mimeType,
+                data: a.data,
+              })) || [],
+            },
+          });
+
+          // Success - mark as sent
+          get().markMessageSent(conv.id, msg.id);
+        } catch (err) {
+          console.error("Failed to retry queued message:", err);
+          // Mark as queued again for next retry
+          get().markMessageQueued(conv.id, msg.id);
+        }
+      }
+    }
+  },
+
+  getQueuedMessagesCount: () => {
+    const { conversations } = get();
+    return conversations.reduce((count, conv) => {
+      return count + conv.messages.filter((m) => m.sendStatus === "queued").length;
+    }, 0);
   },
 
   deleteMessage: (conversationId, messageId) => {

@@ -7,6 +7,7 @@
   useMemo,
 } from "react";
 import { useStore, Conversation } from "../stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { EmptyState } from "./ui/empty-state";
 import { ConversationSkeleton } from "./ui/skeleton";
@@ -46,9 +47,18 @@ interface SidebarProps {
   onToggle: () => void;
   onRerunSetup?: () => void;
   hasUpdateAvailable?: boolean;
+  forceShowSettings?: boolean;
+  onSettingsClosed?: () => void;
 }
 
-export function Sidebar({ onToggle: _onToggle, onRerunSetup, hasUpdateAvailable }: SidebarProps) {
+export function Sidebar({ 
+  onToggle: _onToggle, 
+  onRerunSetup, 
+  hasUpdateAvailable,
+  forceShowSettings,
+  onSettingsClosed,
+}: SidebarProps) {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     conversations,
     conversationsLoading,
@@ -58,13 +68,37 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup, hasUpdateAvailable 
     deleteConversation,
     pinConversation,
     connected,
-  } = useStore();
+  } = useStore(
+    useShallow((state) => ({
+      conversations: state.conversations,
+      conversationsLoading: state.conversationsLoading,
+      currentConversationId: state.currentConversationId,
+      createConversation: state.createConversation,
+      selectConversation: state.selectConversation,
+      deleteConversation: state.deleteConversation,
+      pinConversation: state.pinConversation,
+      connected: state.connected,
+    }))
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [conversationToExport, setConversationToExport] =
     useState<Conversation | null>(null);
+
+  // Force open settings from parent (e.g., auth error)
+  useEffect(() => {
+    if (forceShowSettings) {
+      setSettingsOpen(true);
+    }
+  }, [forceShowSettings]);
+
+  // Handle settings close
+  const handleSettingsClose = () => {
+    setSettingsOpen(false);
+    onSettingsClosed?.();
+  };
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -197,7 +231,7 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup, hasUpdateAvailable 
       </div>
 
       {/* Quick filter */}
-      <div className="px-3 pb-2">
+      <div className="px-3 pb-2" role="search" aria-label="Filter conversations">
         <label htmlFor="conversation-filter" className="sr-only">
           Filter conversations by title or content
         </label>
@@ -302,7 +336,7 @@ export function Sidebar({ onToggle: _onToggle, onRerunSetup, hasUpdateAvailable 
       <Suspense fallback={null}>
         <SettingsDialog
           open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
+          onClose={handleSettingsClose}
           onRerunSetup={onRerunSetup}
         />
       </Suspense>
@@ -354,6 +388,19 @@ function ConversationSection({
   // Use virtualization for long lists (>30 items) to improve performance
   const shouldVirtualize = conversations.length > 30;
 
+  // Handle arrow key navigation between conversations
+  const handleNavigate = (currentIndex: number, direction: 'up' | 'down') => {
+    const buttons = parentRef.current?.querySelectorAll('button[aria-label^="Conversation:"]');
+    if (!buttons || buttons.length === 0) return;
+
+    const nextIndex = direction === 'down' 
+      ? Math.min(currentIndex + 1, buttons.length - 1)
+      : Math.max(currentIndex - 1, 0);
+
+    const nextButton = buttons[nextIndex] as HTMLButtonElement;
+    nextButton?.focus();
+  };
+
   const virtualizer = useVirtualizer({
     count: conversations.length,
     getScrollElement: () => parentRef.current,
@@ -397,6 +444,7 @@ function ConversationSection({
                     onDelete={() => onDelete(conversation.id)}
                     onPin={() => onPin(conversation.id)}
                     onExport={() => onExport(conversation)}
+                    onNavigate={(dir) => handleNavigate(virtualItem.index, dir)}
                   />
                 </div>
               );
@@ -414,7 +462,7 @@ function ConversationSection({
         {icon || (title === "Pinned" ? <Pin className="w-3 h-3" /> : null)}
         {title}
       </h3>
-      <div className="space-y-0.5">
+      <div ref={parentRef} className="space-y-0.5">
         {conversations.map((conversation, index) => (
           <ConversationItem
             key={conversation.id}
@@ -424,6 +472,7 @@ function ConversationSection({
             onDelete={() => onDelete(conversation.id)}
             onPin={() => onPin(conversation.id)}
             onExport={() => onExport(conversation)}
+            onNavigate={(dir) => handleNavigate(index, dir)}
             style={{ animationDelay: `${index * 30}ms` }}
           />
         ))}
@@ -440,6 +489,7 @@ interface ConversationItemProps {
   onPin: () => void;
   onExport: () => void;
   style?: React.CSSProperties;
+  onNavigate?: (direction: 'up' | 'down') => void;
 }
 
 function ConversationItem({
@@ -450,6 +500,7 @@ function ConversationItem({
   onPin,
   onExport,
   style,
+  onNavigate,
 }: ConversationItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -466,7 +517,9 @@ function ConversationItem({
   };
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       className={cn(
         "group relative flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors w-full text-left",
         "animate-in fade-in slide-in-from-left-2 duration-200",
@@ -489,6 +542,10 @@ function ConversationItem({
         if (e.key === "Delete" || e.key === "Backspace") {
           e.preventDefault();
           setShowDeleteConfirm(true);
+        }
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          onNavigate?.(e.key === "ArrowDown" ? "down" : "up");
         }
       }}
       aria-label={`Conversation: ${conversation.title}${isSelected ? " (active)" : ""}`}
@@ -608,6 +665,6 @@ function ConversationItem({
         confirmText="Delete"
         confirmVariant="destructive"
       />
-    </button>
+    </div>
   );
 }

@@ -5,7 +5,7 @@
  * with customizable options.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { Conversation } from "../stores/store";
@@ -15,6 +15,7 @@ import {
   generateFilename,
   getFileExtension,
 } from "../lib/export";
+import { translateError } from "../lib/errors";
 import { Button } from "./ui/button";
 import {
   X,
@@ -26,8 +27,11 @@ import {
   Copy,
   Check,
   Loader2,
+  RotateCcw,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface ExportDialogProps {
   open: boolean;
@@ -82,6 +86,21 @@ export function ExportDialog({
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useFocusTrap(open);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isExporting) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose, isExporting]);
 
   if (!open) return null;
 
@@ -123,9 +142,8 @@ export function ExportDialog({
       }
     } catch (err: unknown) {
       console.error("Export failed:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to export conversation",
-      );
+      const friendly = translateError(err instanceof Error ? err : String(err));
+      setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
     } finally {
       setIsExporting(false);
     }
@@ -145,9 +163,8 @@ export function ExportDialog({
       setTimeout(() => setCopied(false), 2000);
     } catch (err: unknown) {
       console.error("Copy failed:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to copy to clipboard",
-      );
+      const friendly = translateError(err instanceof Error ? err : String(err));
+      setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
     }
   };
 
@@ -157,11 +174,18 @@ export function ExportDialog({
       <div
         className="fixed inset-0 bg-black/50 z-50 animate-in fade-in duration-200"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && !isExporting) onClose();
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close export dialog"
       />
 
       {/* Dialog */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
+          ref={dialogRef as React.RefObject<HTMLDivElement>}
           role="dialog"
           aria-modal="true"
           aria-labelledby="export-dialog-title"
@@ -279,8 +303,34 @@ export function ExportDialog({
 
             {/* Error message */}
             {error && (
-              <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-lg">
-                {error}
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center mt-0.5">
+                    <AlertTriangle className="w-4 h-4 text-destructive" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-destructive whitespace-pre-line">
+                      {error}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={handleExport}
+                      className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                      aria-label="Retry export"
+                      disabled={isExporting}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setError(null)}
+                      className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                      aria-label="Dismiss error"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

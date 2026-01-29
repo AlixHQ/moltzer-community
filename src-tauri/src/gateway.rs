@@ -472,7 +472,24 @@ async fn connect_with_manual_tcp(url_str: &str) -> Result<
     }
 }
 
-/// Try to connect with protocol fallback (ws:// <-> wss://)
+/// Determine if protocol upgrade (ws:// → wss://) is safe
+/// SECURITY: Never allow downgrade from wss:// to ws:// (MITM risk)
+fn get_safe_alternate_url(url: &str) -> Option<String> {
+    if url.starts_with("ws://") {
+        // SAFE: Upgrading from ws:// to wss:// is allowed
+        Some(url.replacen("ws://", "wss://", 1))
+    } else if url.starts_with("wss://") {
+        // SECURITY: Downgrading from wss:// to ws:// is NOT allowed
+        // This prevents MITM attacks where attacker blocks TLS to force plaintext
+        log_protocol_error("Security", "Refusing to downgrade from wss:// to ws:// (MITM protection)");
+        None
+    } else {
+        None
+    }
+}
+
+/// Try to connect with secure protocol fallback (ws:// → wss:// only, never downgrade)
+/// SECURITY: This function will NEVER downgrade from wss:// to ws:// to prevent MITM attacks
 async fn try_connect_with_fallback(
     url: &str,
 ) -> Result<
@@ -510,76 +527,69 @@ async fn try_connect_with_fallback(
             Ok(Err(e)) => {
                 log_protocol_error("Manual TCP", &format!("Failed: {}", e));
                 
-                // Try alternate protocol
-                let alternate_url = if url.starts_with("ws://") {
-                    url.replacen("ws://", "wss://", 1)
-                } else if url.starts_with("wss://") {
-                    url.replacen("wss://", "ws://", 1)
+                // SECURITY: Only try upgrade (ws:// → wss://), never downgrade
+                if let Some(alternate_url) = get_safe_alternate_url(url) {
+                    log_protocol_error("Manual TCP", &format!("Trying secure upgrade: {}", alternate_url));
+                    
+                    let second_attempt = tokio::time::timeout(
+                        timeout_duration,
+                        connect_with_manual_tcp(&alternate_url)
+                    ).await;
+                    
+                    match second_attempt {
+                        Ok(Ok(stream)) => {
+                            log_protocol_error("Manual TCP", "SUCCESS with upgraded protocol");
+                            return Ok((stream, alternate_url, true));
+                        }
+                        Ok(Err(e2)) => {
+                            log_protocol_error("Manual TCP", &format!("Upgrade also failed: {}", e2));
+                            return Err(GatewayError::Network {
+                                message: format!(
+                                    "Unable to connect to Gateway at {}. Error: {}",
+                                    url, e2
+                                ),
+                                retryable: true,
+                                retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
+                            });
+                        }
+                        Err(_) => {
+                            return Err(GatewayError::Timeout {
+                                timeout_secs: timeout_duration.as_secs(),
+                                request_id: None,
+                            });
+                        }
+                    }
                 } else {
+                    // No safe alternate available (was already wss://)
                     return Err(GatewayError::Network {
-                        message: format!("Invalid WebSocket URL: {}", url),
-                        retryable: false,
-                        retry_after: None,
+                        message: format!("Unable to connect to Gateway at {}. Error: {}", url, e),
+                        retryable: true,
+                        retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
                     });
-                };
-                
-                log_protocol_error("Manual TCP", &format!("Trying alternate protocol: {}", alternate_url));
-                
-                let second_attempt = tokio::time::timeout(
-                    timeout_duration,
-                    connect_with_manual_tcp(&alternate_url)
-                ).await;
-                
-                match second_attempt {
-                    Ok(Ok(stream)) => {
-                        log_protocol_error("Manual TCP", "SUCCESS with alternate protocol");
-                        return Ok((stream, alternate_url, true));
-                    }
-                    Ok(Err(e2)) => {
-                        log_protocol_error("Manual TCP", &format!("Alternate also failed: {}", e2));
-                        return Err(GatewayError::Network {
-                            message: format!(
-                                "Unable to connect to Gateway. Tried {} and {}. Last error: {}",
-                                url, alternate_url, e2
-                            ),
-                            retryable: true,
-                            retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
-                        });
-                    }
-                    Err(_) => {
-                        return Err(GatewayError::Timeout {
-                            timeout_secs: timeout_duration.as_secs(),
-                            request_id: None,
-                        });
-                    }
                 }
             }
             Err(_) => {
                 log_protocol_error("Manual TCP", "Timeout on first attempt");
                 
-                // Try alternate protocol on timeout
-                let alternate_url = if url.starts_with("ws://") {
-                    url.replacen("ws://", "wss://", 1)
-                } else if url.starts_with("wss://") {
-                    url.replacen("wss://", "ws://", 1)
+                // SECURITY: Only try upgrade on timeout, never downgrade
+                if let Some(alternate_url) = get_safe_alternate_url(url) {
+                    let second_attempt = tokio::time::timeout(
+                        timeout_duration,
+                        connect_with_manual_tcp(&alternate_url)
+                    ).await;
+                    
+                    match second_attempt {
+                        Ok(Ok(stream)) => Ok((stream, alternate_url, true)),
+                        _ => Err(GatewayError::Timeout {
+                            timeout_secs: timeout_duration.as_secs() * 2,
+                            request_id: None,
+                        }),
+                    }
                 } else {
-                    return Err(GatewayError::Timeout {
+                    Err(GatewayError::Timeout {
                         timeout_secs: timeout_duration.as_secs(),
                         request_id: None,
-                    });
-                };
-                
-                let second_attempt = tokio::time::timeout(
-                    timeout_duration,
-                    connect_with_manual_tcp(&alternate_url)
-                ).await;
-                
-                match second_attempt {
-                    Ok(Ok(stream)) => Ok((stream, alternate_url, true)),
-                    _ => Err(GatewayError::Timeout {
-                        timeout_secs: timeout_duration.as_secs() * 2,
-                        request_id: None,
-                    }),
+                    })
                 }
             }
         }
@@ -608,69 +618,63 @@ async fn try_connect_with_fallback(
             Ok(Err(first_err)) => {
                 log_protocol_error("Primary connection failed", &first_err.to_string());
 
-                // Try alternate protocol
-                let alternate_url = if url.starts_with("ws://") {
-                    url.replacen("ws://", "wss://", 1)
-                } else if url.starts_with("wss://") {
-                    url.replacen("wss://", "ws://", 1)
-                } else {
-                    return Err(GatewayError::Network {
-                        message: format!("Invalid WebSocket URL: {}", url),
-                        retryable: false,
-                        retry_after: None,
-                    });
-                };
+                // SECURITY: Only try upgrade (ws:// → wss://), never downgrade
+                if let Some(alternate_url) = get_safe_alternate_url(url) {
+                    let second_attempt =
+                        tokio::time::timeout(
+                            timeout_duration, 
+                            connect_async_tls_with_config(&alternate_url, None, false, Some(connector.clone()))
+                        ).await;
 
-                let second_attempt =
-                    tokio::time::timeout(
-                        timeout_duration, 
-                        connect_async_tls_with_config(&alternate_url, None, false, Some(connector.clone()))
-                    ).await;
-
-                match second_attempt {
-                    Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
-                    Ok(Err(e)) => {
-                        log_protocol_error("Fallback connection failed", &e.to_string());
-                        Err(GatewayError::Network {
-                            message: format!(
-                                "Unable to connect to Gateway. Tried {} and {}",
-                                url, alternate_url
-                            ),
-                            retryable: true,
-                            retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
-                        })
+                    match second_attempt {
+                        Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                        Ok(Err(e)) => {
+                            log_protocol_error("Upgrade connection failed", &e.to_string());
+                            Err(GatewayError::Network {
+                                message: format!(
+                                    "Unable to connect to Gateway at {}",
+                                    url
+                                ),
+                                retryable: true,
+                                retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
+                            })
+                        }
+                        Err(_) => Err(GatewayError::Timeout {
+                            timeout_secs: timeout_duration.as_secs(),
+                            request_id: None,
+                        }),
                     }
-                    Err(_) => Err(GatewayError::Timeout {
-                        timeout_secs: timeout_duration.as_secs(),
-                        request_id: None,
-                    }),
+                } else {
+                    // No safe alternate (was already wss://)
+                    Err(GatewayError::Network {
+                        message: format!("Unable to connect to Gateway at {}", url),
+                        retryable: true,
+                        retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
+                    })
                 }
             }
             Err(_) => {
-                // Timeout on first attempt, try alternate
-                let alternate_url = if url.starts_with("ws://") {
-                    url.replacen("ws://", "wss://", 1)
-                } else if url.starts_with("wss://") {
-                    url.replacen("wss://", "ws://", 1)
+                // Timeout on first attempt
+                // SECURITY: Only try upgrade, never downgrade
+                if let Some(alternate_url) = get_safe_alternate_url(url) {
+                    let second_attempt =
+                        tokio::time::timeout(
+                            timeout_duration, 
+                            connect_async_tls_with_config(&alternate_url, None, false, Some(connector))
+                        ).await;
+
+                    match second_attempt {
+                        Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
+                        _ => Err(GatewayError::Timeout {
+                            timeout_secs: timeout_duration.as_secs() * 2,
+                            request_id: None,
+                        }),
+                    }
                 } else {
-                    return Err(GatewayError::Timeout {
+                    Err(GatewayError::Timeout {
                         timeout_secs: timeout_duration.as_secs(),
                         request_id: None,
-                    });
-                };
-
-                let second_attempt =
-                    tokio::time::timeout(
-                        timeout_duration, 
-                        connect_async_tls_with_config(&alternate_url, None, false, Some(connector))
-                    ).await;
-
-                match second_attempt {
-                    Ok(Ok((stream, _))) => Ok((stream, alternate_url, true)),
-                    _ => Err(GatewayError::Timeout {
-                        timeout_secs: timeout_duration.as_secs() * 2,
-                        request_id: None,
-                    }),
+                    })
                 }
             }
         }
@@ -823,8 +827,8 @@ async fn connect_internal(
     tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
             let ws_msg = match msg {
-                OutgoingMessage::Raw(text) => WsMessage::Text(text),
-                OutgoingMessage::Ping => WsMessage::Ping(vec![]),
+                OutgoingMessage::Raw(text) => WsMessage::Text(text.into()),
+                OutgoingMessage::Ping => WsMessage::Ping(vec![].into()),
             };
             if let Err(e) = write.send(ws_msg).await {
                 log_protocol_error("Failed to send message", &e.to_string());
