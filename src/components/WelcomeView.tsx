@@ -23,43 +23,44 @@ export function WelcomeView() {
   );
 
   // Moltz-specific suggestions showcasing agentic capabilities
+  // Titles kept short to fit in cards without truncation
   const suggestions = [
     {
       icon: "📅",
-      title: "What's on my calendar today?",
-      description: "Check your schedule and upcoming meetings",
+      title: "Check my calendar",
+      description: "Today's schedule & meetings",
       prompt: "What's on my calendar today? Summarize any upcoming meetings.",
     },
     {
       icon: "📧",
-      title: "Check my unread emails",
-      description: "Summarize what needs your attention",
+      title: "Scan my inbox",
+      description: "What needs attention?",
       prompt:
         "Check my unread emails and summarize anything important or urgent.",
     },
     {
       icon: "🎙️",
-      title: "What was my last meeting about?",
-      description: "Review transcripts and action items",
+      title: "Last meeting recap",
+      description: "Notes & action items",
       prompt:
         "What did we discuss in my most recent meeting? Any action items for me?",
     },
     {
       icon: "💬",
-      title: "Message someone for me",
-      description: "Draft and send via Slack, email, or chat",
+      title: "Send a message",
+      description: "Slack, email, or chat",
       prompt: "Help me send a message. Who should I contact?",
     },
     {
       icon: "🔍",
-      title: "Find a file or document",
-      description: "Search across your files and folders",
+      title: "Find a file",
+      description: "Search your documents",
       prompt: "Help me find a file. What are you looking for?",
     },
     {
       icon: "🏠",
-      title: "Control my smart home",
-      description: "Lights, thermostat, and more",
+      title: "Smart home",
+      description: "Lights, thermostat & more",
       prompt:
         "What smart home devices can I control? Show me what's available.",
     },
@@ -167,11 +168,11 @@ export function WelcomeView() {
                   <span className="text-2xl flex-shrink-0">
                     {suggestion.icon}
                   </span>
-                  <div className="min-w-0">
-                    <p className="font-medium group-hover:text-primary transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium group-hover:text-primary transition-colors line-clamp-2">
                       {suggestion.title}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground line-clamp-1">
                       {suggestion.description}
                     </p>
                   </div>
