@@ -112,9 +112,10 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
             );
           }
 
+          // Inline code - styled to be distinct from links
           return (
             <code
-              className="px-1.5 py-0.5 rounded-md bg-muted text-sm font-mono before:content-none after:content-none"
+              className="px-1.5 py-0.5 rounded-md bg-muted/70 text-[0.9em] font-mono font-medium before:content-none after:content-none border border-border/50"
               {...props}
             >
               {children}

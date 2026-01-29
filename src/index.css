@@ -101,9 +101,11 @@ code {
   @apply font-mono text-sm;
 }
 
-/* Inline code in prose — subtle colored background */
+/* Inline code in prose — subtle background, distinct from links */
 .prose code:not(pre code) {
-  @apply bg-muted/60 text-primary/90 px-1.5 py-0.5 rounded-md text-[0.85em];
+  @apply bg-muted/70 text-foreground px-1.5 py-0.5 rounded-md text-[0.85em] font-medium;
+  /* Subtle border for extra distinction */
+  box-shadow: inset 0 0 0 1px hsl(var(--border) / 0.5);
 }
 
 /* Prose styling */
