@@ -236,7 +236,22 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       for (const path of paths) {
         try {
           // Get filename from path
-          const filename = path.split(/[/\\]/).pop() || path;
+          let filename = path.split(/[/\\]/).pop() || path;
+          
+          // Validate and sanitize filename
+          if (filename.length === 0) {
+            errors.push(`Invalid file path: empty filename`);
+            continue;
+          }
+          
+          // Truncate very long filenames (keep extension)
+          if (filename.length > 100) {
+            const ext = getExtension(filename);
+            const nameWithoutExt = filename.slice(0, filename.length - ext.length - 1);
+            filename = nameWithoutExt.slice(0, 95) + (ext ? `.${ext}` : '');
+            console.warn(`Truncated long filename: ${path} → ${filename}`);
+          }
+          
           const mimeType = getMimeType(filename);
 
           if (!mimeType) {
