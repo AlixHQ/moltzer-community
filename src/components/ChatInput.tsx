@@ -143,7 +143,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
   }, [onSend]);
 
   const handleSend = () => {
-    if (disabled) return;
+    if (disabled || isSending) return; // Prevent double-submit
     const trimmedMessage = message.trim();
     if (!trimmedMessage && attachments.length === 0) return;
     onSend(trimmedMessage, attachments);
@@ -277,7 +277,7 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
   };
 
   const canSend =
-    (message.trim() || attachments.length > 0) && !disabled && !isLoadingFiles;
+    (message.trim() || attachments.length > 0) && !disabled && !isLoadingFiles && !isSending;
 
   return (
     <div className="p-4">
