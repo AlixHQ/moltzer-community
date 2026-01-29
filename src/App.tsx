@@ -858,8 +858,11 @@ function AppContent() {
     
     // Transition to main app
     setShowOnboarding(false);
-    // Trigger a connection attempt with existing settings in state
-    setIsConnecting(true);
+    
+    // Only trigger connection if not already connected (onboarding keeps connection alive)
+    if (!useStore.getState().connected) {
+      setIsConnecting(true);
+    }
   };
 
   const handleRerunSetup = () => {

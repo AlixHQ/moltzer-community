@@ -521,6 +521,9 @@ export function GatewaySetupStep({
 
       // ALL VERIFICATION PASSED - Now we can declare success!
       setConnectionState("success");
+      
+      // Mark as connected in store so main app doesn't try to reconnect
+      useStore.getState().setConnected(true);
 
       // Save progress
       localStorage.setItem(
