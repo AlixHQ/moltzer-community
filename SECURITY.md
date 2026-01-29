@@ -1,10 +1,10 @@
 ﻿# Security Policy
 
-## ?? Security Overview
+## Security Overview
 
 Moltz takes security and privacy seriously. This document outlines our security practices and how to report vulnerabilities.
 
-## ??? Security Features
+## Security Features
 
 ### End-to-End Encryption
 
