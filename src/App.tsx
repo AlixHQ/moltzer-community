@@ -183,12 +183,26 @@ function AppContent() {
         const { conversations } = await loadPersistedData();
 
         // Restore conversations to store (sorted by most recent)
-        // Don't auto-select - show welcome screen, but conversations visible in sidebar
         if (conversations.length > 0) {
           const sorted = [...conversations].sort(
             (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
-          useStore.setState({ conversations: sorted });
+          
+          // Check if this is first launch after onboarding or a returning user
+          const hasLaunchedBefore = localStorage.getItem("moltz-has-launched");
+          
+          if (hasLaunchedBefore) {
+            // Returning user: auto-select most recent conversation
+            useStore.setState({ 
+              conversations: sorted,
+              currentConversationId: sorted[0].id,
+            });
+          } else {
+            // First launch: show welcome screen, conversations parked in sidebar
+            useStore.setState({ conversations: sorted });
+            // Mark as launched for next time
+            localStorage.setItem("moltz-has-launched", "true");
+          }
         }
       } catch (err) {
         console.error("Failed to load persisted data:", err);
