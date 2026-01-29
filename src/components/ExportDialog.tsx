@@ -15,6 +15,7 @@ import {
   generateFilename,
   getFileExtension,
 } from "../lib/export";
+import { translateError } from "../lib/errors";
 import { Button } from "./ui/button";
 import {
   X,
@@ -26,6 +27,8 @@ import {
   Copy,
   Check,
   Loader2,
+  RotateCcw,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -123,9 +126,8 @@ export function ExportDialog({
       }
     } catch (err: unknown) {
       console.error("Export failed:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to export conversation",
-      );
+      const friendly = translateError(err instanceof Error ? err : String(err));
+      setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
     } finally {
       setIsExporting(false);
     }
@@ -145,9 +147,8 @@ export function ExportDialog({
       setTimeout(() => setCopied(false), 2000);
     } catch (err: unknown) {
       console.error("Copy failed:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to copy to clipboard",
-      );
+      const friendly = translateError(err instanceof Error ? err : String(err));
+      setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
     }
   };
 
@@ -279,8 +280,34 @@ export function ExportDialog({
 
             {/* Error message */}
             {error && (
-              <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-lg">
-                {error}
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center mt-0.5">
+                    <AlertTriangle className="w-4 h-4 text-destructive" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-destructive whitespace-pre-line">
+                      {error}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={handleExport}
+                      className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                      aria-label="Retry export"
+                      disabled={isExporting}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setError(null)}
+                      className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                      aria-label="Dismiss error"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

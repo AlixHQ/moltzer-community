@@ -1,16 +1,26 @@
-﻿import { useStore } from "../stores/store";
+﻿import { useStore, shallow } from "../stores/store";
 import { cn } from "../lib/utils";
 import { Plus, AlertTriangle, Cpu } from "lucide-react";
 import { Button } from "./ui/button";
 
 export function WelcomeView() {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     createConversation,
     addMessage,
     connected,
     settings,
     availableModels,
-  } = useStore();
+  } = useStore(
+    (state) => ({
+      createConversation: state.createConversation,
+      addMessage: state.addMessage,
+      connected: state.connected,
+      settings: state.settings,
+      availableModels: state.availableModels,
+    }),
+    shallow
+  );
 
   // Moltz-specific suggestions showcasing agentic capabilities
   const suggestions = [

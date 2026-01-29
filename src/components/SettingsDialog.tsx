@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useStore, ModelInfo } from "../stores/store";
+import { useStore, ModelInfo, shallow } from "../stores/store";
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "../lib/utils";
 import {
@@ -57,6 +57,7 @@ export function SettingsDialog({
   onClose,
   onRerunSetup,
 }: SettingsDialogProps) {
+  // PERF: Use selective subscriptions with shallow equality to prevent unnecessary re-renders
   const {
     settings,
     updateSettings,
@@ -66,7 +67,19 @@ export function SettingsDialog({
     setAvailableModels,
     modelsLoading,
     setModelsLoading,
-  } = useStore();
+  } = useStore(
+    (state) => ({
+      settings: state.settings,
+      updateSettings: state.updateSettings,
+      connected: state.connected,
+      setConnected: state.setConnected,
+      availableModels: state.availableModels,
+      setAvailableModels: state.setAvailableModels,
+      modelsLoading: state.modelsLoading,
+      setModelsLoading: state.setModelsLoading,
+    }),
+    shallow
+  );
   const { showSuccess, showError: showToastError } = useToast();
   const [formData, setFormData] = useState(settings);
   const [connectionStatus, setConnectionStatus] = useState<

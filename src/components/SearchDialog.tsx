@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useStore } from "../stores/store";
+import { useStore, shallow } from "../stores/store";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { searchPersistedMessages } from "../lib/persistence";
@@ -22,7 +22,7 @@ interface SearchResult {
 }
 
 export function SearchDialog({ open, onClose }: SearchDialogProps) {
-  const { selectConversation } = useStore();
+  const selectConversation = useStore((state) => state.selectConversation);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
