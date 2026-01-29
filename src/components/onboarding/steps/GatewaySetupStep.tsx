@@ -512,25 +512,17 @@ export function GatewaySetupStep({
       if (isCancelledRef.current || !isMountedRef.current) return;
 
       // Step 2: Verify token was saved by reading it back
-      const { getGatewayToken } = await import("../../../lib/keychain");
-      let savedToken: string;
-      try {
-        savedToken = await getGatewayToken();
-      } catch (keychainErr) {
-        // Keychain read failed - on macOS this could be permissions or first-run prompt
-        throw new Error(
-          `Keychain access failed: ${keychainErr}. ` +
-          `On macOS, try: Security & Privacy > Privacy > allow Moltz. ` +
-          `Or run the signed release build.`
-        );
-      }
+      const { tryGetGatewayToken } = await import("../../../lib/keychain");
+      const savedToken = await tryGetGatewayToken();
       
+      // If keychain failed to save, that's okay - token is in memory store
+      // It just won't persist across app restarts
       if (savedToken !== trimmedToken) {
-        throw new Error(
-          `Token verification failed: saved token doesn't match. ` +
-          `Expected ${trimmedToken.length} chars, got ${savedToken.length} chars. ` +
-          `This may be a keychain access issue.`
+        console.warn(
+          `[onboarding] Keychain verification failed - token in memory only. ` +
+          `Expected ${trimmedToken.length} chars, got ${savedToken.length} chars.`
         );
+        // Don't throw - connection still works, just won't persist
       }
 
       // Check if cancelled
