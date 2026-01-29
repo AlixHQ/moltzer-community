@@ -517,7 +517,9 @@ function ConversationItem({
   };
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       className={cn(
         "group relative flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors w-full text-left",
         "animate-in fade-in slide-in-from-left-2 duration-200",

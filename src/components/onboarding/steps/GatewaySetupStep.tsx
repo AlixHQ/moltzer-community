@@ -776,39 +776,18 @@ export function GatewaySetupStep({
                   </div>
                 </div>
 
-                {/* Actionable fix */}
+                {/* Actionable fix - simplified, no command line stuff */}
                 {errorHint?.action && (
-                  <div className="pl-8 space-y-2">
-                    <p className="text-sm font-medium text-foreground">
-                      {errorHint.action}:
+                  <div className="pl-8">
+                    <p className="text-sm text-muted-foreground">
+                      💡 {errorHint.action}
                     </p>
-                    {errorHint.command && (
-                      <div className="flex items-center gap-2 bg-black/80 dark:bg-black/60 rounded p-2 font-mono text-xs text-green-400">
-                        <code className="flex-1">{errorHint.command}</code>
-                        <button
-                          onClick={async () => {
-                            try {
-                              if (errorHint.command) {
-                                await navigator.clipboard.writeText(
-                                  errorHint.command,
-                                );
-                              }
-                            } catch (err) {
-                              console.error("Failed to copy:", err);
-                            }
-                          }}
-                          className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[10px] font-medium text-white transition-colors"
-                        >
-                          Copy
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
 
                 {/* Port suggestion */}
                 {suggestedPort && (
-                  <div className="pl-8">
+                  <div className="pl-8 mt-2">
                     <button
                       onClick={() => {
                         const newUrl = gatewayUrl.replace(
@@ -820,66 +799,8 @@ export function GatewaySetupStep({
                       }}
                       className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      Try default port {suggestedPort} instead? →
+                      Try the standard setup: localhost:{suggestedPort} →
                     </button>
-                  </div>
-                )}
-
-                {/* Smart troubleshooting tips */}
-                {errorHint?.tips && errorHint.tips.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-red-500/20">
-                    <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                        />
-                      </svg>
-                      {errorHint.urlType === "tailscale"
-                        ? "Tailscale Troubleshooting"
-                        : "Troubleshooting Tips"}
-                    </p>
-                    <div className="space-y-3">
-                      {errorHint.tips.map((tip, i) => (
-                        <div
-                          key={i}
-                          className="pl-2 border-l-2 border-red-500/30"
-                        >
-                          <p className="text-sm font-medium text-foreground">
-                            {tip.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {tip.description}
-                          </p>
-                          {tip.command && (
-                            <div className="flex items-center gap-2 mt-1.5 bg-black/80 dark:bg-black/60 rounded p-1.5 font-mono text-[11px] text-green-400">
-                              <code className="flex-1">{tip.command}</code>
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    await navigator.clipboard.writeText(
-                                      tip.command || "",
-                                    );
-                                  } catch (e) {
-                                    console.error("Failed to copy:", e);
-                                  }
-                                }}
-                                className="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[9px] font-medium text-white transition-colors"
-                              >
-                                Copy
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
                 </motion.div>
@@ -1027,7 +948,7 @@ export function GatewaySetupStep({
               connectionState === "testing" && "opacity-50 cursor-not-allowed",
             )}
           >
-            I'll do this later
+            Skip (you can browse, but won't be able to chat yet)
           </button>
         </div>
       </div>
