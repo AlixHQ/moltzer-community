@@ -131,6 +131,17 @@ function getErrorHint(
   }
 
   if (
+    lower.includes("device identity required") ||
+    lower.includes("not_paired")
+  ) {
+    return {
+      hint: "This Gateway requires an authentication token.",
+      action: "Paste your token from clawdbot.json (gateway.auth.token) into the Authentication Token field above",
+      tips,
+      urlType,
+    };
+  }
+  if (
     lower.includes("401") ||
     lower.includes("403") ||
     lower.includes("unauthorized") ||
