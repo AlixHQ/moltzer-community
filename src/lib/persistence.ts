@@ -67,7 +67,14 @@ export async function loadPersistedData(): Promise<{
           });
         } catch (err) {
           console.error(`Failed to decrypt message ${dbMsg.id}:`, err);
-          // Skip corrupted messages
+          // Show placeholder for corrupted messages instead of skipping
+          messages.push({
+            id: dbMsg.id,
+            role: dbMsg.role,
+            content: "⚠️ *This message could not be decrypted. It may have been created with a different encryption key.*",
+            timestamp: dbMsg.timestamp,
+            modelUsed: dbMsg.modelUsed,
+          });
         }
       }
 

@@ -153,29 +153,6 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         <h2 id="search-dialog-title" className="sr-only">
           Search messages
         </h2>
-        {/* Security notice */}
-        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-start gap-2 text-xs text-amber-700 dark:text-amber-300">
-          <svg
-            className="w-4 h-4 flex-shrink-0 mt-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
-          <span>
-            <strong className="font-medium">Privacy note:</strong> Messages are
-            encrypted at rest, but search text is processed locally in plain
-            text. Sensitive searches remain private to your device.
-          </span>
-        </div>
-
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <svg
@@ -206,6 +183,28 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             aria-describedby="search-instructions"
             className="flex-1 bg-transparent focus:outline-none text-lg"
           />
+          {/* Subtle privacy indicator with tooltip */}
+          <div className="group relative">
+            <svg
+              className="w-4 h-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors cursor-help"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-label="Privacy information"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-popover border border-border rounded-lg shadow-lg text-xs text-muted-foreground w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 pointer-events-none z-10">
+              <p className="leading-relaxed">
+                Search is processed locally. Your messages stay encrypted and private to this device.
+              </p>
+            </div>
+          </div>
           <kbd
             className="hidden sm:inline-flex px-2 py-1 text-xs font-mono bg-muted rounded"
             aria-hidden="true"
