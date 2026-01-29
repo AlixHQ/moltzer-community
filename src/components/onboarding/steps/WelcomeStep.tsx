@@ -178,7 +178,7 @@ export function WelcomeStep({ onNext, onSkip }: WelcomeStepProps) {
             className="text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-muted focus:ring-offset-2 focus:ring-offset-background rounded px-3 py-1"
             aria-label="Skip setup and configure later"
           >
-            I'll set this up later
+            Skip setup (I'll just look around)
           </motion.button>
         </motion.div>
 
