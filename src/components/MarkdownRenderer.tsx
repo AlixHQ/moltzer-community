@@ -44,6 +44,11 @@ interface TableProps {
   [key: string]: unknown;
 }
 
+interface ParagraphProps {
+  children?: ReactNode;
+  [key: string]: unknown;
+}
+
 /**
  * Recursively extracts plain text from React children.
  * Handles strings, numbers, arrays, and React elements (e.g., syntax-highlighted spans).
@@ -147,6 +152,14 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
           className="my-2"
         />
       );
+    },
+    p({ children, ...props }: ParagraphProps) {
+      // Check if paragraph contains only an image
+      // If so, render without the <p> wrapper to avoid invalid DOM nesting
+      if (isValidElement(children) && children.type === ImageRenderer) {
+        return <>{children}</>;
+      }
+      return <p {...props}>{children}</p>;
     },
     table({ children, ...props }: TableProps) {
       return (

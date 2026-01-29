@@ -240,7 +240,9 @@ describe("ImageRenderer", () => {
       Object.defineProperty(img, "naturalWidth", { value: 800, writable: true });
       Object.defineProperty(img, "naturalHeight", { value: 600, writable: true });
 
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       await waitFor(async () => {
         const container = img.parentElement;
@@ -268,7 +270,9 @@ describe("ImageRenderer", () => {
       Object.defineProperty(img, "naturalWidth", { value: 2000, writable: true });
       Object.defineProperty(img, "naturalHeight", { value: 1000, writable: true });
 
-      img.dispatchEvent(new Event("load", { bubbles: true }));
+      await act(async () => {
+        img.dispatchEvent(new Event("load", { bubbles: true }));
+      });
 
       // Wait for the component to update
       await waitFor(() => {

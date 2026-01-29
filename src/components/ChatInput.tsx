@@ -60,6 +60,7 @@ const MIME_TYPES: Record<string, string> = {
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_MESSAGE_LENGTH = 100000; // 100k characters (reasonable for AI models)
+const MAX_ATTACHMENTS = 10; // Reasonable limit to prevent memory issues
 
 function getExtension(filename: string): string {
   const parts = filename.split(".");
@@ -217,6 +218,18 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
       const paths = Array.isArray(selected) ? selected : [selected];
       setIsLoadingFiles(true);
 
+      // Check if adding these files would exceed the limit
+      const totalAfterAdd = attachments.length + paths.length;
+      if (totalAfterAdd > MAX_ATTACHMENTS) {
+        setFileError(`Too many attachments. Maximum is ${MAX_ATTACHMENTS} files per message (you'd have ${totalAfterAdd}).`);
+        setIsLoadingFiles(false);
+        if (errorTimerRef.current !== undefined) {
+          clearTimeout(errorTimerRef.current);
+        }
+        errorTimerRef.current = window.setTimeout(() => setFileError(null), 6000);
+        return;
+      }
+
       const newAttachments: PreparedAttachment[] = [];
       const errors: string[] = [];
 
@@ -234,7 +247,12 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
           // Read file as binary
           const fileData = await readFile(path);
 
-          // Check file size
+          // Check file size (reject if empty or too large)
+          if (fileData.byteLength === 0) {
+            errors.push(`${filename}: Empty file (0 bytes). Cannot attach empty files.`);
+            continue;
+          }
+          
           if (fileData.byteLength > MAX_FILE_SIZE) {
             const sizeMB = (fileData.byteLength / (1024 * 1024)).toFixed(1);
             errors.push(`${filename}: Too large (${sizeMB}MB). Maximum file size is 10MB.`);
