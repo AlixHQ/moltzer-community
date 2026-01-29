@@ -1414,14 +1414,21 @@ pub async fn send_message(
     let idempotency_key = uuid::Uuid::new_v4().to_string();
 
     // Build request params - always use "message" field (not "input")
+    // Only include thinking field if it has a value (Gateway rejects null)
+    let mut base_params = serde_json::json!({
+        "message": params.message,
+        "sessionKey": params.session_key,
+        "idempotencyKey": idempotency_key,
+    });
+    
+    // Add thinking only if present
+    if let Some(ref thinking) = params.thinking {
+        base_params["thinking"] = serde_json::json!(thinking);
+    }
+    
     // Attachments go in separate "attachments" array per Gateway protocol
     let request_params = if params.attachments.is_empty() {
-        serde_json::json!({
-            "message": params.message,
-            "sessionKey": params.session_key,
-            "thinking": params.thinking,
-            "idempotencyKey": idempotency_key,
-        })
+        base_params
     } else {
         // Convert attachments to Gateway format:
         // [{type: "image", mimeType: "...", content: "base64..."}]
@@ -1442,13 +1449,8 @@ pub async fn send_message(
             })
             .collect();
 
-        serde_json::json!({
-            "message": params.message,
-            "sessionKey": params.session_key,
-            "thinking": params.thinking,
-            "idempotencyKey": idempotency_key,
-            "attachments": attachments,
-        })
+        base_params["attachments"] = serde_json::json!(attachments);
+        base_params
     };
 
     let request = GatewayRequest {
