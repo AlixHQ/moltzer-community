@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { useStore, shallow } from "../stores/store";
+import { useStore } from "../stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { ChatInput, PreparedAttachment } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import { ConfirmDialog } from "./ui/confirm-dialog";
@@ -32,7 +33,7 @@ export function ChatView() {
     markMessageFailed,
     markMessageQueued,
   } = useStore(
-    (state) => ({
+    useShallow((state) => ({
       currentConversation: state.currentConversation,
       addMessage: state.addMessage,
       updateMessage: state.updateMessage,
@@ -45,8 +46,7 @@ export function ChatView() {
       markMessageSent: state.markMessageSent,
       markMessageFailed: state.markMessageFailed,
       markMessageQueued: state.markMessageQueued,
-    }),
-    shallow
+    }))
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);

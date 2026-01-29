@@ -1,4 +1,5 @@
-﻿import { useStore, shallow } from "../stores/store";
+﻿import { useStore } from "../stores/store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "../lib/utils";
 import { Plus, AlertTriangle, Cpu } from "lucide-react";
 import { Button } from "./ui/button";
@@ -12,14 +13,13 @@ export function WelcomeView() {
     settings,
     availableModels,
   } = useStore(
-    (state) => ({
+    useShallow((state) => ({
       createConversation: state.createConversation,
       addMessage: state.addMessage,
       connected: state.connected,
       settings: state.settings,
       availableModels: state.availableModels,
-    }),
-    shallow
+    }))
   );
 
   // Moltz-specific suggestions showcasing agentic capabilities

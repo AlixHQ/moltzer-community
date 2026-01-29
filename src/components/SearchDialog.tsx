@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useStore, shallow } from "../stores/store";
+import { useStore } from "../stores/store";
 import { cn } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { searchPersistedMessages } from "../lib/persistence";

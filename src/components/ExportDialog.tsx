@@ -5,7 +5,7 @@
  * with customizable options.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { Conversation } from "../stores/store";
@@ -31,6 +31,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface ExportDialogProps {
   open: boolean;
@@ -85,6 +86,21 @@ export function ExportDialog({
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useFocusTrap(open);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isExporting) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose, isExporting]);
 
   if (!open) return null;
 
@@ -158,11 +174,18 @@ export function ExportDialog({
       <div
         className="fixed inset-0 bg-black/50 z-50 animate-in fade-in duration-200"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && !isExporting) onClose();
+        }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close export dialog"
       />
 
       {/* Dialog */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
+          ref={dialogRef as React.RefObject<HTMLDivElement>}
           role="dialog"
           aria-modal="true"
           aria-labelledby="export-dialog-title"
