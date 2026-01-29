@@ -866,7 +866,7 @@ export function GatewaySetupStep({
               }
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className={cn(
-                "w-full px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
+                "w-full px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
                 (connectionState === "testing" || connectionState === "verifying")
                   ? isButtonHovered
                     ? "bg-red-500 text-white cursor-pointer hover:bg-red-600 focus:ring-red-500"
