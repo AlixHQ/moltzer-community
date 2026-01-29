@@ -120,15 +120,32 @@ export default function App() {
         useStore.getState().setConversationsLoading(true);
 
         // Load conversations from IndexedDB
-        const { conversations } = await loadPersistedData();
+        const { conversations, corruptedCount } = await loadPersistedData();
 
         // Restore conversations to store
         if (conversations.length > 0) {
           useStore.setState({ conversations });
         }
+
+        // Warn user if corrupted data was detected
+        if (corruptedCount && (corruptedCount.conversations > 0 || corruptedCount.messages > 0)) {
+          const { conversations: corruptedConvs, messages: corruptedMsgs } = corruptedCount;
+          let warning = "⚠️ Some data couldn't be loaded";
+          
+          if (corruptedConvs > 0 && corruptedMsgs > 0) {
+            warning += `: ${corruptedConvs} conversation(s) and ${corruptedMsgs} message(s) were corrupted or unreadable.`;
+          } else if (corruptedConvs > 0) {
+            warning += `: ${corruptedConvs} conversation(s) were corrupted.`;
+          } else {
+            warning += `: ${corruptedMsgs} message(s) were corrupted or unreadable.`;
+          }
+          
+          warning += " Your other data is safe.";
+          showError(warning);
+        }
       } catch (err) {
         console.error("Failed to load persisted data:", err);
-        showError("Failed to load saved conversations");
+        showError("Failed to load saved conversations. Your data may be corrupted.");
       } finally {
         useStore.getState().setConversationsLoading(false);
         setIsLoadingData(false);

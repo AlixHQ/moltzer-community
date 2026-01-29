@@ -28,10 +28,18 @@ async function getDb() {
 /**
  * Load all conversations and messages from IndexedDB
  * Automatically decrypts all data
+ * Returns stats about any corrupted data encountered
  */
 export async function loadPersistedData(): Promise<{
   conversations: Conversation[];
+  corruptedCount?: {
+    conversations: number;
+    messages: number;
+  };
 }> {
+  let corruptedConversations = 0;
+  let corruptedMessages = 0;
+
   try {
     const db = await getDb();
 
@@ -52,6 +60,8 @@ export async function loadPersistedData(): Promise<{
 
       // Decrypt messages
       const messages: Message[] = [];
+      let hasCorruptedMessages = false;
+      
       for (const dbMsg of dbMessages) {
         try {
           const decrypted = await decrypt(dbMsg.content);
@@ -68,7 +78,9 @@ export async function loadPersistedData(): Promise<{
           });
         } catch (err) {
           console.error(`Failed to decrypt message ${dbMsg.id}:`, err);
-          // Skip corrupted messages
+          corruptedMessages++;
+          hasCorruptedMessages = true;
+          // Skip corrupted messages but continue with others
         }
       }
 
@@ -95,20 +107,44 @@ export async function loadPersistedData(): Promise<{
         }
       }
 
-      conversations.push({
-        id: dbConv.id,
-        title,
-        messages,
-        createdAt: dbConv.createdAt,
-        updatedAt: dbConv.updatedAt,
-        model: dbConv.model,
-        thinkingEnabled: dbConv.thinkingEnabled,
-        isPinned: dbConv.isPinned,
-        systemPrompt,
-      });
+      // Only include conversation if it has at least some valid messages or no messages at all
+      // Skip conversations that are completely corrupted
+      if (messages.length > 0 || dbMessages.length === 0) {
+        conversations.push({
+          id: dbConv.id,
+          title,
+          messages,
+          createdAt: dbConv.createdAt,
+          updatedAt: dbConv.updatedAt,
+          model: dbConv.model,
+          thinkingEnabled: dbConv.thinkingEnabled,
+          isPinned: dbConv.isPinned,
+          systemPrompt,
+        });
+        
+        // Mark conversation as partially corrupted if some messages failed
+        if (hasCorruptedMessages && messages.length === 0) {
+          corruptedConversations++;
+        }
+      } else {
+        // Completely corrupted conversation (all messages failed to decrypt)
+        corruptedConversations++;
+      }
     }
 
-    return { conversations };
+    // Return stats about corruption if any was detected
+    const result: { conversations: Conversation[]; corruptedCount?: { conversations: number; messages: number } } = {
+      conversations,
+    };
+
+    if (corruptedConversations > 0 || corruptedMessages > 0) {
+      result.corruptedCount = {
+        conversations: corruptedConversations,
+        messages: corruptedMessages,
+      };
+    }
+
+    return result;
   } catch (err) {
     console.error("Failed to load persisted data:", err);
     // Return empty state on error
