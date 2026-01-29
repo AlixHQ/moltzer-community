@@ -804,8 +804,14 @@ pub async fn connect(
     url: String,
     token: String,
 ) -> Result<ConnectResult, String> {
-    // DEBUG: Log what URL we actually received from frontend
-    log_protocol_error("CONNECT CALLED - URL received", &url);
+    // DEBUG: Log what URL and token status we received from frontend
+    log_protocol_error("CONNECT CALLED", &format!("URL received: {}", url));
+    let token_status = if token.is_empty() {
+        "EMPTY".to_string()
+    } else {
+        format!("present ({} chars)", token.len())
+    };
+    log_protocol_error("CONNECT CALLED", &format!("Token status: {}", token_status));
 
     // Reset shutdown flag
     state.inner.shutdown.store(false, Ordering::SeqCst);
