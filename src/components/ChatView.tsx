@@ -290,8 +290,8 @@ export function ChatView() {
         });
       } catch (err: unknown) {
         console.error("Failed to regenerate response:", err);
-        const errorMsg = String(err).replace("Error: ", "");
-        setError(errorMsg);
+        const friendly = translateError(err instanceof Error ? err : String(err));
+        setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
         setTimeout(() => setError(null), 15000);
       } finally {
         setIsSending(false);
@@ -366,6 +366,7 @@ export function ChatView() {
       markMessageSent(currentConversation.id, userMessage.id);
     } catch (err: unknown) {
       console.error("Failed to send message:", err);
+      const friendly = translateError(err instanceof Error ? err : String(err));
       const errorMsg = String(err).replace("Error: ", "");
       
       // Check if it's a connection error - queue for retry
@@ -373,11 +374,11 @@ export function ChatView() {
           errorMsg.toLowerCase().includes("network") ||
           errorMsg.toLowerCase().includes("disconnected")) {
         markMessageQueued(currentConversation.id, userMessage.id);
-        setError("Connection lost - message will be retried when reconnected");
+        setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
       } else {
         // Hard error - mark as failed
         markMessageFailed(currentConversation.id, userMessage.id, errorMsg);
-        setError(errorMsg);
+        setError(`${friendly.title}: ${friendly.message}${friendly.suggestion ? '\n' + friendly.suggestion : ''}`);
         setLastFailedMessage({ content, attachments });
       }
 
@@ -505,7 +506,7 @@ export function ChatView() {
                 <p className="text-sm font-semibold text-destructive mb-1">
                   Message Send Failed
                 </p>
-                <p className="text-xs text-destructive/80 break-words leading-relaxed">
+                <p className="text-xs text-destructive/80 break-words leading-relaxed whitespace-pre-line">
                   {error}
                 </p>
               </div>
