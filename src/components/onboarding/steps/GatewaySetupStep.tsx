@@ -741,8 +741,8 @@ export function GatewaySetupStep({
                 value={gatewayToken}
                 onChange={(e) => onGatewayTokenChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Leave blank if not required"
-                aria-label="Authentication token (optional)"
+                placeholder="Paste your gateway token here"
+                aria-label="Authentication token"
                 aria-required="false"
                 className="w-full px-4 py-3 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
               />

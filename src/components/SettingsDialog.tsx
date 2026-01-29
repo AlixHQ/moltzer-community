@@ -380,9 +380,9 @@ export function SettingsDialog({
                   htmlFor="gateway-token"
                   className="block text-sm font-medium mb-1.5"
                 >
-                  Security Password{" "}
+                  Authentication Token{" "}
                   <span className="text-muted-foreground font-normal">
-                    (usually not needed)
+                    (required if gateway has auth enabled)
                   </span>
                   <TooltipProvider>
                     <Tooltip>
@@ -398,13 +398,13 @@ export function SettingsDialog({
                       <TooltipContent side="top" className="max-w-xs">
                         <p className="font-medium mb-1">When do I need this?</p>
                         <p className="text-muted-foreground mb-2">
-                          Only if you specifically set up password protection.
-                          Most people don't need this.
+                          Required if your gateway has auth.token configured.
+                          Check your clawdbot.json for gateway.auth.token.
                         </p>
-                        <p className="font-medium mb-1">Leave blank unless:</p>
+                        <p className="font-medium mb-1">Error: "device identity required"</p>
                         <p className="text-muted-foreground">
-                          You get an "authentication failed" error or someone
-                          gave you a password for this setup.
+                          This error means the gateway requires a token.
+                          Paste your token from clawdbot.json here.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -418,7 +418,7 @@ export function SettingsDialog({
                     onChange={(e) =>
                       setFormData({ ...formData, gatewayToken: e.target.value })
                     }
-                    placeholder="Leave blank (most people don't need this)"
+                    placeholder="Paste gateway token if required"
                     aria-describedby="gateway-token-hint"
                     className="w-full px-3 py-2 pr-10 rounded-xl border border-border bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
                   />
