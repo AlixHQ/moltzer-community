@@ -297,11 +297,12 @@ export function ChatInput({ onSend, disabled, isSending }: ChatInputProps) {
 
       {/* Attachments preview */}
       {attachments.length > 0 && (
-        <div className="flex gap-2 mb-3 flex-wrap animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="flex gap-2 mb-3 flex-wrap">
           {attachments.map((file, i) => (
             <div
               key={file.id}
-              className="relative flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border/50 rounded-xl text-sm group hover:bg-muted transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border/50 rounded-xl text-sm group hover:bg-muted transition-colors animate-in fade-in slide-in-from-bottom-2 duration-200"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               {/* Image preview or file icon */}
               {file.previewUrl ? (
