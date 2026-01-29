@@ -701,6 +701,28 @@ export function SettingsDialog({
                 ))}
               </div>
             </fieldset>
+
+            {/* Compact Mode */}
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium text-muted-foreground">
+                Display Density
+              </legend>
+              <div className="flex items-center justify-between p-3 border border-border rounded-xl">
+                <div className="space-y-1">
+                  <span className="text-sm font-medium">Compact Mode</span>
+                  <p className="text-xs text-muted-foreground">
+                    Tighter spacing, smaller fonts for power users
+                  </p>
+                </div>
+                <Switch
+                  checked={formData.compactMode}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, compactMode: checked })
+                  }
+                  aria-label="Toggle compact mode"
+                />
+              </div>
+            </fieldset>
           </section>
         </div>
 
