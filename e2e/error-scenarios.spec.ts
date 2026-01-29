@@ -403,7 +403,7 @@ test.describe('Error Handling and Recovery', () => {
     // Fill localStorage to near capacity
     await page.evaluate(() => {
       try {
-        const largData = 'x'.repeat(1024 * 1024); // 1MB string
+        const largeData = 'x'.repeat(1024 * 1024); // 1MB string
         for (let i = 0; i < 5; i++) {
           localStorage.setItem(`large-data-${i}`, largeData);
         }

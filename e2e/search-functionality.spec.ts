@@ -167,7 +167,7 @@ test.describe('Search Functionality', () => {
     await page.waitForTimeout(500);
     
     // Should show all results with 'a'
-    let hasResults = await page.locator('text=apple, text=apricot, text=application').first().isVisible({ timeout: 1000 });
+    const hasResults = await page.locator('text=apple, text=apricot, text=application').first().isVisible({ timeout: 1000 });
     
     // Type more to narrow down
     await searchInput.fill('ap');

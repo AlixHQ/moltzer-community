@@ -186,6 +186,8 @@ export function ChatView() {
       updateMessage,
       addMessage,
       connected,
+      setError,
+      clearError,
     ],
   );
 
@@ -291,6 +293,8 @@ export function ChatView() {
       deleteMessage,
       addMessage,
       connected,
+      setError,
+      clearError,
     ],
   );
 
@@ -409,7 +413,8 @@ export function ChatView() {
             // PERF: Virtual scrolling for long conversations (>50 messages)
             <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
               {virtualizer.getVirtualItems().map((virtualRow) => {
-                const message = currentConversation!.messages[virtualRow.index];
+                const message = currentConversation?.messages[virtualRow.index];
+                if (!message) return null;
                 return (
                   <div
                     key={message.id}

@@ -374,8 +374,8 @@ describe("Store Race Conditions", () => {
       store.updateConversation(conv.id, { title: "Custom Title" });
 
       // Now check state - no messages yet
-      let checkStore = useStore.getState();
-      let checkConv = checkStore.conversations.find((c) => c.id === conv.id);
+      const checkStore = useStore.getState();
+      const checkConv = checkStore.conversations.find((c) => c.id === conv.id);
       expect(checkConv?.messages.length).toBe(0);
 
       // Add first user message

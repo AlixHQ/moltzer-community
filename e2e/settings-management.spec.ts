@@ -359,9 +359,9 @@ test.describe('Settings Management', () => {
       
       // Look for common shortcuts
       const commonShortcuts = [
-        page.locator('text=/cmd\+k|⌘k/i'),
-        page.locator('text=/cmd\+n|⌘n/i'),
-        page.locator('text=/cmd\+,|⌘,/i')
+        page.locator('text=/cmd+k|⌘k/i'),
+        page.locator('text=/cmd+n|⌘n/i'),
+        page.locator('text=/cmd+,|⌘,/i')
       ];
       
       for (const shortcut of commonShortcuts) {
