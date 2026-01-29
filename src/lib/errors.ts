@@ -24,17 +24,17 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("econnrefused")
   ) {
     return {
-      title: "Can't reach Gateway",
-      message: "The Gateway isn't responding.",
-      suggestion: "Is the Gateway running? Try: clawdbot gateway status",
+      title: "Can't connect",
+      message: "Nothing is responding at that address.",
+      suggestion: "Make sure Moltz is running on your computer. Check Settings to update the connection.",
     };
   }
 
   if (lowerError.includes("timeout") || lowerError.includes("timed out")) {
     return {
-      title: "Connection timed out",
-      message: "The Gateway is taking too long to respond.",
-      suggestion: "Check your network connection or try again in a moment.",
+      title: "Taking too long",
+      message: "The connection is timing out.",
+      suggestion: "Check your connection settings or try again in a moment.",
     };
   }
 
@@ -44,9 +44,9 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("wss://")
   ) {
     return {
-      title: "Connection issue",
-      message: "Couldn't establish a WebSocket connection.",
-      suggestion: "Verify the Gateway URL starts with ws:// or wss://",
+      title: "Connection problem",
+      message: "Can't establish the connection.",
+      suggestion: "Check your connection settings.",
     };
   }
 
@@ -56,9 +56,9 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("enotfound")
   ) {
     return {
-      title: "Gateway not found",
-      message: "The Gateway address couldn't be resolved.",
-      suggestion: "Check the Gateway URL for typos.",
+      title: "Address not found",
+      message: "Can't find that address.",
+      suggestion: "Double-check the address in Settings for typos.",
     };
   }
 
@@ -81,17 +81,17 @@ export function translateError(error: string | Error): UserFriendlyError {
     lowerError.includes("invalid token")
   ) {
     return {
-      title: "Authentication failed",
-      message: "The Gateway didn't accept your token.",
-      suggestion: "Update your Gateway token in Settings (auto-opening...)",
+      title: "Wrong password",
+      message: "The security password isn't correct.",
+      suggestion: "Check your password in Settings, or try without a password if you didn't set one up.",
     };
   }
 
   if (lowerError.includes("forbidden") || lowerError.includes("403")) {
     return {
       title: "Access denied",
-      message: "You don't have permission to access this Gateway.",
-      suggestion: "Contact the Gateway administrator.",
+      message: "You don't have permission to connect.",
+      suggestion: "Check your security password or contact whoever set this up.",
     };
   }
 
