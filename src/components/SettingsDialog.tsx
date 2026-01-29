@@ -180,6 +180,13 @@ export function SettingsDialog({
       return;
     }
 
+    // Validate token length (warn but don't block if empty for local dev)
+    if (formData.gatewayToken.trim().length > 0 && formData.gatewayToken.length > 500) {
+      setError("Gateway token is too long (max 500 characters). Check if you copied it correctly.");
+      showToastError("Token is too long");
+      return;
+    }
+
     // Try to reconnect with new settings
     const needsReconnect =
       formData.gatewayUrl !== settings.gatewayUrl ||
