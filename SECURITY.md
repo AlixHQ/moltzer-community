@@ -1,4 +1,4 @@
-﻿# Security Policy
+# Security Policy
 
 ## Security Overview
 
@@ -30,14 +30,14 @@ All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryp
 - **Dependency Scanning:** Automated security audits via Dependabot
 - **No Eval:** No dynamic code execution or `eval()` usage
 
-## ?? Supported Versions
+##  Supported Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.0.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
-## ?? Reporting a Vulnerability
+##  Reporting a Vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
@@ -61,7 +61,7 @@ All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryp
 3. We'll release a security patch
 4. We'll credit you in the release notes (unless you prefer to remain anonymous)
 
-## ?? Security Best Practices for Users
+##  Security Best Practices for Users
 
 ### Protect Your Master Key
 
@@ -85,7 +85,7 @@ All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryp
 - Keep Moltz and your OS updated
 - Don't install untrusted plugins or extensions
 
-## ?? Encryption Details
+##  Encryption Details
 
 ### Algorithm
 
@@ -105,14 +105,14 @@ All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryp
 - Uses **Web Crypto API** (browser-native cryptography)
 - See `src/lib/encryption.ts` for implementation details
 
-## ?? Dependency Security
+##  Dependency Security
 
 - **Automated Scanning:** Dependabot runs daily
 - **Dependency Pinning:** All dependencies locked in `package-lock.json` and `Cargo.lock`
 - **Minimal Dependencies:** We avoid unnecessary packages
 - **Trusted Sources:** Only use well-maintained, audited libraries
 
-## ??? Build Security
+##  Build Security
 
 ### Code Signing
 
@@ -126,7 +126,7 @@ All conversations stored in Moltz are encrypted using **AES-GCM 256-bit** encryp
 - Build scripts are open and auditable
 - See `.github/workflows/release.yml` for build process
 
-## ?? Security Updates
+##  Security Updates
 
 We'll announce security updates via:
 
@@ -136,7 +136,7 @@ We'll announce security updates via:
 
 Subscribe to **Watch ? Custom ? Security alerts** on GitHub to get notified.
 
-## ?? Further Reading
+##  Further Reading
 
 - [ENCRYPTION.md](./ENCRYPTION.md) - Detailed encryption documentation
 - [Tauri Security](https://tauri.app/v1/references/architecture/security/) - Framework security model
@@ -146,7 +146,7 @@ Subscribe to **Watch ? Custom ? Security alerts** on GitHub to get notified.
 
 Moltz has not yet undergone a formal third-party security audit. If you're interested in sponsoring an audit, please reach out to security@Moltz.dev.
 
-## ?? Acknowledgments
+##  Acknowledgments
 
 We're grateful to security researchers who responsibly disclose vulnerabilities. Contributors will be credited in release notes (with permission).
 
@@ -155,3 +155,4 @@ We're grateful to security researchers who responsibly disclose vulnerabilities.
 **Last Updated:** January 2026
 
 For questions about this policy, contact: security@Moltz.dev
+
