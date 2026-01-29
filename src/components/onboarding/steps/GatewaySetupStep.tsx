@@ -262,6 +262,7 @@ export function GatewaySetupStep({
   const [suggestedPort, setSuggestedPort] = useState<string | null>(null);
   const [protocolNotice, setProtocolNotice] = useState<string>("");
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [urlAutoFixNotice, setUrlAutoFixNotice] = useState<string>("");
   const { updateSettings } = useStore();
 
   // Track mounted state and cancellation
@@ -435,19 +436,28 @@ export function GatewaySetupStep({
     }
 
     // Auto-convert http/https to ws/wss (common paste mistake)
+    let urlWasFixed = false;
     if (trimmedUrl.startsWith("http://")) {
       trimmedUrl = trimmedUrl.replace("http://", "ws://");
+      urlWasFixed = true;
     } else if (trimmedUrl.startsWith("https://")) {
       trimmedUrl = trimmedUrl.replace("https://", "wss://");
+      urlWasFixed = true;
     }
     // Add ws:// prefix if no protocol specified
     if (!trimmedUrl.startsWith("ws://") && !trimmedUrl.startsWith("wss://")) {
       trimmedUrl = "ws://" + trimmedUrl;
+      urlWasFixed = true;
     }
 
-    // Apply normalized values
+    // Apply normalized values and show notice
     if (trimmedUrl !== gatewayUrl) {
       onGatewayUrlChange(trimmedUrl);
+      if (urlWasFixed) {
+        setUrlAutoFixNotice(`Updated to ${trimmedUrl.startsWith("wss://") ? "wss://" : "ws://"}`);
+      }
+    } else {
+      setUrlAutoFixNotice("");
     }
     if (trimmedToken !== gatewayToken) {
       onGatewayTokenChange(trimmedToken);
@@ -681,7 +691,10 @@ export function GatewaySetupStep({
                 id="gateway-url-input"
                 type="text"
                 value={gatewayUrl}
-                onChange={(e) => onGatewayUrlChange(e.target.value)}
+                onChange={(e) => {
+                  onGatewayUrlChange(e.target.value);
+                  setUrlAutoFixNotice(""); // Clear auto-fix notice on manual edit
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder="localhost:18789 (this computer)"
                 autoFocus
@@ -700,16 +713,23 @@ export function GatewaySetupStep({
                     : "border-border focus:ring-primary/50",
                 )}
               />
-              <p className="text-xs text-muted-foreground mt-1.5">
-                💡 Most people use:{" "}
-                <button
-                  onClick={() => onGatewayUrlChange("ws://localhost:18789")}
-                  className="text-primary hover:underline font-medium"
-                  type="button"
-                >
-                  localhost:18789
-                </button>
-              </p>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className="text-xs text-muted-foreground">
+                  💡 Most people use:{" "}
+                  <button
+                    onClick={() => onGatewayUrlChange("ws://localhost:18789")}
+                    className="text-primary hover:underline font-medium"
+                    type="button"
+                  >
+                    localhost:18789
+                  </button>
+                </p>
+                {urlAutoFixNotice && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 animate-in fade-in duration-200">
+                    ✓ {urlAutoFixNotice}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
