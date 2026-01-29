@@ -449,18 +449,22 @@ export const MessageBubble = memo(function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1.5 py-2 px-1 animate-in fade-in duration-200">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="w-2 h-2 rounded-full bg-primary/60 typing-dot"
-          style={{
-            animationDelay: `${i * 0.2}s`,
-          }}
-          aria-hidden="true"
-        />
-      ))}
-      <span className="sr-only">Moltz is typing...</span>
+    <div className="flex items-center gap-2 py-2 px-1 animate-in fade-in duration-200">
+      <div className="flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-primary/60 typing-dot"
+            style={{
+              animationDelay: `${i * 0.2}s`,
+            }}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+      <span className="text-sm text-muted-foreground animate-pulse">
+        Thinking...
+      </span>
     </div>
   );
 }
