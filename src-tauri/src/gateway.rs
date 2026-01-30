@@ -905,6 +905,13 @@ pub async fn connect(
     }
 }
 
+/// Result of the protocol handshake
+#[derive(Debug, Clone)]
+enum HandshakeResult {
+    Success,
+    Error { code: String, message: String },
+}
+
 /// Internal connection logic
 async fn connect_internal(
     app: &AppHandle,
@@ -925,6 +932,11 @@ async fn connect_internal(
 
     // Reset health metrics
     state.health_metrics.lock().await.reset();
+
+    // CRITICAL FIX: Create a oneshot channel to wait for handshake completion
+    // This ensures we don't return success until the protocol handshake is done
+    let (handshake_tx, handshake_rx) = oneshot::channel::<HandshakeResult>();
+    let handshake_tx = Arc::new(Mutex::new(Some(handshake_tx)));
 
     // Spawn task to handle outgoing messages
     let app_clone = app.clone();
@@ -958,6 +970,7 @@ async fn connect_internal(
     let health_clone = health_metrics.clone();
     let active_runs: Arc<Mutex<HashMap<String, Instant>>> = Arc::new(Mutex::new(HashMap::new()));
     let runs_clone = active_runs.clone();
+    let handshake_tx_clone = handshake_tx.clone();
 
     // Spawn message handler with session ID validation
     tokio::spawn(async move {
@@ -981,6 +994,7 @@ async fn connect_internal(
                                 &token_clone,
                                 &pending_clone,
                                 &runs_clone,
+                                &handshake_tx_clone,
                             )
                             .await;
                         }
@@ -1000,12 +1014,28 @@ async fn connect_internal(
                         .map(|f| f.reason.to_string())
                         .unwrap_or_else(|| "Unknown".to_string());
                     log_protocol_error("WebSocket closed", &format!("session={} reason={}", handler_session_id, reason));
-                    let _ = app_clone.emit("gateway:disconnected", reason);
+                    let _ = app_clone.emit("gateway:disconnected", reason.clone());
+                    
+                    // Signal handshake failure if we close before completing
+                    if let Some(tx) = handshake_tx_clone.lock().await.take() {
+                        let _ = tx.send(HandshakeResult::Error {
+                            code: "CONNECTION_CLOSED".to_string(),
+                            message: reason,
+                        });
+                    }
                     break;
                 }
                 Err(e) => {
                     log_protocol_error("WebSocket error", &format!("session={} err={}", handler_session_id, e));
                     let _ = app_clone.emit("gateway:error", e.to_string());
+                    
+                    // Signal handshake failure on error
+                    if let Some(tx) = handshake_tx_clone.lock().await.take() {
+                        let _ = tx.send(HandshakeResult::Error {
+                            code: "WEBSOCKET_ERROR".to_string(),
+                            message: e.to_string(),
+                        });
+                    }
                     break;
                 }
                 _ => {}
@@ -1023,11 +1053,43 @@ async fn connect_internal(
     // CRITICAL-1: Start cleanup task for expired pending requests
     start_pending_requests_cleanup(pending_requests.clone()).await;
 
-    Ok(ConnectResult {
-        success: true,
-        used_url,
-        protocol_switched,
-    })
+    // CRITICAL FIX: Wait for handshake to complete before returning success
+    // Timeout after 30 seconds (should be plenty for handshake)
+    let handshake_timeout = Duration::from_secs(30);
+    match tokio::time::timeout(handshake_timeout, handshake_rx).await {
+        Ok(Ok(HandshakeResult::Success)) => {
+            log_protocol_error("CONNECT", "Handshake completed successfully");
+            Ok(ConnectResult {
+                success: true,
+                used_url,
+                protocol_switched,
+            })
+        }
+        Ok(Ok(HandshakeResult::Error { code, message })) => {
+            log_protocol_error("CONNECT", &format!("Handshake failed: [{}] {}", code, message));
+            Err(GatewayError::Gateway {
+                code,
+                message: message.clone(),
+                details: None,
+                retryable: false,
+            })
+        }
+        Ok(Err(_)) => {
+            log_protocol_error("CONNECT", "Handshake channel closed unexpectedly");
+            Err(GatewayError::Network {
+                message: "Connection closed before handshake completed".to_string(),
+                retryable: true,
+                retry_after: Some(Duration::from_millis(BACKOFF_INITIAL_MS)),
+            })
+        }
+        Err(_) => {
+            log_protocol_error("CONNECT", "Handshake timed out");
+            Err(GatewayError::Timeout {
+                timeout_secs: handshake_timeout.as_secs(),
+                request_id: None,
+            })
+        }
+    }
 }
 
 /// Handle a validated protocol frame
@@ -1038,6 +1100,7 @@ async fn handle_validated_frame(
     token: &str,
     pending_requests: &Arc<Mutex<HashMap<String, PendingRequest>>>,
     active_runs: &Arc<Mutex<HashMap<String, Instant>>>,
+    handshake_tx: &Arc<Mutex<Option<oneshot::Sender<HandshakeResult>>>>,
 ) {
     match frame {
         ValidatedFrame::Event { event, payload, .. } => {
@@ -1175,21 +1238,37 @@ async fn handle_validated_frame(
                 error: error.clone(),
             };
 
-            // Check if this is hello-ok (connect response)
-            if let Some(payload) = &payload {
-                if payload.get("type").and_then(|t| t.as_str()) == Some("hello-ok") {
-                    log_protocol_error("CONNECT SUCCESS", "Received hello-ok from gateway");
-                    let _ = app.emit("gateway:connected", ());
+            // Check if this is the connect response (hello-ok or error)
+            // We need to signal the handshake result to the connect_internal function
+            let is_connect_response = payload
+                .as_ref()
+                .and_then(|p| p.get("type"))
+                .and_then(|t| t.as_str())
+                == Some("hello-ok");
+            
+            if is_connect_response && ok {
+                log_protocol_error("CONNECT SUCCESS", "Received hello-ok from gateway");
+                let _ = app.emit("gateway:connected", ());
+                
+                // Signal handshake success
+                if let Some(tx) = handshake_tx.lock().await.take() {
+                    let _ = tx.send(HandshakeResult::Success);
                 }
-            }
-
-            // Log error responses for debugging
-            if !ok {
+            } else if !ok {
+                // This might be an error response to our connect request
                 if let Some(err) = &error {
                     log_protocol_error(
                         "Gateway ERROR response",
                         &format!("code={}, message={}", err.code, err.message),
                     );
+                    
+                    // Signal handshake failure (if handshake hasn't completed yet)
+                    if let Some(tx) = handshake_tx.lock().await.take() {
+                        let _ = tx.send(HandshakeResult::Error {
+                            code: err.code.clone(),
+                            message: err.message.clone(),
+                        });
+                    }
                 }
             }
 
