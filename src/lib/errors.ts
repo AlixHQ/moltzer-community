@@ -84,7 +84,7 @@ export function translateError(error: string | Error): UserFriendlyError {
       title: "Protocol mismatch",
       message: "The gateway rejected the connection handshake.",
       suggestion:
-        "Try updating both Moltz and Clawdbot to the latest version. If using an older gateway, check if 'allowInsecureAuth' is enabled in gateway config.",
+        "Try updating both Moltz and OpenClaw to the latest version. If using an older gateway, check if 'allowInsecureAuth' is enabled in gateway config.",
     };
   }
 
@@ -94,7 +94,7 @@ export function translateError(error: string | Error): UserFriendlyError {
       title: "Authentication required",
       message: "The gateway requires an auth token.",
       suggestion:
-        "Enter your gateway token in Settings → Gateway Token. You can find it in your Clawdbot config.",
+        "Enter your gateway token in Settings → Gateway Token. You can find it in your OpenClaw config.",
     };
   }
 
@@ -106,7 +106,7 @@ export function translateError(error: string | Error): UserFriendlyError {
       title: "Invalid token",
       message: "The gateway token doesn't match.",
       suggestion:
-        "Double-check your gateway token in Settings. Make sure it matches gateway.auth.token in your Clawdbot config.",
+        "Double-check your gateway token in Settings. Make sure it matches gateway.auth.token in your OpenClaw config.",
     };
   }
 
@@ -115,7 +115,7 @@ export function translateError(error: string | Error): UserFriendlyError {
       title: "Pairing required",
       message: "This device needs to be paired with the gateway.",
       suggestion:
-        "Open the Clawdbot control panel and approve this device, or add your auth token in Settings.",
+        "Open the OpenClaw control panel and approve this device, or add your auth token in Settings.",
     };
   }
 

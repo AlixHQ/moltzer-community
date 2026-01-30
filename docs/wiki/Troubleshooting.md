@@ -30,13 +30,13 @@ Common issues and solutions for Moltz users.
 **Check:**
 ```bash
 # Check if Gateway process is running
-ps aux | grep clawdbot   # macOS/Linux
-tasklist | findstr clawdbot   # Windows
+ps aux | grep OpenClaw   # macOS/Linux
+tasklist | findstr OpenClaw   # Windows
 ```
 
 **Solution:**
 ```bash
-clawdbot start
+OpenClaw start
 ```
 
 #### 2. Wrong URL
@@ -53,13 +53,13 @@ clawdbot start
 
 **Check:**
 ```bash
-clawdbot token show
+OpenClaw token show
 ```
 
 **Solution:**
 ```bash
 # Regenerate token
-clawdbot token regenerate
+OpenClaw token regenerate
 
 # Copy new token to Moltz Settings
 ```
@@ -127,7 +127,7 @@ ping -c 100 gateway-host
 
 **Check Gateway logs:**
 ```bash
-clawdbot logs --tail 100
+OpenClaw logs --tail 100
 ```
 
 **Solution:**
@@ -157,7 +157,7 @@ clawdbot logs --tail 100
 **Solution:**
 ```bash
 # Update both to latest versions
-npm update -g clawdbot
+npm update -g OpenClaw
 # Download latest Moltz from GitHub Releases
 ```
 
@@ -536,7 +536,7 @@ sudo update-desktop-database
 
 3. **Gateway Version:**
    ```bash
-   clawdbot version
+   OpenClaw version
    ```
 
 4. **Error Logs:**

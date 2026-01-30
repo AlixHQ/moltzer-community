@@ -175,7 +175,7 @@ Gateway authentication tokens are stored securely:
 For users:
 
 1. **Keep tokens secret** — Don't share with anyone
-2. **Regenerate if exposed** — `clawdbot token regenerate`
+2. **Regenerate if exposed** — `OpenClaw token regenerate`
 3. **Use different tokens per device** — Easier to revoke
 4. **Revoke unused tokens** — Minimize attack surface
 5. **Enable Gateway auth logs** — Monitor for suspicious activity
@@ -450,7 +450,7 @@ npm run lint:security
 
 ### Is my data sent to the cloud?
 
-No. All conversations are stored locally on your device. The only data transmitted is to your configured Clawdbot Gateway.
+No. All conversations are stored locally on your device. The only data transmitted is to your configured OpenClaw Gateway.
 
 ### Can Moltz team read my messages?
 

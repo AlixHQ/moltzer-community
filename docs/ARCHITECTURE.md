@@ -1,4 +1,4 @@
-﻿# Moltz Architecture
+# Moltz Architecture
 
 This document provides a comprehensive overview of Moltz's system architecture, design decisions, and technical implementation.
 
@@ -25,26 +25,26 @@ Moltz is a **native desktop application** built with Tauri v2, combining:
 - **Security:** End-to-end encryption with OS keychain integration
 
 ```
-┌─────────────────────────────────────────┐
-│         Moltz Desktop App             │
-├─────────────────────────────────────────┤
-│  React UI (TypeScript)                  │
-│  ├─ Components (ChatView, Sidebar...)   │
-│  ├─ State (Zustand stores)              │
-│  └─ Storage (IndexedDB via Dexie)       │
-├─────────────────────────────────────────┤
-│  Tauri Bridge (IPC)                     │
-├─────────────────────────────────────────┤
-│  Rust Backend                           │
-│  ├─ WebSocket Client (Gateway comms)    │
-│  ├─ Keychain (OS credential storage)    │
-│  └─ System Integration (notifications)  │
-└─────────────────────────────────────────┘
-         ↕ WebSocket (ws:// or wss://)
-┌─────────────────────────────────────────┐
-│      Clawdbot Gateway                   │
-│      (AI Model Orchestration)           │
-└─────────────────────────────────────────┘
++-----------------------------------------+
+�         Moltz Desktop App             �
++-----------------------------------------�
+�  React UI (TypeScript)                  �
+�  +- Components (ChatView, Sidebar...)   �
+�  +- State (Zustand stores)              �
+�  +- Storage (IndexedDB via Dexie)       �
++-----------------------------------------�
+�  Tauri Bridge (IPC)                     �
++-----------------------------------------�
+�  Rust Backend                           �
+�  +- WebSocket Client (Gateway comms)    �
+�  +- Keychain (OS credential storage)    �
+�  +- System Integration (notifications)  �
++-----------------------------------------+
+         ? WebSocket (ws:// or wss://)
++-----------------------------------------+
+�      OpenClaw Gateway                   �
+�      (AI Model Orchestration)           �
++-----------------------------------------+
 ```
 
 ---
@@ -177,44 +177,44 @@ The Rust backend handles native capabilities:
 ### Sending a Message
 
 ```
-User types message → ChatInput component
-         ↓
+User types message ? ChatInput component
+         ?
 Updates Zustand store (optimistic update)
-         ↓
+         ?
 Encrypts message content (Web Crypto API)
-         ↓
+         ?
 Saves to IndexedDB
-         ↓
+         ?
 Sends to Rust via Tauri IPC
-         ↓
+         ?
 Rust sends WebSocket message to Gateway
-         ↓
+         ?
 Gateway streams response back
-         ↓
+         ?
 Rust forwards chunks to React via events
-         ↓
+         ?
 React updates Zustand store in real-time
-         ↓
+         ?
 UI re-renders with streaming message
-         ↓
+         ?
 Final message saved to IndexedDB
 ```
 
 ### Loading Conversations on Startup
 
 ```
-App launches → useEffect in App.tsx
-         ↓
+App launches ? useEffect in App.tsx
+         ?
 Calls loadConversationsFromDB()
-         ↓
+         ?
 IndexedDB query (all conversations sorted)
-         ↓
+         ?
 Decrypt conversation data
-         ↓
+         ?
 Populate Zustand store
-         ↓
+         ?
 React re-renders with conversation list
-         ↓
+         ?
 Background: Check for Gateway connection
 ```
 
@@ -410,7 +410,7 @@ await db.transaction('rw', db.conversations, db.messages, async () => {
 
 **Cleanup:**
 - No automatic deletion (user controls their data)
-- Manual cleanup via Settings → Advanced
+- Manual cleanup via Settings ? Advanced
 - Future: Automatic archival of old conversations
 
 ---
@@ -420,15 +420,15 @@ await db.transaction('rw', db.conversations, db.messages, async () => {
 ### Threat Model
 
 **Protected against:**
-- ✅ Local disk access (encrypted data at rest)
-- ✅ Network sniffing (wss:// encryption)
-- ✅ Memory dumps (master key in OS keychain)
-- ✅ XSS attacks (Content Security Policy)
+- ? Local disk access (encrypted data at rest)
+- ? Network sniffing (wss:// encryption)
+- ? Memory dumps (master key in OS keychain)
+- ? XSS attacks (Content Security Policy)
 
 **Not protected against:**
-- ❌ Malware with root access
-- ❌ Compromised OS keychain
-- ❌ Physical access to unlocked device
+- ? Malware with root access
+- ? Compromised OS keychain
+- ? Physical access to unlocked device
 
 ### Content Security Policy
 
@@ -540,7 +540,7 @@ const SettingsDialog = lazy(() => import('./SettingsDialog'));
 - [Zustand Documentation](https://docs.pmnd.rs/zustand/)
 - [Dexie.js Guide](https://dexie.org/docs/)
 - [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-- [Clawdbot Gateway Protocol](./PROTOCOL.md)
+- [OpenClaw Gateway Protocol](./PROTOCOL.md)
 
 ---
 

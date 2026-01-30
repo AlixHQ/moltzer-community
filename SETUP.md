@@ -1,4 +1,4 @@
-ï»¿# Getting Started with Moltz
+# Getting Started with Moltz
 
 Get Moltz up and chatting in about 5 minutes. Here's exactly what you need.
 
@@ -12,19 +12,19 @@ Get Moltz up and chatting in about 5 minutes. Here's exactly what you need.
 | **An AI API key** | Claude, OpenAI, or Google (one is enough to start) |
 
 **Where to get API keys:**
-- [Claude (Anthropic)](https://console.anthropic.com/) â€” free tier available
-- [OpenAI (GPT-4)](https://platform.openai.com/api-keys) â€” free tier available
-- [Google (Gemini)](https://aistudio.google.com/app/apikey) â€” free tier available
+- [Claude (Anthropic)](https://console.anthropic.com/) — free tier available
+- [OpenAI (GPT-4)](https://platform.openai.com/api-keys) — free tier available
+- [Google (Gemini)](https://aistudio.google.com/app/apikey) — free tier available
 
 ---
 
-## Step 1 â€” Install Moltz Gateway
+## Step 1 — Install Moltz Gateway
 
-Moltz Gateway is the open-source backend that securely routes your chats to AI providers. It runs locally on your machine â€” your API keys never leave your computer.
+Moltz Gateway is the open-source backend that securely routes your chats to AI providers. It runs locally on your machine — your API keys never leave your computer.
 
 ```bash
-npm install -g moltbot
-moltbot setup
+npm install -g OpenClaw
+OpenClaw setup
 ```
 
 The setup wizard will:
@@ -34,35 +34,35 @@ The setup wizard will:
 
 **Verify it's running:**
 ```bash
-moltbot gateway status
+OpenClaw gateway status
 ```
 
-> ðŸ’¡ The gateway starts automatically on login once set up. You can also manage it manually: `moltbot gateway start` / `moltbot gateway stop`
+> ?? The gateway starts automatically on login once set up. You can also manage it manually: `OpenClaw gateway start` / `OpenClaw gateway stop`
 
 ---
 
-## Step 2 â€” Download & Install Moltz
+## Step 2 — Download & Install Moltz
 
 | Platform | Download |
 |----------|----------|
-| **macOS** (Apple Silicon & Intel) | [Download for Mac â†’](https://github.com/AlixHQ/Moltz-community/releases) |
-| **Windows** | [Download for Windows â†’](https://github.com/AlixHQ/Moltz-community/releases) |
-| **Linux** | [Download for Linux â†’](https://github.com/AlixHQ/Moltz-community/releases) |
+| **macOS** (Apple Silicon & Intel) | [Download for Mac ?](https://github.com/AlixHQ/Moltz-community/releases) |
+| **Windows** | [Download for Windows ?](https://github.com/AlixHQ/Moltz-community/releases) |
+| **Linux** | [Download for Linux ?](https://github.com/AlixHQ/Moltz-community/releases) |
 
-Install normally â€” drag to Applications on Mac, run the `.exe` on Windows, or use the `.deb`/`.rpm` on Linux.
+Install normally — drag to Applications on Mac, run the `.exe` on Windows, or use the `.deb`/`.rpm` on Linux.
 
 ---
 
-## Step 3 â€” Connect & Chat
+## Step 3 — Connect & Chat
 
-1. **Launch Moltz** â€” find it in your Applications or start menu
-2. **First launch** â€” the onboarding wizard guides you through connecting to your Gateway
+1. **Launch Moltz** — find it in your Applications or start menu
+2. **First launch** — the onboarding wizard guides you through connecting to your Gateway
 3. If prompted manually: open **Settings** (`Cmd+,` on Mac, `Ctrl+,` on Windows) and enter:
    ```
    Gateway URL: ws://localhost:18789
    ```
-4. Click **Connect** â€” you should see your available models appear
-5. **Start chatting!** ðŸŽ‰
+4. Click **Connect** — you should see your available models appear
+5. **Start chatting!** ??
 
 ---
 
@@ -80,22 +80,22 @@ Install normally â€” drag to Applications on Mac, run the `.exe` on Windows, or 
 ## Troubleshooting
 
 ### "Connection failed"
-- Check that Moltz Gateway is running: `moltbot gateway status`
-- Restart it if needed: `moltbot gateway restart`
+- Check that Moltz Gateway is running: `OpenClaw gateway status`
+- Restart it if needed: `OpenClaw gateway restart`
 - Verify the URL in Settings matches `ws://localhost:18789`
 
 ### "No models available"
-- Your API key may be invalid or missing. Check: `moltbot config`
-- Make sure you've enabled at least one AI provider during `moltbot setup`
+- Your API key may be invalid or missing. Check: `OpenClaw config`
+- Make sure you've enabled at least one AI provider during `OpenClaw setup`
 
 ### App won't launch (macOS)
-- You may need to allow it: **System Settings â†’ Security â†’ Allow Moltz**
+- You may need to allow it: **System Settings ? Security ? Allow Moltz**
 
 ### Port already in use
-- Something else is on port 18789. Stop it, or configure a custom port: `moltbot setup --port 18790` and update the URL in Moltz Settings.
+- Something else is on port 18789. Stop it, or configure a custom port: `OpenClaw setup --port 18790` and update the URL in Moltz Settings.
 
 ---
 
-For full Gateway documentation, visit [Moltbot on GitHub](https://github.com/moltbot/moltbot).
+For full Gateway documentation, visit [OpenClaw on GitHub](https://github.com/OpenClaw/OpenClaw).
 
-Having trouble? Open an [issue on GitHub](https://github.com/AlixHQ/Moltz-community/issues) â€” we're happy to help!
+Having trouble? Open an [issue on GitHub](https://github.com/AlixHQ/Moltz-community/issues) — we're happy to help!

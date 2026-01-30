@@ -1,24 +1,24 @@
 # Getting Started with Moltz
 
-This guide will help you install Moltz and connect to Clawdbot Gateway for the first time.
+This guide will help you install Moltz and connect to OpenClaw Gateway for the first time.
 
 ---
 
 ## Prerequisites
 
-Before installing Moltz, you need **Clawdbot Gateway** running on your machine or accessible over your network.
+Before installing Moltz, you need **OpenClaw Gateway** running on your machine or accessible over your network.
 
-### Install Clawdbot Gateway
+### Install OpenClaw Gateway
 
-Clawdbot Gateway is the AI routing service that connects Moltz to AI providers (Claude, GPT, Gemini, etc.).
+OpenClaw Gateway is the AI routing service that connects Moltz to AI providers (Claude, GPT, Gemini, etc.).
 
 **Installation:**
 ```bash
-npm install -g clawdbot
-clawdbot setup
+npm install -g OpenClaw
+OpenClaw setup
 ```
 
-For detailed instructions, see the [official Clawdbot documentation](https://github.com/clawdbot/clawdbot).
+For detailed instructions, see the [official OpenClaw documentation](https://github.com/OpenClaw/OpenClaw).
 
 **Default Gateway URL:** `ws://localhost:18789`
 
@@ -106,7 +106,7 @@ When you launch Moltz for the first time, you'll go through a brief onboarding:
 Introduction to Moltz and its features.
 
 #### Step 2: Gateway Setup
-Enter your Clawdbot Gateway connection details:
+Enter your OpenClaw Gateway connection details:
 
 **Local Gateway (Default):**
 - **URL:** `ws://localhost:18789`
@@ -119,10 +119,10 @@ Enter your Clawdbot Gateway connection details:
 **Finding Your Token:**
 ```bash
 # In your Gateway terminal
-clawdbot token show
+OpenClaw token show
 ```
 
-Or check `~/.config/clawdbot/config.json`
+Or check `~/.config/OpenClaw/config.json`
 
 #### Step 3: Test Connection
 Moltz will verify the connection to your Gateway. You should see:
@@ -215,7 +215,7 @@ Once connected:
 
 ## Quick Setup Checklist
 
-- [ ] Clawdbot Gateway installed and running
+- [ ] OpenClaw Gateway installed and running
 - [ ] Gateway token retrieved
 - [ ] Moltz installed
 - [ ] Connection tested successfully
@@ -238,9 +238,9 @@ Once connected:
 ### "Cannot connect to Gateway"
 
 **Causes:**
-1. Gateway not running → Start Gateway: `clawdbot start`
+1. Gateway not running → Start Gateway: `OpenClaw start`
 2. Wrong URL → Check Gateway settings
-3. Wrong token → Regenerate: `clawdbot token regenerate`
+3. Wrong token → Regenerate: `OpenClaw token regenerate`
 4. Firewall blocking connection → Allow port 18789
 
 **See:** [Troubleshooting → Connection Problems](./Troubleshooting.md#connection-problems)

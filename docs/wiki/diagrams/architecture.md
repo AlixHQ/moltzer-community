@@ -20,7 +20,7 @@ graph TB
     end
     
     subgraph "External Services"
-        Gateway[Clawdbot Gateway<br/>WebSocket Server]
+        Gateway[OpenClaw Gateway<br/>WebSocket Server]
         AI[AI Providers<br/>Claude, GPT, etc.]
     end
     
@@ -301,7 +301,7 @@ graph TB
     end
     
     subgraph "Gateway"
-        GW[Clawdbot Gateway]
+        GW[OpenClaw Gateway]
     end
     
     App1 <--> Proxy

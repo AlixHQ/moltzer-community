@@ -1,13 +1,13 @@
-﻿# Clawdbot Gateway Protocol
+# OpenClaw Gateway Protocol
 
-This document describes the WebSocket protocol used by Moltz to communicate with the Clawdbot Gateway.
+This document describes the WebSocket protocol used by Moltz to communicate with the OpenClaw Gateway.
 
 ## Table of Contents
 
 - [Connection](#connection)
 - [Message Format](#message-format)
-- [Client → Gateway Messages](#client--gateway-messages)
-- [Gateway → Client Messages](#gateway--client-messages)
+- [Client ? Gateway Messages](#client--gateway-messages)
+- [Gateway ? Client Messages](#gateway--client-messages)
 - [Error Handling](#error-handling)
 - [Streaming Responses](#streaming-responses)
 - [Authentication](#authentication)
@@ -70,7 +70,7 @@ interface Message {
 
 ---
 
-## Client → Gateway Messages
+## Client ? Gateway Messages
 
 ### 1. Send Message
 
@@ -178,7 +178,7 @@ Health check / keepalive.
 
 ---
 
-## Gateway → Client Messages
+## Gateway ? Client Messages
 
 ### 1. Chat Response Chunk (Streaming)
 
@@ -437,11 +437,11 @@ The connection will be closed with code `4401` if auth fails.
 
 Check your Gateway configuration:
 ```bash
-clawdbot gateway status
+OpenClaw gateway status
 # Shows auth token if required
 ```
 
-Or look in `~/.config/clawdbot/clawdbot.json`:
+Or look in `~/.config/OpenClaw/OpenClaw.json`:
 ```json
 {
   "gateway": {
@@ -673,7 +673,7 @@ Clients should check the Gateway version on connect:
 
 - [WebSocket API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
 - [RFC 6455: WebSocket Protocol](https://datatracker.ietf.org/doc/html/rfc6455)
-- [Clawdbot Gateway Documentation](https://github.com/clawdbot/clawdbot)
+- [OpenClaw Gateway Documentation](https://github.com/OpenClaw/OpenClaw)
 
 ---
 

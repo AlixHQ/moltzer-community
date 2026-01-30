@@ -73,7 +73,7 @@ Controls spacing between messages:
 **Format:** `ws://host:port` or `wss://host:port`  
 **Default:** `ws://localhost:18789`
 
-WebSocket URL of your Clawdbot Gateway.
+WebSocket URL of your OpenClaw Gateway.
 
 **Examples:**
 ```
@@ -97,12 +97,12 @@ Authentication token from your Gateway.
 
 **Find your token:**
 ```bash
-clawdbot token show
+OpenClaw token show
 ```
 
 **Regenerate if compromised:**
 ```bash
-clawdbot token regenerate
+OpenClaw token regenerate
 ```
 
 **Security:**

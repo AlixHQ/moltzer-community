@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Core Features
 - Native desktop app built with Tauri + React
-- WebSocket connection to Clawdbot Gateway
+- WebSocket connection to OpenClaw Gateway
 - Real-time streaming AI responses
 - Conversation management (create, delete, rename, pin)
 - Full-text search across all conversations

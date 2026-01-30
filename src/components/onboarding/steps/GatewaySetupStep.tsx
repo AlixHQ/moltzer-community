@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { motion, AnimatePresence } from "framer-motion";
@@ -76,7 +76,7 @@ function getTailscaleTips(): TroubleshootingTip[] {
     {
       title: "Verify Gateway binds to Tailscale",
       description: 'Gateway config should have bind: "tailnet" or bind: "lan"',
-      command: "clawdbot config get gateway.bind",
+      command: "OpenClaw config get gateway.bind",
     },
     {
       title: "Check firewall rules",
@@ -95,12 +95,12 @@ function getLanTips(): TroubleshootingTip[] {
     {
       title: "Check Gateway is running",
       description: "Gateway must be running and accessible on the network",
-      command: "clawdbot gateway status",
+      command: "OpenClaw gateway status",
     },
     {
       title: "Verify Gateway binds to LAN",
       description: 'Gateway config should have bind: "lan" (not "loopback")',
-      command: "clawdbot config get gateway.bind",
+      command: "OpenClaw config get gateway.bind",
     },
     {
       title: "Check firewall",
@@ -137,7 +137,7 @@ function getErrorHint(
   ) {
     return {
       hint: "This Gateway requires an authentication token.",
-      action: "Paste your token from clawdbot.json (gateway.auth.token) into the Authentication Token field above",
+      action: "Paste your token from OpenClaw.json (gateway.auth.token) into the Authentication Token field above",
       tips,
       urlType,
     };
@@ -151,7 +151,7 @@ function getErrorHint(
     return {
       hint: "The authentication token is wrong or missing.",
       action: "Where to find your token",
-      command: "clawdbot gateway status",
+      command: "OpenClaw gateway status",
       tips,
       urlType,
     };
@@ -182,7 +182,7 @@ function getErrorHint(
     return {
       hint: baseHint,
       action: "Start Gateway with",
-      command: "clawdbot gateway start",
+      command: "OpenClaw gateway start",
       tips,
       urlType,
     };
@@ -191,11 +191,11 @@ function getErrorHint(
     const baseHint =
       urlType === "tailscale"
         ? "Connection timed out. Check that Tailscale is connected on both devices."
-        : "Connection timed out — Gateway may be down.";
+        : "Connection timed out � Gateway may be down.";
     return {
       hint: baseHint,
       action: "Check Gateway status",
-      command: "clawdbot gateway status",
+      command: "OpenClaw gateway status",
       tips,
       urlType,
     };
@@ -224,7 +224,7 @@ function getErrorHint(
   return {
     hint: "Gateway connection failed.",
     action: "Make sure Gateway is running",
-    command: "clawdbot gateway start",
+    command: "OpenClaw gateway start",
     tips,
     urlType,
   };
@@ -715,7 +715,7 @@ export function GatewaySetupStep({
               />
               <div className="flex items-center justify-between mt-1.5">
                 <p className="text-xs text-muted-foreground">
-                  💡 Most people use:{" "}
+                  ?? Most people use:{" "}
                   <button
                     onClick={() => onGatewayUrlChange("ws://localhost:18789")}
                     className="text-primary hover:underline font-medium"
@@ -726,7 +726,7 @@ export function GatewaySetupStep({
                 </p>
                 {urlAutoFixNotice && (
                   <p className="text-xs text-blue-600 dark:text-blue-400 animate-in fade-in duration-200">
-                    ✓ {urlAutoFixNotice}
+                    ? {urlAutoFixNotice}
                   </p>
                 )}
               </div>
@@ -754,7 +754,7 @@ export function GatewaySetupStep({
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-sm p-4">
                       <p className="font-semibold mb-2">
-                        🔑 Authentication Token
+                        ?? Authentication Token
                       </p>
                       <p className="text-muted-foreground mb-3">
                         Some Gateways require a token for security. If you get a
@@ -763,19 +763,19 @@ export function GatewaySetupStep({
                       <p className="font-medium mb-1">Where to find it:</p>
                       <ul className="text-sm text-muted-foreground space-y-1 mb-3">
                         <li>
-                          • Run{" "}
+                          � Run{" "}
                           <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                            clawdbot gateway status
+                            OpenClaw gateway status
                           </code>
                         </li>
                         <li>
-                          • Check your{" "}
+                          � Check your{" "}
                           <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                            clawdbot.json
+                            OpenClaw.json
                           </code>{" "}
                           config
                         </li>
-                        <li>• Ask your Gateway admin</li>
+                        <li>� Ask your Gateway admin</li>
                       </ul>
                       <p className="text-xs text-muted-foreground/70">
                         The token is stored securely in your system keychain.
@@ -840,7 +840,7 @@ export function GatewaySetupStep({
                   {errorHint?.action && (
                     <div className="pl-8">
                       <p className="text-sm text-muted-foreground">
-                        💡 {errorHint.action}
+                        ?? {errorHint.action}
                       </p>
                     </div>
                   )}
@@ -859,7 +859,7 @@ export function GatewaySetupStep({
                         }}
                         className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        Try the standard setup: localhost:{suggestedPort} →
+                        Try the standard setup: localhost:{suggestedPort} ?
                       </button>
                     </div>
                   )}
@@ -1018,7 +1018,7 @@ export function GatewaySetupStep({
               (connectionState === "testing" || connectionState === "verifying") && "opacity-50 cursor-not-allowed",
             )}
           >
-            ← Back
+            ? Back
           </button>
 
           <button

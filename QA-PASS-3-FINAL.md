@@ -47,7 +47,7 @@
    - Current behavior acceptable for MVP
 
 2. **WelcomeStep feature cards** - Reference calendar/email features
-   - May or may not be implemented in Clawdbot Gateway
+   - May or may not be implemented in OpenClaw Gateway
    - Leave as-is pending product clarification
 
 ---
@@ -134,5 +134,5 @@ The Moltz onboarding flow is now ready for release:
 
 **Recommended Next Steps:**
 1. Manual testing on Windows, macOS, Linux
-2. Test with actual Clawdbot Gateway instances
+2. Test with actual OpenClaw Gateway instances
 3. Consider cleanup sprint for dead detection code

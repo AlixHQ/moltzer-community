@@ -1,6 +1,6 @@
-# Clawdbot Gateway Protocol v3 - Moltz Implementation Guide
+# OpenClaw Gateway Protocol v3 - Moltz Implementation Guide
 
-This document specifies the Clawdbot Gateway WebSocket protocol as implemented by Moltz.
+This document specifies the OpenClaw Gateway WebSocket protocol as implemented by Moltz.
 
 ## Overview
 
@@ -28,7 +28,7 @@ Immediately after WebSocket opens, send:
     "minProtocol": 3,
     "maxProtocol": 3,
     "client": {
-      "id": "clawdbot-control-ui",
+      "id": "OpenClaw-control-ui",
       "version": "1.0.0",
       "platform": "macos",
       "mode": "cli"
@@ -83,7 +83,7 @@ Or the WebSocket is closed with reason: `"device identity required"`
 
 ### Method 1: Token Auth (Recommended for Control UI)
 
-Gateway config (`clawdbot.json`):
+Gateway config (`OpenClaw.json`):
 ```json
 {
   "gateway": {
@@ -106,7 +106,7 @@ Client sends:
 ```
 
 **Requirements:**
-- `client.id` MUST be `"clawdbot-control-ui"`
+- `client.id` MUST be `"OpenClaw-control-ui"`
 - `allowInsecureAuth` MUST be `true` in gateway config
 - Token MUST match `gateway.auth.token`
 
@@ -177,12 +177,12 @@ Moltz does NOT implement device identity - it relies on token auth.
 ## Client IDs
 
 Valid `client.id` values:
-- `clawdbot-control-ui` - Control UI (supports allowInsecureAuth)
+- `OpenClaw-control-ui` - Control UI (supports allowInsecureAuth)
 - `cli` - CLI client
 - `webchat-ui` - Webchat
-- `clawdbot-macos` - macOS app
-- `clawdbot-ios` - iOS app
-- `clawdbot-android` - Android app
+- `OpenClaw-macos` - macOS app
+- `OpenClaw-ios` - iOS app
+- `OpenClaw-android` - Android app
 
 ## Client Modes
 
@@ -207,7 +207,7 @@ Valid `client.mode` values:
 ### "device identity required"
 - Check `gateway.controlUi.allowInsecureAuth: true` in gateway config
 - Verify token is being sent (not empty)
-- Verify `client.id` is exactly `"clawdbot-control-ui"`
+- Verify `client.id` is exactly `"OpenClaw-control-ui"`
 
 ### "token_mismatch"  
 - Token sent doesn't match `gateway.auth.token`
@@ -220,7 +220,7 @@ Valid `client.mode` values:
 
 ## References
 
-- Gateway Protocol Source: `clawdbot/src/gateway/protocol/`
-- Schema: `clawdbot/src/gateway/protocol/schema/frames.ts`
-- Auth Logic: `clawdbot/src/gateway/auth.ts`
-- Message Handler: `clawdbot/src/gateway/server/ws-connection/message-handler.ts`
+- Gateway Protocol Source: `OpenClaw/src/gateway/protocol/`
+- Schema: `OpenClaw/src/gateway/protocol/schema/frames.ts`
+- Auth Logic: `OpenClaw/src/gateway/auth.ts`
+- Message Handler: `OpenClaw/src/gateway/server/ws-connection/message-handler.ts`

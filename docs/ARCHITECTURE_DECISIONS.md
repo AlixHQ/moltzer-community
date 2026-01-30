@@ -1,13 +1,13 @@
-﻿# Architecture Decisions: Moltz client vs Clawdbot Gateway
+# Architecture Decisions: Moltz client vs OpenClaw Gateway
 
 **Last updated:** 2026-01-27  
-**Purpose:** Define clear boundaries between client and server responsibilities based on Clawdbot Gateway capabilities
+**Purpose:** Define clear boundaries between client and server responsibilities based on OpenClaw Gateway capabilities
 
 ---
 
 ## Executive Summary
 
-Clawdbot Gateway is a **feature-complete WebSocket server** that handles:
+OpenClaw Gateway is a **feature-complete WebSocket server** that handles:
 - Multi-agent routing and session management
 - All AI tool execution (browser, filesystem, shell, canvas, nodes)
 - Authentication, authorization, and security
@@ -27,23 +27,23 @@ Clawdbot Gateway is a **feature-complete WebSocket server** that handles:
 
 | Feature | Gateway Support | Notes |
 |---------|----------------|-------|
-| **WebSocket Protocol** | ✅ Full | Typed protocol with JSON Schema validation |
-| **Session Management** | ✅ Full | Per-agent sessions, auto-reset policies, main/group/DM routing |
-| **Multi-Agent Routing** | ✅ Full | Isolated agents with separate workspaces, auth, sessions |
-| **Message History** | ✅ Full | JSONL transcripts per session, stored server-side |
-| **Tool Execution** | ✅ Full | All tools (browser, exec, nodes, canvas, cron, gateway) |
-| **File Access** | ✅ Full | Read/write/edit in agent workspace (sandboxed or host) |
-| **Model Management** | ✅ Full | Provider auth, failover, per-agent model selection |
-| **Auth Profiles** | ✅ Full | Per-agent OAuth for Anthropic, OpenAI, Google, etc. |
-| **Browser Control** | ✅ Full | Multi-profile Playwright/Puppeteer with snapshot/act |
-| **Node Integration** | ✅ Full | iOS/Android/macOS nodes for camera, screen, canvas, system.run |
-| **Cron Jobs** | ✅ Full | Agent-initiated scheduled tasks with wake events |
-| **HTTP APIs** | ✅ Full | OpenAI Chat Completions, OpenResponses, Tools Invoke |
-| **Streaming** | ✅ Full | SSE for HTTP, WebSocket events for WS |
-| **Presence Tracking** | ✅ Full | Multi-device presence with structured entries |
-| **Control UI** | ✅ Full | Vite + Lit browser UI served from Gateway |
-| **Pairing/Approvals** | ✅ Full | Device-based pairing with token issuance |
-| **Sandboxing** | ✅ Full | Docker sandbox per agent or shared, with allowlists |
+| **WebSocket Protocol** | ? Full | Typed protocol with JSON Schema validation |
+| **Session Management** | ? Full | Per-agent sessions, auto-reset policies, main/group/DM routing |
+| **Multi-Agent Routing** | ? Full | Isolated agents with separate workspaces, auth, sessions |
+| **Message History** | ? Full | JSONL transcripts per session, stored server-side |
+| **Tool Execution** | ? Full | All tools (browser, exec, nodes, canvas, cron, gateway) |
+| **File Access** | ? Full | Read/write/edit in agent workspace (sandboxed or host) |
+| **Model Management** | ? Full | Provider auth, failover, per-agent model selection |
+| **Auth Profiles** | ? Full | Per-agent OAuth for Anthropic, OpenAI, Google, etc. |
+| **Browser Control** | ? Full | Multi-profile Playwright/Puppeteer with snapshot/act |
+| **Node Integration** | ? Full | iOS/Android/macOS nodes for camera, screen, canvas, system.run |
+| **Cron Jobs** | ? Full | Agent-initiated scheduled tasks with wake events |
+| **HTTP APIs** | ? Full | OpenAI Chat Completions, OpenResponses, Tools Invoke |
+| **Streaming** | ? Full | SSE for HTTP, WebSocket events for WS |
+| **Presence Tracking** | ? Full | Multi-device presence with structured entries |
+| **Control UI** | ? Full | Vite + Lit browser UI served from Gateway |
+| **Pairing/Approvals** | ? Full | Device-based pairing with token issuance |
+| **Sandboxing** | ? Full | Docker sandbox per agent or shared, with allowlists |
 
 ### 1.2 Gateway Protocol Overview
 
@@ -130,12 +130,12 @@ Clawdbot Gateway is a **feature-complete WebSocket server** that handles:
 
 | Feature | Current Gateway Support | Benefit to Other Clients | Aligned with Vision? |
 |---------|------------------------|--------------------------|---------------------|
-| **Conversation metadata in `sessions.list`** | ⚠️ Partial (no `isPinned`, `model`) | ✅ Yes (WebChat, macOS app) | ✅ Yes (multi-client sync) |
-| **`chat.history` pagination** | ⚠️ No explicit pagination | ✅ Yes (large histories) | ✅ Yes (performance) |
-| **`sessions.patch` for client state** | ❌ No | ✅ Yes (sync pins, drafts) | 🤔 Maybe (bloats Gateway?) |
-| **Multi-device presence for operators** | ✅ Yes (`system-presence`) | ✅ Yes | ✅ Already supported |
-| **Search endpoint** | ❌ No | ✅ Yes (server-side search) | ✅ Yes (large datasets) |
-| **Export conversations** | ❌ No | ✅ Yes (backup, audit) | ✅ Yes (data portability) |
+| **Conversation metadata in `sessions.list`** | ?? Partial (no `isPinned`, `model`) | ? Yes (WebChat, macOS app) | ? Yes (multi-client sync) |
+| **`chat.history` pagination** | ?? No explicit pagination | ? Yes (large histories) | ? Yes (performance) |
+| **`sessions.patch` for client state** | ? No | ? Yes (sync pins, drafts) | ?? Maybe (bloats Gateway?) |
+| **Multi-device presence for operators** | ? Yes (`system-presence`) | ? Yes | ? Already supported |
+| **Search endpoint** | ? No | ? Yes (server-side search) | ? Yes (large datasets) |
+| **Export conversations** | ? No | ? Yes (backup, audit) | ? Yes (data portability) |
 
 **Recommendation:**
 1. **Add to Gateway:** Pagination for `chat.history` (low lift, high value)
@@ -223,27 +223,27 @@ interface SessionEntry {
 
 ### 4.1 Anti-Patterns to Avoid
 
-❌ **Direct tool invocation**
+? **Direct tool invocation**
 - Moltz should NEVER implement tools (exec, browser, file access)
 - All tool calls go through Gateway via `chat.send` or agent runs
 
-❌ **Direct model API calls**
+? **Direct model API calls**
 - Don't call Anthropic/OpenAI APIs directly from client
 - Gateway handles auth, failover, and token management
 
-❌ **Workspace file access**
+? **Workspace file access**
 - Don't try to read/write agent workspace files (AGENTS.md, MEMORY.md)
 - Gateway owns these; client sees them only via system prompt or tool results
 
-❌ **Session state mutations**
+? **Session state mutations**
 - Don't try to modify session state (except local cache)
 - Gateway is source of truth for sessions
 
-❌ **Custom routing logic**
+? **Custom routing logic**
 - Don't duplicate multi-agent routing or binding rules
 - Gateway decides which agent handles a message
 
-❌ **Approval flows**
+? **Approval flows**
 - Don't implement exec approval UI (that's for operator clients with `operator.approvals` scope)
 - Personal clients should never see approval prompts
 
@@ -268,48 +268,48 @@ interface SessionEntry {
 
 ### 5.1 What's Good
 
-✅ **WebSocket client in Rust (`gateway.rs`)**
+? **WebSocket client in Rust (`gateway.rs`)**
 - Clean abstraction over tokio-tungstenite
-- Protocol fallback (ws:// ↔ wss://)
+- Protocol fallback (ws:// ? wss://)
 - Event-driven architecture with Tauri emitter
 
-✅ **State management in Zustand (`store.ts`)**
+? **State management in Zustand (`store.ts`)**
 - Lightweight, no Redux boilerplate
 - Debounced persistence for streaming
 - Separation of concerns (messages, conversations, settings)
 
-✅ **Local persistence with IndexedDB**
+? **Local persistence with IndexedDB**
 - Dexie.js for structured queries
 - Encrypted at rest (ENCRYPTION.md plan)
 - Fast local search
 
-✅ **Keychain integration (`keychain.rs`)**
+? **Keychain integration (`keychain.rs`)**
 - Uses OS APIs (macOS Keychain, Windows Credential Manager)
 - Zero plaintext secrets in localStorage
 
 ### 5.2 What Needs Refinement
 
-⚠️ **Gateway protocol not fully aligned**
+?? **Gateway protocol not fully aligned**
 - Current: `chat.send` method is custom
 - Gateway: Expects `chat.send` with specific schema (see protocol.md)
 - **Fix:** Update `gateway.rs` to match Gateway protocol exactly
 
-⚠️ **Conversation list not synced from Gateway**
+?? **Conversation list not synced from Gateway**
 - Current: Client generates conversation list from local DB
 - Gateway: Has `sessions.list` with server-side session state
 - **Fix:** Use `sessions.list` as source of truth, cache locally for speed
 
-⚠️ **Model list hardcoded fallback**
+?? **Model list hardcoded fallback**
 - Current: `get_fallback_models()` in gateway.rs
 - Gateway: Provides `models.list` method
 - **Fix:** Fetch models from Gateway, use fallback only on error
 
-⚠️ **No reconnection logic**
+?? **No reconnection logic**
 - Current: Disconnect is permanent until user reconnects
 - Gateway: Emits `shutdown` event with `restartExpectedMs`
 - **Fix:** Auto-reconnect on disconnect, respect shutdown hint
 
-⚠️ **Missing presence tracking**
+?? **Missing presence tracking**
 - Current: No visibility into other connected clients
 - Gateway: `system-presence` method + `presence` events
 - **Fix:** Show presence indicator (e.g., "Also connected: macOS app, iPhone")
@@ -337,7 +337,7 @@ let request = GatewayRequest {
 **Issue:** Gateway expects different param structure (see `/gateway/protocol.md`).
 
 **Fix:** Review Gateway protocol schema and match exactly:
-1. Read `src/gateway/protocol/schema.ts` from Clawdbot repo
+1. Read `src/gateway/protocol/schema.ts` from OpenClaw repo
 2. Update `GatewayRequest` struct to match TypeBox schema
 3. Add missing fields: `idempotencyKey`, `stream`, `timeoutSeconds`
 4. Use `req` type instead of custom top-level structure
@@ -454,15 +454,15 @@ These are **not required** for Moltz to function but would improve the ecosystem
 
 ### Next Steps
 
-1. ✅ Document architecture decisions (this file)
-2. ⬜ Audit `gateway.rs` against Gateway protocol schema
-3. ⬜ Implement `sessions.list` sync on connect
-4. ⬜ Add auto-reconnect logic
-5. ⬜ Submit PR for `chat.history` pagination (if needed)
-6. ⬜ Submit PR for `sessions.list` metadata extensions (if needed)
+1. ? Document architecture decisions (this file)
+2. ? Audit `gateway.rs` against Gateway protocol schema
+3. ? Implement `sessions.list` sync on connect
+4. ? Add auto-reconnect logic
+5. ? Submit PR for `chat.history` pagination (if needed)
+6. ? Submit PR for `sessions.list` metadata extensions (if needed)
 
 ---
 
 **Maintainer:** Moltz team  
-**Reference:** [Clawdbot Gateway Docs](https://docs.clawd.bot/gateway)  
+**Reference:** [OpenClaw Gateway Docs](https://docs.clawd.bot/gateway)  
 **Last Review:** 2026-01-27

@@ -399,12 +399,12 @@ export function SettingsDialog({
                         <p className="font-medium mb-1">When do I need this?</p>
                         <p className="text-muted-foreground mb-2">
                           Required if your gateway has auth.token configured.
-                          Check your clawdbot.json for gateway.auth.token.
+                          Check your OpenClaw.json for gateway.auth.token.
                         </p>
                         <p className="font-medium mb-1">Error: "device identity required"</p>
                         <p className="text-muted-foreground">
                           This error means the gateway requires a token.
-                          Paste your token from clawdbot.json here.
+                          Paste your token from OpenClaw.json here.
                         </p>
                       </TooltipContent>
                     </Tooltip>

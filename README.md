@@ -33,23 +33,23 @@ If you've used ChatGPT or Claude.ai, you already know how to use Moltz. Same fam
 - **Global hotkey** — Summon it instantly from anywhere on your computer
 - **Local storage** — Conversations stored on your device, encrypted
 - **Actually fast** — Native app, not a browser in disguise
-- **Any AI model** — Claude, GPT, Gemini, or local models via Moltbot Gateway
+- **Any AI model** — Claude, GPT, Gemini, or local models via OpenClaw Gateway
 
 ---
 
 ## Get Started
 
-### Step 1: Install Moltbot Gateway
+### Step 1: Install OpenClaw Gateway
 
-Moltz connects to [Moltbot](https://github.com/moltbot/moltbot), the open-source AI gateway that routes your requests to AI providers.
+Moltz connects to [OpenClaw](https://github.com/OpenClaw/OpenClaw), the open-source AI gateway that routes your requests to AI providers.
 
-**Install Moltbot:**
+**Install OpenClaw:**
 ```bash
-npm install -g moltbot
-moltbot setup
+npm install -g OpenClaw
+OpenClaw setup
 ```
 
-See the [official Moltbot installation guide](https://github.com/moltbot/moltbot#installation) for details.
+See the [official OpenClaw installation guide](https://github.com/OpenClaw/OpenClaw#installation) for details.
 
 ### Step 2: Download Moltz
 

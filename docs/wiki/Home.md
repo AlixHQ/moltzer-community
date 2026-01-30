@@ -11,7 +11,7 @@ Moltz is a **native desktop AI chat application** that brings the familiar ChatG
 - **Familiar Interface** — Same chat experience you know from web AI tools
 - **Native Performance** — Real desktop app, not a browser wrapper
 - **Local Storage** — Encrypted conversations stored on your device
-- **Any AI Model** — Claude, GPT, Gemini, or local models via Clawdbot Gateway
+- **Any AI Model** — Claude, GPT, Gemini, or local models via OpenClaw Gateway
 - **Global Hotkey** — Summon it instantly from anywhere
 - **Offline Access** — Read past conversations without internet
 
@@ -47,7 +47,7 @@ Moltz is a **native desktop AI chat application** that brings the familiar ChatG
 | I want to... | Go to... |
 |-------------|----------|
 | Install Moltz for the first time | [Getting Started](./Getting-Started.md) |
-| Connect to Clawdbot Gateway | [Getting Started → Connection Setup](./Getting-Started.md#connection-setup) |
+| Connect to OpenClaw Gateway | [Getting Started → Connection Setup](./Getting-Started.md#connection-setup) |
 | Search conversations | [User Guide → Search](./User-Guide.md#search) |
 | Set up keyboard shortcuts | [Configuration → Shortcuts](./Configuration.md#keyboard-shortcuts) |
 | Build from source | [Developer Guide → Building](./Developer-Guide.md#building-from-source) |
@@ -78,7 +78,7 @@ This wiki is maintained by the Moltz team and community contributors. If you fin
 | **Windows** | Windows 10/11 (64-bit) |
 | **Linux** | Ubuntu 20.04+, Debian 11+, or equivalent |
 
-**Clawdbot Gateway:** Required — [Installation Guide](https://github.com/clawdbot/clawdbot)
+**OpenClaw Gateway:** Required — [Installation Guide](https://github.com/OpenClaw/OpenClaw)
 
 ---
 

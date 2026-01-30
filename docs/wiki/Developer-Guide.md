@@ -57,14 +57,14 @@ cd ..
 
 ---
 
-### Install Clawdbot Gateway
+### Install OpenClaw Gateway
 
 For local development, you need a Gateway instance:
 
 ```bash
-npm install -g clawdbot
-clawdbot setup
-clawdbot start
+npm install -g OpenClaw
+OpenClaw setup
+OpenClaw start
 ```
 
 **Default Gateway URL:** `ws://localhost:18789`
@@ -637,7 +637,7 @@ cargo flamegraph --bin moltz
 
 **Solution:**
 ```bash
-clawdbot start
+OpenClaw start
 ```
 
 ---

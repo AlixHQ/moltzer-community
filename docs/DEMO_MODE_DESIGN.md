@@ -1,4 +1,4 @@
-﻿# Demo Mode & Frictionless Onboarding Design
+# Demo Mode & Frictionless Onboarding Design
 
 ## Executive Summary
 
@@ -13,11 +13,11 @@
 ### Current Flow
 ```
 User downloads Moltz
-        ↓
+        ?
 Must set up Gateway (requires Node.js, npm, CLI)
-        ↓
+        ?
 Configure API keys, ports, security
-        ↓
+        ?
 Finally can use Moltz
 ```
 
@@ -62,13 +62,13 @@ function simulateTyping(text: string, onChunk: (chunk: string) => void) {
 
 | Criteria | Rating | Notes |
 |----------|--------|-------|
-| Technical Complexity | ⭐ Low | ~1-2 days |
-| User Experience | ⭐⭐ Poor | Users know it's fake |
-| Privacy | ⭐⭐⭐⭐⭐ Excellent | No data leaves device |
-| Cost | ⭐⭐⭐⭐⭐ Free | Zero ongoing cost |
+| Technical Complexity | ? Low | ~1-2 days |
+| User Experience | ?? Poor | Users know it's fake |
+| Privacy | ????? Excellent | No data leaves device |
+| Cost | ????? Free | Zero ongoing cost |
 | Time to Implement | 1-2 days | |
 
-**Verdict**: ❌ Not recommended - doesn't demonstrate real value.
+**Verdict**: ? Not recommended - doesn't demonstrate real value.
 
 ---
 
@@ -78,25 +78,25 @@ function simulateTyping(text: string, onChunk: (chunk: string) => void) {
 
 **Implementation**:
 ```
-demo.moltbot.io
-      ↓
+demo.OpenClaw.io
+      ?
   Load Balancer
-      ↓
-┌─────┴─────┐
-│  Gateway  │ (Node.js cluster)
-│  Instance │
-└─────┬─────┘
-      ↓
+      ?
++-----------+
+�  Gateway  � (Node.js cluster)
+�  Instance �
++-----------+
+      ?
   AI Providers
   (usage-limited)
 ```
 
 | Criteria | Rating | Notes |
 |----------|--------|-------|
-| Technical Complexity | ⭐⭐⭐ Medium | Server infra needed |
-| User Experience | ⭐⭐⭐⭐⭐ Excellent | Full functionality |
-| Privacy | ⭐⭐ Concerns | User data through 3rd party |
-| Cost | ⭐⭐ Ongoing | Server + API costs |
+| Technical Complexity | ??? Medium | Server infra needed |
+| User Experience | ????? Excellent | Full functionality |
+| Privacy | ?? Concerns | User data through 3rd party |
+| Cost | ?? Ongoing | Server + API costs |
 | Time to Implement | 1-2 weeks | |
 
 **Pros**:
@@ -116,7 +116,7 @@ demo.moltbot.io
 - Account system for tracking usage
 - Data retention policy (delete after 24h)
 
-**Verdict**: ⭐ Best long-term solution but requires infrastructure investment.
+**Verdict**: ? Best long-term solution but requires infrastructure investment.
 
 ---
 
@@ -126,16 +126,16 @@ demo.moltbot.io
 
 **Implementation**:
 ```
-┌─────────────────┐
-│   Moltz client   │
-└────────┬────────┘
-         │ BYOK (Bring Your Own Key)
-         ↓
-┌─────────────────┐
-│  OpenAI API    │ ← User's API key
-│  Anthropic API │
-│  Google AI     │
-└─────────────────┘
++-----------------+
+�   Moltz client   �
++-----------------+
+         � BYOK (Bring Your Own Key)
+         ?
++-----------------+
+�  OpenAI API    � ? User's API key
+�  Anthropic API �
+�  Google AI     �
++-----------------+
 ```
 
 **Architecture**:
@@ -212,10 +212,10 @@ class DirectAPIClient {
 
 | Criteria | Rating | Notes |
 |----------|--------|-------|
-| Technical Complexity | ⭐⭐ Low-Medium | 3-5 days |
-| User Experience | ⭐⭐⭐⭐ Good | Real AI, some setup |
-| Privacy | ⭐⭐⭐⭐⭐ Excellent | Direct to provider |
-| Cost | ⭐⭐⭐⭐⭐ User pays | User's API key |
+| Technical Complexity | ?? Low-Medium | 3-5 days |
+| User Experience | ???? Good | Real AI, some setup |
+| Privacy | ????? Excellent | Direct to provider |
+| Cost | ????? User pays | User's API key |
 | Time to Implement | 3-5 days | |
 
 **Pros**:
@@ -234,16 +234,16 @@ class DirectAPIClient {
 **Feature Parity Matrix**:
 | Feature | Gateway | Direct API |
 |---------|---------|------------|
-| Chat | ✅ | ✅ |
-| Streaming | ✅ | ✅ |
-| Multiple models | ✅ | ✅ |
-| Tool use | ✅ | ❌ |
-| Skills | ✅ | ❌ |
-| Channels (Discord, etc.) | ✅ | ❌ |
-| Session management | ✅ | Local only |
-| Extended thinking | ✅ | ✅ (Anthropic) |
+| Chat | ? | ? |
+| Streaming | ? | ? |
+| Multiple models | ? | ? |
+| Tool use | ? | ? |
+| Skills | ? | ? |
+| Channels (Discord, etc.) | ? | ? |
+| Session management | ? | Local only |
+| Extended thinking | ? | ? (Anthropic) |
 
-**Verdict**: ⭐⭐⭐⭐⭐ **Best for V1** - Quick to implement, real AI, zero infrastructure.
+**Verdict**: ????? **Best for V1** - Quick to implement, real AI, zero infrastructure.
 
 ---
 
@@ -253,23 +253,23 @@ class DirectAPIClient {
 
 **Implementation**:
 ```
-┌─────────────────┐
-│   Moltz client   │
-└────────┬────────┘
-         │ Local HTTP
-         ↓
-┌─────────────────┐
-│  Ollama        │ (bundled or user-installed)
-│  llama.cpp     │
-└─────────────────┘
++-----------------+
+�   Moltz client   �
++-----------------+
+         � Local HTTP
+         ?
++-----------------+
+�  Ollama        � (bundled or user-installed)
+�  llama.cpp     �
++-----------------+
 ```
 
 | Criteria | Rating | Notes |
 |----------|--------|-------|
-| Technical Complexity | ⭐⭐⭐⭐ High | Binary bundling, cross-platform |
-| User Experience | ⭐⭐⭐ Mixed | Slower, varies by hardware |
-| Privacy | ⭐⭐⭐⭐⭐ Excellent | Completely offline |
-| Cost | ⭐⭐⭐⭐⭐ Free | No API costs |
+| Technical Complexity | ???? High | Binary bundling, cross-platform |
+| User Experience | ??? Mixed | Slower, varies by hardware |
+| Privacy | ????? Excellent | Completely offline |
+| Cost | ????? Free | No API costs |
 | Time to Implement | 2-4 weeks | |
 
 **Pros**:
@@ -283,7 +283,7 @@ class DirectAPIClient {
 - Quality gap vs. Claude/GPT-4
 - Complex cross-platform bundling
 
-**Verdict**: ❌ Too complex for V1, interesting for future "offline mode".
+**Verdict**: ? Too complex for V1, interesting for future "offline mode".
 
 ---
 
@@ -301,7 +301,7 @@ class DirectAPIClient {
 ### Long-term: Cloud Gateway
 
 Once Moltz has traction:
-1. Launch `demo.moltbot.io` with rate-limited free tier
+1. Launch `demo.OpenClaw.io` with rate-limited free tier
 2. Users can try full Gateway experience
 3. Easy upgrade: change URL to self-hosted Gateway
 4. Monetization opportunity: premium cloud tiers
@@ -314,68 +314,68 @@ Once Moltz has traction:
 
 #### Connection Screen (Updated)
 ```
-┌────────────────────────────────────────────────────────────┐
-│                    Connect to Moltz                         │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ 🌐 Gateway (Recommended)                             │  │
-│  │    Connect to your self-hosted Moltbot Gateway      │  │
-│  │    Full features: tools, skills, channels           │  │
-│  │    [Connect to Gateway →]                           │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ ⚡ Direct API (Quick Start)                          │  │
-│  │    Connect directly with your API key               │  │
-│  │    Basic chat with Claude, GPT-4, Gemini            │  │
-│  │    [Use Direct API →]                               │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-│  Don't have an API key? [Get one →]                       │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
++------------------------------------------------------------+
+�                    Connect to Moltz                         �
++------------------------------------------------------------�
+�                                                            �
+�  +-----------------------------------------------------+  �
+�  � ?? Gateway (Recommended)                             �  �
+�  �    Connect to your self-hosted OpenClaw Gateway      �  �
+�  �    Full features: tools, skills, channels           �  �
+�  �    [Connect to Gateway ?]                           �  �
+�  +-----------------------------------------------------+  �
+�                                                            �
+�  +-----------------------------------------------------+  �
+�  � ? Direct API (Quick Start)                          �  �
+�  �    Connect directly with your API key               �  �
+�  �    Basic chat with Claude, GPT-4, Gemini            �  �
+�  �    [Use Direct API ?]                               �  �
+�  +-----------------------------------------------------+  �
+�                                                            �
+�  Don't have an API key? [Get one ?]                       �
+�                                                            �
++------------------------------------------------------------+
 ```
 
 #### Direct API Setup
 ```
-┌────────────────────────────────────────────────────────────┐
-│                   Direct API Setup                         │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  Provider:                                                 │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ [●] Anthropic (Claude)    [ ] OpenAI    [ ] Google  │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-│  API Key:                                                  │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ sk-ant-api03-XXXX...                          [👁]  │  │
-│  └─────────────────────────────────────────────────────┘  │
-│  🔒 Stored securely in your system keychain               │
-│                                                            │
-│  Model:                                                    │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ claude-sonnet-4-20250514                         ▼  │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-│  ⚠️ Direct API mode has limited features:                  │
-│     • No tool use (file access, web browsing)             │
-│     • No multi-channel support                            │
-│     • No skills integration                               │
-│     [Learn about Gateway →]                               │
-│                                                            │
-│                              [Cancel]  [Connect]          │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
++------------------------------------------------------------+
+�                   Direct API Setup                         �
++------------------------------------------------------------�
+�                                                            �
+�  Provider:                                                 �
+�  +-----------------------------------------------------+  �
+�  � [?] Anthropic (Claude)    [ ] OpenAI    [ ] Google  �  �
+�  +-----------------------------------------------------+  �
+�                                                            �
+�  API Key:                                                  �
+�  +-----------------------------------------------------+  �
+�  � sk-ant-api03-XXXX...                          [??]  �  �
+�  +-----------------------------------------------------+  �
+�  ?? Stored securely in your system keychain               �
+�                                                            �
+�  Model:                                                    �
+�  +-----------------------------------------------------+  �
+�  � claude-sonnet-4-20250514                         ?  �  �
+�  +-----------------------------------------------------+  �
+�                                                            �
+�  ?? Direct API mode has limited features:                  �
+�     � No tool use (file access, web browsing)             �
+�     � No multi-channel support                            �
+�     � No skills integration                               �
+�     [Learn about Gateway ?]                               �
+�                                                            �
+�                              [Cancel]  [Connect]          �
+�                                                            �
++------------------------------------------------------------+
 ```
 
 #### Indicator Badge
 When in Direct API mode, show subtle indicator:
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ Moltz Chat                                    ⚡ Direct API   │
-├──────────────────────────────────────────────────────────────┤
++--------------------------------------------------------------+
+� Moltz Chat                                    ? Direct API   �
++--------------------------------------------------------------�
 ```
 
 ### 4.2 Backend Changes
@@ -688,48 +688,48 @@ pub fn get_api_key(provider: &str) -> Result<String, String> {
 
 ```
 src/
-├── components/
-│   ├── onboarding/
-│   │   ├── ConnectionChoice.tsx      # New: Gateway vs Direct choice
-│   │   ├── GatewaySetup.tsx          # Existing (renamed)
-│   │   ├── DirectAPISetup.tsx        # New: API key entry
-│   │   └── index.tsx                 # Orchestrator
-│   └── ...
-├── lib/
-│   ├── providers/
-│   │   ├── index.ts                  # Provider factory
-│   │   ├── gateway.ts                # Gateway WebSocket client
-│   │   ├── anthropic.ts              # Direct Anthropic API
-│   │   ├── openai.ts                 # Direct OpenAI API
-│   │   └── google.ts                 # Direct Google AI API
-│   └── ...
-└── ...
++-- components/
+�   +-- onboarding/
+�   �   +-- ConnectionChoice.tsx      # New: Gateway vs Direct choice
+�   �   +-- GatewaySetup.tsx          # Existing (renamed)
+�   �   +-- DirectAPISetup.tsx        # New: API key entry
+�   �   +-- index.tsx                 # Orchestrator
+�   +-- ...
++-- lib/
+�   +-- providers/
+�   �   +-- index.ts                  # Provider factory
+�   �   +-- gateway.ts                # Gateway WebSocket client
+�   �   +-- anthropic.ts              # Direct Anthropic API
+�   �   +-- openai.ts                 # Direct OpenAI API
+�   �   +-- google.ts                 # Direct Google AI API
+�   +-- ...
++-- ...
 ```
 
 ### 4.5 Migration Path
 
 ```
-                                 ┌──────────────┐
-                                 │ Direct API   │
-                                 │    User      │
-                                 └──────┬───────┘
-                                        │
-                                        │ Sees advanced features
-                                        │ in documentation
-                                        ↓
-                                 ┌──────────────┐
-                                 │  Prompted to │
-                                 │   upgrade    │
-                                 └──────┬───────┘
-                                        │
-                           ┌────────────┴────────────┐
-                           │                         │
-                           ↓                         ↓
-                    ┌──────────────┐         ┌──────────────┐
-                    │ Self-hosted  │         │   Cloud      │
-                    │   Gateway    │         │   Gateway    │
-                    │   (Power)    │         │  (Future)    │
-                    └──────────────┘         └──────────────┘
+                                 +--------------+
+                                 � Direct API   �
+                                 �    User      �
+                                 +--------------+
+                                        �
+                                        � Sees advanced features
+                                        � in documentation
+                                        ?
+                                 +--------------+
+                                 �  Prompted to �
+                                 �   upgrade    �
+                                 +--------------+
+                                        �
+                           +-------------------------+
+                           �                         �
+                           ?                         ?
+                    +--------------+         +--------------+
+                    � Self-hosted  �         �   Cloud      �
+                    �   Gateway    �         �   Gateway    �
+                    �   (Power)    �         �  (Future)    �
+                    +--------------+         +--------------+
 ```
 
 ### 4.6 Test Plan
@@ -785,7 +785,7 @@ src/
 - Usage tracking/estimation
 
 ### Medium-term
-- Cloud Gateway (demo.moltbot.io)
+- Cloud Gateway (demo.OpenClaw.io)
 - Account system for cloud tier
 - Feature comparison overlay
 

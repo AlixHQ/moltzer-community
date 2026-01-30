@@ -1,4 +1,4 @@
-﻿# Development Guide
+# Development Guide
 
 Complete guide to setting up your development environment and building Moltz from source.
 
@@ -22,8 +22,8 @@ Complete guide to setting up your development environment and building Moltz fro
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **Node.js** | ≥18.0.0 | JavaScript runtime |
-| **npm** | ≥9.0.0 | Package manager |
+| **Node.js** | =18.0.0 | JavaScript runtime |
+| **npm** | =9.0.0 | Package manager |
 | **Rust** | Latest stable | Tauri backend |
 | **Git** | Any recent | Version control |
 
@@ -104,7 +104,7 @@ VITE_AUTH_TOKEN=your-dev-token
 VITE_DEBUG=true
 ```
 
-**Note:** Never commit `.env.local` — it's in `.gitignore`
+**Note:** Never commit `.env.local` � it's in `.gitignore`
 
 ### 4. Verify Setup
 
@@ -156,54 +156,54 @@ Access the web UI directly at `http://localhost:5173/` for debugging in browser 
 
 ```
 molt-client/
-├── src/                          # React frontend
-│   ├── components/               # UI components
-│   │   ├── ChatView.tsx
-│   │   ├── Sidebar.tsx
-│   │   ├── MessageBubble.tsx
-│   │   └── ui/                   # Radix UI primitives
-│   ├── stores/                   # Zustand state management
-│   │   └── store.ts
-│   ├── lib/                      # Core logic & utilities
-│   │   ├── db.ts                 # IndexedDB (Dexie)
-│   │   ├── encryption.ts         # Web Crypto API
-│   │   ├── persistence.ts        # Data sync
-│   │   └── utils.ts              # Helper functions
-│   ├── hooks/                    # Custom React hooks
-│   ├── test/                     # Test utilities
-│   ├── App.tsx                   # Root component
-│   ├── main.tsx                  # Entry point
-│   └── index.css                 # Global styles
-│
-├── src-tauri/                    # Rust backend
-│   ├── src/
-│   │   ├── lib.rs                # Tauri app setup
-│   │   ├── gateway.rs            # WebSocket client
-│   │   └── keychain.rs           # OS credential storage
-│   ├── Cargo.toml                # Rust dependencies
-│   ├── tauri.conf.json           # Tauri configuration
-│   └── icons/                    # App icons
-│
-├── e2e/                          # End-to-end tests (Playwright)
-│   ├── basic.spec.ts
-│   ├── messaging.spec.ts
-│   └── onboarding.spec.ts
-│
-├── docs/                         # Documentation
-│   ├── ARCHITECTURE.md
-│   ├── PROTOCOL.md
-│   └── DEVELOPMENT.md (this file)
-│
-├── .github/                      # GitHub Actions CI/CD
-├── dist/                         # Build output (gitignored)
-├── node_modules/                 # npm packages (gitignored)
-│
-├── package.json                  # Node.js dependencies & scripts
-├── tsconfig.json                 # TypeScript config
-├── vite.config.ts                # Vite config
-├── tailwind.config.js            # Tailwind CSS config
-├── eslint.config.js              # ESLint rules
-└── vitest.config.ts              # Vitest config
++-- src/                          # React frontend
+�   +-- components/               # UI components
+�   �   +-- ChatView.tsx
+�   �   +-- Sidebar.tsx
+�   �   +-- MessageBubble.tsx
+�   �   +-- ui/                   # Radix UI primitives
+�   +-- stores/                   # Zustand state management
+�   �   +-- store.ts
+�   +-- lib/                      # Core logic & utilities
+�   �   +-- db.ts                 # IndexedDB (Dexie)
+�   �   +-- encryption.ts         # Web Crypto API
+�   �   +-- persistence.ts        # Data sync
+�   �   +-- utils.ts              # Helper functions
+�   +-- hooks/                    # Custom React hooks
+�   +-- test/                     # Test utilities
+�   +-- App.tsx                   # Root component
+�   +-- main.tsx                  # Entry point
+�   +-- index.css                 # Global styles
+�
++-- src-tauri/                    # Rust backend
+�   +-- src/
+�   �   +-- lib.rs                # Tauri app setup
+�   �   +-- gateway.rs            # WebSocket client
+�   �   +-- keychain.rs           # OS credential storage
+�   +-- Cargo.toml                # Rust dependencies
+�   +-- tauri.conf.json           # Tauri configuration
+�   +-- icons/                    # App icons
+�
++-- e2e/                          # End-to-end tests (Playwright)
+�   +-- basic.spec.ts
+�   +-- messaging.spec.ts
+�   +-- onboarding.spec.ts
+�
++-- docs/                         # Documentation
+�   +-- ARCHITECTURE.md
+�   +-- PROTOCOL.md
+�   +-- DEVELOPMENT.md (this file)
+�
++-- .github/                      # GitHub Actions CI/CD
++-- dist/                         # Build output (gitignored)
++-- node_modules/                 # npm packages (gitignored)
+�
++-- package.json                  # Node.js dependencies & scripts
++-- tsconfig.json                 # TypeScript config
++-- vite.config.ts                # Vite config
++-- tailwind.config.js            # Tailwind CSS config
++-- eslint.config.js              # ESLint rules
++-- vitest.config.ts              # Vitest config
 ```
 
 ### Key Files
@@ -374,7 +374,7 @@ test('send message', async ({ page }) => {
 ### React DevTools
 
 1. Run in development mode: `npm run tauri dev`
-2. Open DevTools: **F12** or **Right-click → Inspect**
+2. Open DevTools: **F12** or **Right-click ? Inspect**
 3. Use React DevTools extension (install from browser store)
 
 ### Rust Debugging
@@ -433,7 +433,7 @@ Install extensions:
 **Inspect WebSocket traffic:**
 ```bash
 # Use browser DevTools
-# Network tab → WS filter
+# Network tab ? WS filter
 # See all messages sent/received
 ```
 
@@ -476,7 +476,7 @@ cargo build --release
 
 **Cross-compilation:**
 ```bash
-# macOS → Windows (requires setup)
+# macOS ? Windows (requires setup)
 rustup target add x86_64-pc-windows-msvc
 cargo build --target x86_64-pc-windows-msvc
 ```
@@ -545,7 +545,7 @@ https://go.microsoft.com/fwlink/p/?LinkId=2124703
 **Fix:**
 1. Verify Gateway is running:
    ```bash
-   clawdbot gateway status
+   OpenClaw gateway status
    ```
 
 2. Check Gateway URL in Settings (default: `ws://localhost:18789`)

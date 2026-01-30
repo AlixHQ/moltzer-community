@@ -39,7 +39,7 @@ export function NoGatewayStep({
           </p>
         </div>
 
-        {/* What is Moltbot? */}
+        {/* What is OpenClaw? */}
         <div
           className={cn(
             "p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 transition-all duration-700 delay-200 ease-out",
