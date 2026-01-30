@@ -71,6 +71,19 @@ export function ChatView() {
   } | null>(null);
   const [messagesLoading, setMessagesLoading] = useState(false);
 
+  // Scroll to bottom helper - uses scroll container directly for reliability
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      const container = scrollContainerRef.current;
+      if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior });
+        return;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    },
+    [],
+  );
+
   // Edit confirmation state
   const [pendingEdit, setPendingEdit] = useState<{
     messageId: string;
@@ -107,10 +120,10 @@ export function ChatView() {
 
     if (isNearBottom && isNewMessage) {
       // Smooth scroll for new messages
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollToBottom("smooth");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentConversation?.messages.length, isNearBottom]);
+  }, [currentConversation?.messages.length, isNearBottom, scrollToBottom]);
 
   // P1: Instant scroll during streaming for responsiveness
   // PERF: Throttle scroll updates during streaming to 60fps max
@@ -205,10 +218,6 @@ export function ChatView() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   // P1: Instant stop with immediate visual feedback
   const handleStopGenerating = () => {
@@ -493,7 +502,7 @@ export function ChatView() {
     .slice(-1)[0]?.id;
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 h-full">
       {/* Edit confirmation dialog */}
       <ConfirmDialog
         open={!!pendingEdit}
@@ -508,7 +517,7 @@ export function ChatView() {
       {/* Messages */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 min-h-0 overflow-y-auto"
         onScroll={handleScroll}
       >
         <div className={cn(
@@ -571,7 +580,7 @@ export function ChatView() {
       {!isNearBottom && hasMessages && !currentStreamingMessageId && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <Button
-            onClick={scrollToBottom}
+            onClick={() => scrollToBottom("smooth")}
             variant="outline"
             size="sm"
             className="shadow-lg hover:shadow-xl hover:scale-105"
